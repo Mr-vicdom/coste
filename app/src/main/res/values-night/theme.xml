@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="NewAppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/backgroundDark</item>
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorAccent">@color/white</item>
+        <item name="background">@color/backgroundDark</item>
+        <item name="android:textColor">@color/textPrimaryDark</item>
+        <item name="android:textSize">@dimen/regular_text</item>
+        <item name="android:statusBarColor">?attr/colorPrimary</item>
+        <item name="android:textAppearance">@style/AppTextTheme</item>
+        <item name="tabIndicatorColor">@color/colorPrimary</item>
+        <item name="colorOutline">@color/borderDark</item>
+        <item name="cardBackgroundColor">@color/borderSecondaryDark</item>
+    </style>
+</resources>

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/trans_filter_field"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:clickable="false"
+        android:backgroundTint="@color/white"
+        app:layout_constraintTop_toTopOf="@id/trans_filter_field_label"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/trans_filter_field_label"
+        app:layout_constraintBottom_toBottomOf="@id/trans_filter_field_label"
+        />
+
+    <TextView
+        android:id="@+id/trans_filter_field_label"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:text="@string/filter_all_label"
+        android:maxLines="2"
+        style="@style/AppTextTheme"
+        android:textAlignment="viewStart"
+        android:gravity="center_vertical|start"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/trans_filter_field"
+        app:layout_constraintEnd_toStartOf="@id/trans_filter_field_guideline50"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintHorizontal_bias="0.5"
+        />
+
+    <com.expensetracker.app.views.CurrencyTextView
+        android:id="@+id/trans_filter_field_income"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:textAlignment="viewEnd"
+        android:gravity="center_vertical|end"
+        style="@style/AppTextTheme"
+        android:text="@string/income"
+        android:textSize="@dimen/small_text"
+        android:textColor="@color/secondaryContentColor"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/trans_filter_field_transfer_in"
+        app:layout_constraintStart_toEndOf="@id/trans_filter_field_guideline50"
+        app:layout_constraintEnd_toStartOf="@id/trans_filter_field_expense"
+        />
+
+    <com.expensetracker.app.views.CurrencyTextView
+        android:id="@+id/trans_filter_field_transfer_in"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:textAlignment="viewEnd"
+        android:gravity="center_vertical|end"
+        style="@style/AppTextTheme"
+        android:text="@string/transfer_in"
+        android:textSize="@dimen/small_text"
+        android:textColor="@color/textSecondary"
+        app:layout_constraintTop_toBottomOf="@id/trans_filter_field_income"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/trans_filter_field_guideline50"
+        app:layout_constraintEnd_toStartOf="@id/trans_filter_field_transfer_out"
+        />
+
+    <com.expensetracker.app.views.CurrencyTextView
+        android:id="@+id/trans_filter_field_expense"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:textAlignment="viewEnd"
+        android:gravity="center_vertical|end"
+        style="@style/AppTextTheme"
+        android:text="@string/expense"
+        android:textSize="@dimen/small_text"
+        android:textColor="@color/primaryContentColor"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/trans_filter_field_transfer_out"
+        app:layout_constraintStart_toEndOf="@id/trans_filter_field_income"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <com.expensetracker.app.views.CurrencyTextView
+        android:id="@+id/trans_filter_field_transfer_out"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:textAlignment="viewEnd"
+        android:gravity="center_vertical|end"
+        style="@style/AppTextTheme"
+        android:text="@string/transfer_out"
+        android:textSize="@dimen/small_text"
+        android:textColor="@color/textSecondary"
+        app:layout_constraintTop_toBottomOf="@id/trans_filter_field_expense"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/trans_filter_field_transfer_in"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/trans_filter_field_guideline50"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.4"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

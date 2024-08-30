@@ -1,0 +1,26 @@
+package com.expensetracker.core.support
+
+
+enum class AccountResponse {
+    ACCOUNT_CREATED,
+    ACCOUNT_DELETED,
+    ACCOUNT_UPDATED,
+    ACCOUNT_NOT_EXIST,
+    ACCOUNT_ALREADY_EXIST
+}
+
+enum class TransactionResponse {
+    TRANSACTION_CREATED,
+    TRANSACTION_DELETED,
+    TRANSACTION_UPDATED,
+    TRANSACTION_NOT_EXIST,
+    TRANSACTION_ALREADY_EXIST
+}
+
+enum class CategoryResponse {
+    CATEGORY_CREATED,
+    CATEGORY_DELETED,
+    CATEGORY_UPDATED,
+    CATEGORY_NOT_EXIST,
+    CATEGORY_ALREADY_EXIST
+}

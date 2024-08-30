@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppIconTheme">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxWidth">20dp</item>
+        <item name="android:maxHeight">20dp</item>
+        <item name="android:layout_margin">0dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="tint">@color/white</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    <style name="AppTextTheme" parent="NewAppTheme">
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:background">@android:color/transparent</item>
+    </style>
+    <style name="TabTheme">
+        <item name="tabIndicatorColor">?attr/tabIndicatorColor</item>
+        <item name="tabSelectedTextColor">?attr/tabIndicatorColor</item>
+        <item name="tabTextColor">@color/white_800</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="tabTextAppearance">@style/refTabText</item>
+    </style>
+    <style name="refTabText" parent="AppTextTheme">
+        <item name="android:capitalize">characters</item>
+        <item name="android:layout_margin">0dp</item>
+    </style>
+    <style name="BottomNavTheme" parent="NewAppTheme">
+        <item name="colorPrimary">@color/colorPrimary</item>
+    </style>
+    <style name="MildBorder">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">?attr/colorOutline</item>
+    </style>
+    <style name="TransAddEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:inputType">text</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/large_text</item>
+        <item name="android:theme">@style/TransAddTheme</item>
+    </style>
+    <style name="TransAddField" parent="TextAppearance.AppCompat.Widget.TextView.SpinnerItem">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">@dimen/large_text</item>
+        <item name="android:theme">@style/TransAddTheme</item>
+    </style>
+    <style name="TransAddTheme" parent="NewAppTheme">
+        <item name="colorAccent">@color/primaryContentColor</item>
+    </style>
+    <style name="AppButtonTheme">
+        <item name="android:backgroundTint">?attr/colorSecondary</item>
+    </style>
+</resources>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:id="@+id/transaction_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="?attr/colorPrimary"
+        android:gravity="bottom"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/trans_guideline10"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/transaction_screen_search_btn1"
+            style="@style/AppIconTheme"
+            android:src="@drawable/search_icon"
+            />
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/transaction_screen_cancel_filter_btn"
+            android:visibility="gone"
+            style="@style/AppIconTheme"
+            android:src="@drawable/close_icon"
+            />
+        <TextView
+            android:id="@+id/transaction_screen_title1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingVertical="10dp"
+            android:text="@string/transactions"
+            style="@style/AppTextTheme"
+            android:textColor="@color/white"
+            android:textSize="@dimen/large_text"
+            android:layout_weight="1"/>
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/transaction_screen_filter_btn1"
+            style="@style/AppIconTheme"
+            android:src="@drawable/filter_icon"/>
+    </LinearLayout>
+</merge>

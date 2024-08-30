@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="NewAppTheme.DarkBlueStatusBar">
+        <item name="colorPrimary">@color/dark_blue_600</item>
+        <item name="android:statusBarColor">@color/dark_blue_600</item>
+        <item name="buttonTint">@color/dark_blue_600</item>
+    </style>
+</resources>

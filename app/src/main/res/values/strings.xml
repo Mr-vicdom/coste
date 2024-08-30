@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Coste</string>
+    <string name="transactions">Transactions</string>
+    <string name="back">Back</string>
+    <string name="daily">Daily</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
+    <string name="income">Income</string>
+    <string name="expense">Expense</string>
+    <string name="transfer">Transfer</string>
+    <string name="total">Total</string>
+    <string name="default_amount">0</string>
+    <string name="home">Home</string>
+    <string name="settings">Settings</string>
+    <string name="account">Account</string>
+    <string name="reports">Reports</string>
+    <string name="date_label">Date</string>
+    <string name="amount_label">Amount</string>
+    <string name="category_label">Category</string>
+    <string name="note_label">Note</string>
+    <string name="account_label">Account</string>
+    <string name="from_account_label">From Account</string>
+    <string name="to_account_label">To Account</string>
+    <string name="save_btn_label">Save</string>
+    <string name="description_label">Description</string>
+    <string name="delete_btn_label">Delete</string>
+    <string name="transfer_in">Transfer-in</string>
+    <string name="transfer_out">Transfer-out</string>
+    <string name="filter_all_label">All</string>
+    <string name="select_the_filter_to_apply">Select the filter to apply</string>
+    <string name="filter_btn_label">Filter</string>
+    <string name="month_label">Month</string>
+    <string name="cancel_label">Cancel</string>
+    <string name="search_label">Search</string>
+</resources>

@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.ExpenseTracker" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorAccent">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="background">@color/background</item>
+        <!-- Status bar color. -->
+<!--        <item name="android:statusBarColor">?attr/colorPrimary</item>-->
+
+        <item name="tabBackground">?attr/colorPrimary</item>
+    </style>
+    <style name="DefaultAppBarLayout" parent="Widget.Design.AppBarLayout">
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+</resources>

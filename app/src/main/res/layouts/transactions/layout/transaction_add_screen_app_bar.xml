@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/transaction_add_title"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="10dp"
+        android:text="@string/income"
+        style="@style/AppTextTheme"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textAlignment="gravity"
+        android:gravity="bottom|center_horizontal"
+        android:textSize="@dimen/large_text"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/trans_add_tab_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+
+    <ImageView
+        android:id="@+id/trans_add_back_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:src="@drawable/back_arrow_icon"
+        style="@style/AppIconTheme"
+        android:textColor="@color/white"
+        android:textSize="@dimen/small_text"
+        app:layout_constraintBaseline_toBaselineOf="@id/transaction_add_title"
+        app:layout_constraintTop_toTopOf="@id/transaction_add_title"
+        app:layout_constraintBottom_toBottomOf="@id/transaction_add_title"
+        app:layout_constraintStart_toStartOf="@id/transaction_add_title"
+        />
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/trans_add_tab_bar"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="?attr/colorPrimary"
+        style="@style/TabTheme"
+        app:layout_constraintTop_toBottomOf="@id/transaction_add_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/trans_add_guideline10"
+        >
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/income" />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/expense"
+            />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/transfer"
+            />
+    </com.google.android.material.tabs.TabLayout>
+
+</merge>
