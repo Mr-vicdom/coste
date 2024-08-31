@@ -9,7 +9,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.expensetracker.app.R
@@ -18,11 +17,7 @@ import com.expensetracker.app.data.DataHandler.accountProvider
 import com.expensetracker.app.data.DataHandler.categoryManager
 import com.expensetracker.app.data.DataHandler.categoryProvider
 import com.expensetracker.app.data.DataHandler.transactionManager
-import com.expensetracker.app.databinding.TransactionAppBarBinding
-import com.expensetracker.app.databinding.TransactionInfoBinding
-import com.expensetracker.app.databinding.TransactionViewBarBinding
-import com.expensetracker.app.databinding.TransactionsListBinding
-import com.expensetracker.app.databinding.TransactionsScreenBinding
+import com.expensetracker.app.databinding.TransactionsScreenCoordinatorBinding
 import com.expensetracker.app.support.DataGenerator
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
@@ -49,9 +44,7 @@ class TransactionsActivity: AppCompatActivity() {
     }
 
     private val transactionProviderViewModel: TransactionProviderViewModel by viewModels()
-    private lateinit var binding: TransactionsScreenBinding
-    private lateinit var appBarBinding: TransactionAppBarBinding
-    private lateinit var transactionViewBar: TransactionViewBarBinding
+    private lateinit var binding: TransactionsScreenCoordinatorBinding
 
     private var transactionTotalIncome: Double = 0.0
     private var transactionTotalExpense: Double = 0.0
@@ -69,17 +62,24 @@ class TransactionsActivity: AppCompatActivity() {
             filterAccounts.addAll(it.toList())
         }
 
-        binding = TransactionsScreenBinding.inflate(layoutInflater)
-        appBarBinding = TransactionAppBarBinding.bind(binding.root)
-        transactionViewBar = TransactionViewBarBinding.bind(binding.root)
-        val listBinding = TransactionsListBinding.bind(binding.root)
-        val transInfo = TransactionInfoBinding.bind(binding.root)
+        binding = TransactionsScreenCoordinatorBinding.inflate(layoutInflater)
 
+
+        val transactionScreenSearchBtn = binding.transScreenSearchBtn
+        val transactionScreenCloseFilterBtn = binding.transScreenCloseFilterBtn
+        val transScreenFilterBtn = binding.transScreenFilterBtn
+        val transactionListView : RecyclerView = binding.transScreenListView
 
         val addTransactionLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if(result.resultCode == Activity.RESULT_OK){
                 transactionProviderViewModel.fetchTransactionsBetween(filterIDs = filterAccounts)
             }
+        }
+
+        val adapter = transactionProviderViewModel.getTransactionListAdapter { transaction: Transaction ->
+            val modifyTransactionIntent = Intent(this,TransactionModifyActivity::class.java)
+            modifyTransactionIntent.putExtra(TRANSACTION_ID_LABEL,transaction.id)
+            addTransactionLauncher.launch(modifyTransactionIntent)
         }
 
         val filterTransactionLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -88,8 +88,8 @@ class TransactionsActivity: AppCompatActivity() {
                 result.data?.getIntArrayExtra(FILTER_ACCOUNT_IDS_LABEL)?.let {
                     filterAccounts.clear()
                     filterAccounts.addAll(it.toList())
-                    appBarBinding.transactionScreenSearchBtn1.visibility = View.GONE
-                    appBarBinding.transactionScreenCancelFilterBtn.visibility = View.VISIBLE
+                    transactionScreenSearchBtn.visibility = View.GONE
+                    transactionScreenCloseFilterBtn.visibility = View.VISIBLE
                     updateStatusBar()
                 }
 
@@ -97,12 +97,6 @@ class TransactionsActivity: AppCompatActivity() {
             }
         }
 
-        val transactionListView : RecyclerView = listBinding.transactionsListView
-        val adapter = transactionProviderViewModel.getTransactionListAdapter { transaction: Transaction ->
-            val modifyTransactionIntent = Intent(this,TransactionModifyActivity::class.java)
-            modifyTransactionIntent.putExtra(TRANSACTION_ID_LABEL,transaction.id)
-            addTransactionLauncher.launch(modifyTransactionIntent)
-        }
 
         transactionListView.adapter = adapter
         transactionListView.layoutManager = LinearLayoutManager(this)
@@ -111,31 +105,31 @@ class TransactionsActivity: AppCompatActivity() {
         }
 
         //Search BTN
-        appBarBinding.transactionScreenSearchBtn1.setOnClickListener {
+        transactionScreenSearchBtn.setOnClickListener {
             startActivity(Intent(this,TransactionSearchActivity::class.java))
         }
 
         if(filterAccounts.isNotEmpty()){
-            appBarBinding.transactionScreenSearchBtn1.visibility = View.GONE
-            appBarBinding.transactionScreenCancelFilterBtn.visibility = View.VISIBLE
+            transactionScreenSearchBtn.visibility = View.GONE
+            transactionScreenCloseFilterBtn.visibility = View.VISIBLE
             updateStatusBar()
         } else {
-            appBarBinding.transactionScreenSearchBtn1.visibility = View.VISIBLE
-            appBarBinding.transactionScreenCancelFilterBtn.visibility = View.GONE
+            transactionScreenSearchBtn.visibility = View.VISIBLE
+            transactionScreenCloseFilterBtn.visibility = View.GONE
         }
 
         //Filter Cancel BTN
-        appBarBinding.transactionScreenCancelFilterBtn.setOnClickListener {
+        transactionScreenCloseFilterBtn.setOnClickListener {
             filterAccounts.clear()
             //back status bar color
-            appBarBinding.transactionScreenSearchBtn1.visibility = View.VISIBLE
-            appBarBinding.transactionScreenCancelFilterBtn.visibility = View.GONE
+            transactionScreenSearchBtn.visibility = View.VISIBLE
+            transactionScreenCloseFilterBtn.visibility = View.GONE
             transactionProviderViewModel.fetchTransactionsBetween()
             updateStatusBar()
         }
 
         //Filter BTN
-        appBarBinding.transactionScreenFilterBtn1.setOnClickListener{
+        transScreenFilterBtn.setOnClickListener{
             val filterIntent = Intent(this, TransactionFilterActivity::class.java)
             filterIntent.putExtra(MONTH_LABEL,LocalDate.now().monthValue)
             filterIntent.putExtra(YEAR_LABEL,LocalDate.now().year)
@@ -151,31 +145,28 @@ class TransactionsActivity: AppCompatActivity() {
 
         transactionProviderViewModel.totalIncome.observe(this) {
             transactionTotalIncome = it
-            transInfo.transInfo1.text = transactionTotalIncome.toString()
-            transInfo.transInfo3.text = transactionTotalBalance.toString()
+            binding.transInfo1.text = transactionTotalIncome.toString()
+            binding.transInfo3.text = transactionTotalBalance.toString()
         }
         transactionProviderViewModel.totalExpense.observe(this) {
             transactionTotalExpense = it
-            transInfo.transInfo2.text = it.toString()
-            transInfo.transInfo3.text = transactionTotalBalance.toString()
+            binding.transInfo2.text = it.toString()
+            binding.transInfo3.text = transactionTotalBalance.toString()
         }
 
         setContentView(binding.root)
     }
 
     private fun updateStatusBar() {
+        val colorPrimary = ContextCompat.getColor(this,R.color.colorPrimary)
+        var color = MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary, colorPrimary)
+        window.statusBarColor = color
         if(filterAccounts.isNotEmpty()){
-            val color = ContextCompat.getColor(this,R.color.dark_blue_600)
+            color = ContextCompat.getColor(this,R.color.dark_blue_600)
             window.statusBarColor = color
-            appBarBinding.transactionAppBar.setBackgroundColor(color)
-            transactionViewBar.transactionScreenViewTabBar.setBackgroundColor(color)
-        } else {
-            val colorPrimary = ContextCompat.getColor(this,R.color.colorPrimary)
-            val color = MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary, colorPrimary)
-            window.statusBarColor = color
-            appBarBinding.transactionAppBar.setBackgroundColor(color)
-            transactionViewBar.transactionScreenViewTabBar.setBackgroundColor(color)
         }
+        binding.transScreenAppBar.setBackgroundColor(color)
+        binding.transScreenViewBar.setBackgroundColor(color)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

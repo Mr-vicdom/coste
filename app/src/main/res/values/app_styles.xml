@@ -20,7 +20,7 @@
         <item name="tabIndicatorColor">?attr/tabIndicatorColor</item>
         <item name="tabSelectedTextColor">?attr/tabIndicatorColor</item>
         <item name="tabTextColor">@color/white_800</item>
-        <item name="android:background">@android:color/transparent</item>
+        <item name="android:background">?attr/colorPrimary</item>
         <item name="tabTextAppearance">@style/refTabText</item>
     </style>
     <style name="refTabText" parent="AppTextTheme">

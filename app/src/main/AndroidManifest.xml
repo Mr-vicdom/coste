@@ -21,10 +21,12 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".transactions.activity.TransactionAddActivity" android:exported="true"/>
+        <activity android:name=".transactions.activity.TransactionAddActivity" android:exported="true"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".transactions.activity.TransactionModifyActivity" android:exported="true"/>
         <activity android:name=".transactions.activity.TransactionFilterActivity" android:exported="true" android:theme="@style/NewAppTheme.DarkBlueStatusBar"/>
         <activity android:name=".transactions.activity.TransactionSearchActivity" android:windowSoftInputMode="adjustPan" android:exported="true" android:theme="@style/NewAppTheme.DarkBlueStatusBar"/>
+        <activity android:name=".MainActivity" android:exported="true"/>
     </application>
 
 </manifest>
