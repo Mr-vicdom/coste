@@ -178,14 +178,6 @@
                 app:layout_constraintStart_toStartOf="@id/trans_info_title3"
                 app:layout_constraintEnd_toEndOf="@id/trans_info_title3"/>
 
-            <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/transaction_info_barrier"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="trans_info1,trans_info2,trans_info3"
-                />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -194,7 +186,7 @@
     <ScrollView
         android:id="@+id/trans_screen_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="?attr/background"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 

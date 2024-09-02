@@ -32,4 +32,10 @@
     <string name="month_label">Month</string>
     <string name="cancel_label">Cancel</string>
     <string name="search_label">Search</string>
+    <string name="accounts">Accounts</string>
+    <string name="category">Category</string>
+    <string name="group_label">Group</string>
+    <string name="name_label">Name</string>
+    <string name="liabilities">Liabilities</string>
+    <string name="bank_accounts_label">Bank Accounts</string>
 </resources>

@@ -8,9 +8,10 @@ import com.expensetracker.core.support.CategoryResponse
 
 interface CategoryActions<T: Category> {
     fun generateId(): CategoryID
+    fun hasCategory(categoryID: CategoryID): Boolean
     fun addCategory(category: T): CategoryResponse
     fun getCategory(categoryID: CategoryID): T?
     fun getAllCategories(): List<T>
-    fun updateCategory(id: CategoryID, category: T): CategoryResponse
+    fun updateCategory(category: T): CategoryResponse
     fun deleteCategory(id: CategoryID): CategoryResponse
 }

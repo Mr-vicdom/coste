@@ -2,7 +2,6 @@ package com.expensetracker.app.transactions.activity
 
 import android.app.DatePickerDialog
 import android.os.Bundle
-import android.renderscript.RenderScript.Priority
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
@@ -13,14 +12,11 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
-import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Observer
 import com.expensetracker.app.R
-import com.expensetracker.app.databinding.TransactionAddScreenAppBarBinding
 import com.expensetracker.app.databinding.TransactionAddScreenBinding
 import com.expensetracker.app.support.Helper.dateToString
 import com.expensetracker.app.transactions.support.Literals.ACCOUNT_ID_LABEL
@@ -71,7 +67,6 @@ open class TransactionAddActivity: AppCompatActivity() {
         get() = accountMap.values.toMutableList()
 
     lateinit var binding: TransactionAddScreenBinding
-    lateinit var appBarBinding: TransactionAddScreenAppBarBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,9 +82,8 @@ open class TransactionAddActivity: AppCompatActivity() {
         }
 
         binding = TransactionAddScreenBinding.inflate(layoutInflater)
-        appBarBinding = TransactionAddScreenAppBarBinding.bind(binding.root)
 
-        appBarBinding.transAddTabBar.addOnTabSelectedListener(object : OnTabSelectedListener {
+        binding.transAddTabBar.addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 val position: Int = tab?.let { if(it.position < 3) it.position else 2 } ?: 2
                 transactionManagerViewModel.setTransactionType(TransactionType.entries[position])
@@ -128,20 +122,20 @@ open class TransactionAddActivity: AppCompatActivity() {
         setViewModelObservers(categoryAdapter, accountAdapter, categoryField, accountField)
 
         //Back Btn
-        appBarBinding.transAddBackBtn.setOnClickListener {
+        binding.transAddBackBtn.setOnClickListener {
             onBackClicked()
         }
 
         //Tab
-        if(appBarBinding.transAddTabBar.tabCount == 3){
-            val tab1 = appBarBinding.transAddTabBar.getTabAt(0)
-            val tab2 = appBarBinding.transAddTabBar.getTabAt(1)
-            val tab3 = appBarBinding.transAddTabBar.getTabAt(2)
+        if(binding.transAddTabBar.tabCount == 3){
+            val tab1 = binding.transAddTabBar.getTabAt(0)
+            val tab2 = binding.transAddTabBar.getTabAt(1)
+            val tab3 = binding.transAddTabBar.getTabAt(2)
             when(transactionType){
                 TransactionType.INCOME -> tab1
                 TransactionType.EXPENSE -> tab2
                 TransactionType.TRANSFER -> tab3
-            }.let { appBarBinding.transAddTabBar.selectTab(it) }
+            }.let { binding.transAddTabBar.selectTab(it) }
         }
 
         //Date Field

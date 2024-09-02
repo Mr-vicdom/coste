@@ -33,12 +33,14 @@ class TransactionFilterViewModel(application: Application): AndroidViewModel(app
         Log.d(TAG, "init: ")
     }
 
+    private val dataHandler = DataHandler(application)
+
     private val transactionProvider: TransactionProvider by lazy {
-        DataHandler.transactionProvider
+        dataHandler.transactionProvider
     }
 
     private val accountProvider: AccountProvider by lazy {
-        DataHandler.accountProvider
+        dataHandler.accountProvider
     }
 
     private val _totalIncome: MutableLiveData<Double> = MutableLiveData()
@@ -80,16 +82,16 @@ class TransactionFilterViewModel(application: Application): AndroidViewModel(app
     fun prepareTransactionFilter(year: Year, month: Month, selectedAccounts: List<AccountID>) {
         viewModelScope.launch {
             val incomeTransactions = transactionProvider.getIncomeBetween(
-                from = LocalDate.of(year.value, month, 1),
-                to = LocalDate.of(year.value, month, month.length(year.isLeap))
+                from = LocalDate.of(year.value, month, month.length(year.isLeap)),
+                to = LocalDate.of(year.value, month, 1)
             )
             val expenseTransactions = transactionProvider.getExpenseBetween(
-                from = LocalDate.of(year.value, month, 1),
-                to = LocalDate.of(year.value, month, month.length(year.isLeap))
+                from = LocalDate.of(year.value, month, month.length(year.isLeap)),
+                to = LocalDate.of(year.value, month, 1),
             )
             val transferTransactions = transactionProvider.getTransferBetween(
-                from = LocalDate.of(year.value, month, 1),
-                to = LocalDate.of(year.value, month, month.length(year.isLeap))
+                from = LocalDate.of(year.value, month, month.length(year.isLeap)),
+                to = LocalDate.of(year.value, month, 1),
             )
             val accounts = accountProvider.accounts
 

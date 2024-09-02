@@ -19,6 +19,7 @@ enum class TransactionResponse {
 
 enum class CategoryResponse {
     CATEGORY_CREATED,
+    CATEGORY_NOT_CREATED,
     CATEGORY_DELETED,
     CATEGORY_UPDATED,
     CATEGORY_NOT_EXIST,

@@ -8,11 +8,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.expensetracker.app.data.DataHandler
-import com.expensetracker.app.data.DataHandler.accountManager
-import com.expensetracker.app.data.DataHandler.categoryManager
-import com.expensetracker.app.data.DataHandler.incomeActions
-import com.expensetracker.app.data.DataHandler.transactionProvider
-import com.expensetracker.app.support.DataGenerator
 import com.expensetracker.core.models.Account
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.Category
@@ -27,23 +22,24 @@ import com.expensetracker.domain.contracts.account.AccountProvider
 import com.expensetracker.domain.contracts.category.CategoryProvider
 import com.expensetracker.domain.contracts.transaction.TransactionManager
 import com.expensetracker.domain.support.Result
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 class TransactionManagerViewModel(private val application: Application): AndroidViewModel(application) {
 
+
+    private val dataHandler = DataHandler(application)
+
     private val transactionManager: TransactionManager by lazy {
-        DataHandler.transactionManager
+        dataHandler.transactionManager
     }
 
     private val categoryProvider: CategoryProvider by lazy {
-        DataHandler.categoryProvider
+        dataHandler.categoryProvider
     }
 
     private val accountProvider: AccountProvider by lazy {
-        DataHandler.accountProvider
+        dataHandler.accountProvider
     }
 
     private val _incomeCategories: MutableLiveData<Map<CategoryID,String>> = MutableLiveData(

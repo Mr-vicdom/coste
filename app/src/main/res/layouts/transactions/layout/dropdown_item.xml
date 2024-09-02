@@ -6,5 +6,5 @@
     android:text="@string/income"
     android:textAlignment="textStart"
     android:padding="10dp"
-    style="@style/TransAddField"
+    style="@style/AppSpinnerTheme"
     />

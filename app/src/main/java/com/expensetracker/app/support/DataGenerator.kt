@@ -16,27 +16,36 @@ object DataGenerator {
     fun generateDefaultAccounts(accountManager: AccountManager) {
 
         if(accountsGenerated) return else accountsGenerated = true
-        accountManager.createBankAccount("HDFC")
-        accountManager.createBankAccount("ICICI")
-        accountManager.createCashAccount("MyWallet")
-        accountManager.createCreditCard("Card HDFC")
-        accountManager.createCreditCard("UPI Card")
-        accountManager.createDebitCard("Platinum Debit", bankAccount = accountManager.bankAccounts.first())
-        accountManager.createDebitCard("SBI Debit", bankAccount = accountManager.bankAccounts.first())
+        accountManager.createBankAccount("HDFC").let { println("=>log $it = \"HDFC") }
+        accountManager.createBankAccount("ICICI").let { println("=>log $it = \"ICICI") }
+        accountManager.createCashAccount("MyWallet").let { println("=>log $it = \"MyWallet") }
+        accountManager.createCreditCard("Card HDFC").let { println("=>log $it = \"Card HDFC") }
+        accountManager.createCreditCard("UPI Card").let { println("=>log $it = \"UPI Card") }
+        accountManager.createDebitCard("Platinum Debit", bankAccount = accountManager.bankAccounts.first()).let { println("=>log $it") }
+        accountManager.createDebitCard("SBI Debit", bankAccount = accountManager.bankAccounts.first()).let { println("=>log $it") }
     }
 
     fun generateDefaultCategories(categoryManager: CategoryManager) {
 
         if(categoriesGenerated) return else categoriesGenerated = true
-        categoryManager.addIncomeCategory("Salary")
-        categoryManager.addIncomeCategory("Loan")
-        categoryManager.addIncomeCategory("Investment")
+        categoryManager.addIncomeCategory("Salary").let { println("=>log $it s") }
+        categoryManager.addIncomeCategory("Loan").let { println("=>log $it l") }
+        categoryManager.addIncomeCategory("Investment").let { println("=>log $it i") }
 
-        categoryManager.addExpenseCategory("Food")
-        categoryManager.addExpenseCategory("Clothes")
-        categoryManager.addExpenseCategory("LifeStyle")
-        categoryManager.addExpenseCategory("Travel")
-        categoryManager.addExpenseCategory("Bills")
+        categoryManager.addExpenseCategory("Food").let { println("=>log $it f") }
+        categoryManager.addExpenseCategory("Clothes").let { println("=>log $it c") }
+        categoryManager.addExpenseCategory("LifeStyle").let { println("=>log $it") }
+        categoryManager.addExpenseCategory("Travel").let { println("=>log $it") }
+        categoryManager.addExpenseCategory("Bills").let { println("=>log $it") }
+    }
+
+    fun displayAll(categoryManager: CategoryManager, accountManager: AccountManager){
+        categoryManager.incomeCategories.forEach {
+            println("=>log $it")
+        }
+        accountManager.accounts.forEach {
+            println("=> log $it")
+        }
     }
 
     fun generateDummyTransactions(transactionManager: TransactionManager, categoryProvider: CategoryProvider, accountProvider: AccountProvider) {
@@ -50,7 +59,7 @@ object DataGenerator {
             _description = "From mom",
             category = categoryProvider.incomeCategories.random(),
             account = accountProvider.accounts.random()
-        )
+        ).let { println("=>log $it") }
 
         transactionManager.addIncome(
             _date = LocalDate.now().minusDays(1),

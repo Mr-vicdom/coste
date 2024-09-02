@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/account_screen_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
+            app:layout_collapseMode="parallax"
+            android:layout_gravity="top"
+            >
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/account_screen_back_btn"
+                style="@style/AppIconTheme"
+                android:src="@drawable/back_arrow_icon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/account_screen_title"
+                app:layout_constraintBottom_toBottomOf="@id/account_screen_title"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/account_screen_close_btn"
+                style="@style/AppIconTheme"
+                android:src="@drawable/close_icon"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/account_screen_title"
+                app:layout_constraintBottom_toBottomOf="@id/account_screen_title"/>
+
+            <TextView
+                android:id="@+id/account_screen_title"
+                style="@style/AppTextTheme"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingVertical="10dp"
+                android:text="@string/accounts"
+                android:textColor="@color/white"
+                android:textSize="@dimen/large_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/account_screen_back_btn"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/account_screen_edit_btn"
+                style="@style/AppIconTheme"
+                android:src="@drawable/edit_icon"
+                app:layout_constraintEnd_toStartOf="@id/account_screen_add_btn"
+                app:layout_constraintTop_toTopOf="@id/account_screen_title"
+                app:layout_constraintBottom_toBottomOf="@id/account_screen_title"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/account_screen_done_btn"
+                style="@style/AppIconTheme"
+                android:src="@drawable/done_icon"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@id/account_screen_add_btn"
+                app:layout_constraintTop_toTopOf="@id/account_screen_title"
+                app:layout_constraintBottom_toBottomOf="@id/account_screen_title"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/account_screen_add_btn"
+                style="@style/AppIconTheme"
+                android:src="@drawable/plus_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/account_screen_title"
+                app:layout_constraintBottom_toBottomOf="@id/account_screen_title"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/account_screen_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/background"
+            >
+
+            <TextView
+                android:id="@+id/account_info_title2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:paddingTop="10dp"
+                android:text="@string/liabilities"
+                android:textAlignment="viewEnd"
+                style="@style/AppTextTheme"
+                android:textSize="11sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/account_info2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/account_info_title3"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintVertical_bias="0.5"
+                app:layout_constraintHorizontal_chainStyle="spread"/>
+            <TextView
+                android:id="@+id/account_info_title3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:paddingTop="10dp"
+                android:text="@string/total"
+                android:textAlignment="viewEnd"
+                style="@style/AppTextTheme"
+                android:textSize="11sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/account_info3"
+                app:layout_constraintStart_toEndOf="@id/account_info_title2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintVertical_bias="0.5"/>
+
+
+            <com.expensetracker.app.views.CurrencyTextView
+                android:id="@+id/account_info2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:paddingBottom="10dp"
+                android:text="@string/default_amount"
+                android:textAlignment="viewEnd"
+                style="@style/AppTextTheme"
+                android:textColor="@color/primaryContentColor"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/account_info_title2"
+                app:layout_constraintStart_toStartOf="@id/account_info_title2"
+                app:layout_constraintEnd_toEndOf="@id/account_info_title2"/>
+
+            <com.expensetracker.app.views.CurrencyTextView
+                android:id="@+id/account_info3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
+                android:paddingBottom="10dp"
+                android:text="@string/default_amount"
+                android:textAlignment="viewEnd"
+                style="@style/AppTextTheme"
+                android:textStyle="bold"
+                app:layout_constraintTop_toBottomOf="@id/account_info_title3"
+                app:layout_constraintStart_toStartOf="@id/account_info_title3"
+                app:layout_constraintEnd_toEndOf="@id/account_info_title3"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <ScrollView
+        android:id="@+id/accounts_screen_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/background"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/accounts_screen_list_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="120dp"
+            />
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

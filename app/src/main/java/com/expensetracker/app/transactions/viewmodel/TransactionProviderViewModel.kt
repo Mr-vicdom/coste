@@ -18,16 +18,25 @@ import com.expensetracker.core.models.Transaction
 import com.expensetracker.core.models.Transfer
 import com.expensetracker.core.support.Helper
 import com.expensetracker.domain.contracts.transaction.TransactionProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.Month
+import java.time.Year
+import java.time.YearMonth
 
 const val TAG = "TransactionsViewModel=>log"
 
 class TransactionProviderViewModel(application: Application): AndroidViewModel(application) {
 
     private val transactionProvider: TransactionProvider by lazy {
-        DataHandler.transactionProvider
+        DataHandler(application).transactionProvider
     }
+
+
+
     private val _transactions: MutableList<Transaction> by lazy {
         mutableListOf()
     }
@@ -38,10 +47,31 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
     private val transactionItems : MutableList<TransactionItems> = mutableListOf()
     private lateinit var transactionsListAdapter: TransactionsListAdapter
 
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            delay(3000)
+            month = Month.AUGUST
+        }
+    }
+
+    var month: Month = LocalDate.now().month
+        set(value) {
+            field = value
+            fetchTransactionsBetween()
+        }
+
+    var year: Year = Year.now()
+        set(value) {
+            field = value
+            fetchTransactionsBetween()
+        }
+
     val totalIncome: LiveData<Double>
         get() = _totalIncome
     val totalExpense: LiveData<Double>
         get() = _totalExpense
+
 
     fun getTransactionListAdapter(onItemClickListener: (Transaction) -> Unit) : TransactionsListAdapter {
         transactionsListAdapter = TransactionsListAdapter(transactionItems, onItemClickListener)
@@ -49,21 +79,30 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
     }
 
 
-    fun fetchTransactionsBetween(from: LocalDate = LocalDate.now(), to: LocalDate = LocalDate.now().withDayOfMonth(1), filterIDs: List<AccountID> = listOf()) {
+    fun fetchTransactionsBetween( filterIDs: List<AccountID> = listOf()) {
+        val from: LocalDate = YearMonth.of(year.value,month).atEndOfMonth()
+        val to: LocalDate = LocalDate.of(year.value,month,1)
+
         _transactions.clear()
-        viewModelScope.launch {
-            val data = transactionProvider.getTransactions(offset, limit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val data = transactionProvider.getTransactionsBetween(from, to) {
                 if(filterIDs.isEmpty()) true
                 else when(it){
                     is FinancialTransaction -> filterIDs.contains(it.account.id)
                     is Transfer -> filterIDs.contains(it.fromAccount.id) || filterIDs.contains(it.toAccount.id)
                 }
             }
-            _transactions.addAll(data)
-            prepareTransactionItemsForDay()
-            transactionsListAdapter.notifyDataSetChanged()
 
-            Log.d(TAG, "fetchTransactionsBetween $from and $to: ${_transactions.size}")
+            Log.d(TAG, "$data: ${filterIDs.isEmpty()}")
+
+            withContext(Dispatchers.Main){
+                _transactions.addAll(data)
+                prepareTransactionItemsForDay()
+                transactionsListAdapter.notifyDataSetChanged()
+
+                Log.d(TAG, "fetchTransactionsBetween $from and $to: ${_transactions.size}")
+            }
+
         }
     }
 
@@ -78,7 +117,7 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
             prepareTransactionItemsForDay()
             transactionsListAdapter.notifyDataSetChanged()
 
-            Log.d(TAG, "fetchTransactionsBetween $from and $to: ${_transactions.size}")
+            Log.d(TAG, "Filter fetchTransactions $from and $to: ${_transactions.size}")
         }
     }
 

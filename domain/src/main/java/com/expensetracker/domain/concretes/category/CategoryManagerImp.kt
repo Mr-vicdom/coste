@@ -46,8 +46,8 @@ CategoryProvider by categoryProvider {
         try {
             val simpleName = SimpleName(name)
             val result = when(category){
-                is ExpenseCategory -> expenseCategoryActions.updateCategory(id = category.id, category = category.copy(name = simpleName))
-                is IncomeCategory -> incomeCategoryActions.updateCategory(id = category.id, category = category.copy(name = simpleName))
+                is ExpenseCategory -> expenseCategoryActions.updateCategory( category = category.copy(name = simpleName))
+                is IncomeCategory -> incomeCategoryActions.updateCategory( category = category.copy(name = simpleName))
             }
             return if(result == CategoryResponse.CATEGORY_UPDATED){
                 Result.Success(result.toString())

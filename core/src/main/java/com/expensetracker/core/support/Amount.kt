@@ -3,6 +3,10 @@ package com.expensetracker.core.support
 @JvmInline
 value class Amount(val value: String) {
 
+    companion object {
+        val DEFAULT = Amount("0.0")
+    }
+
     override fun toString(): String {
         return value
     }

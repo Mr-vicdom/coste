@@ -28,6 +28,7 @@ class TransactionProviderImp(
     override fun getExpense(transactionID: TransactionID): Expense? = expenseActions.getTransaction(transactionID)
 
     override fun getTransfer(transactionID: TransactionID): Transfer? = transferActions.getTransaction(transactionID)
+
     override fun getIncomeBetween(
         from: LocalDate,
         to: LocalDate,

@@ -13,6 +13,10 @@ abstract class CategoryService<T: Category>(
 ): CategoryActions<T> {
     override fun generateId(): CategoryID = idGenerator.newId
 
+    override fun hasCategory(categoryID: CategoryID): Boolean {
+        return categories.contains(categoryID)
+    }
+
     override fun addCategory(category: T): CategoryResponse {
         if(categories.contains(category.id)) return CategoryResponse.CATEGORY_ALREADY_EXIST
         categories[category.id] = category
@@ -23,9 +27,9 @@ abstract class CategoryService<T: Category>(
 
     override fun getAllCategories(): List<T> = categories.values.toList()
 
-    override fun updateCategory(id: CategoryID, category: T): CategoryResponse {
-        if(categories.contains(id)){
-            categories[id] = category
+    override fun updateCategory( category: T): CategoryResponse {
+        if(categories.contains(category.id)){
+            categories[category.id] = category
             return CategoryResponse.CATEGORY_UPDATED
         } else return CategoryResponse.CATEGORY_NOT_EXIST
     }

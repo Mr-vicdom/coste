@@ -144,7 +144,7 @@ class TransactionManagerImp(
             _description?.let { updatedTransaction = updatedTransaction.copy(description = TransactionDescription(it)) }
             category?.let { updatedTransaction = updatedTransaction.copy(category = it) }
             account?.let { updatedTransaction = updatedTransaction.copy(account = it) }
-            val transactionResponse = incomeActions.updateTransaction(transaction.id,updatedTransaction)
+            val transactionResponse = incomeActions.updateTransaction(updatedTransaction)
             if(transactionResponse == TransactionResponse.TRANSACTION_UPDATED){
                 val accountResult1 = accountManager.debitAccount(transaction.account, transaction.amount)
                 val accountResult2 = accountManager.creditAccount(updatedTransaction.account, updatedTransaction.amount)
@@ -175,7 +175,7 @@ class TransactionManagerImp(
             _description?.let { updatedTransaction = updatedTransaction.copy(description = TransactionDescription(it)) }
             category?.let { updatedTransaction = updatedTransaction.copy(category = it) }
             account?.let { updatedTransaction = updatedTransaction.copy(account = it) }
-            val transactionResponse = expenseActions.updateTransaction(transaction.id,updatedTransaction)
+            val transactionResponse = expenseActions.updateTransaction(updatedTransaction)
             if(transactionResponse == TransactionResponse.TRANSACTION_UPDATED){
                 val accountResult1 = accountManager.creditAccount(transaction.account, transaction.amount)
                 val accountResult2 = accountManager.debitAccount(updatedTransaction.account, updatedTransaction.amount)
@@ -206,7 +206,7 @@ class TransactionManagerImp(
             _description?.let { updatedTransaction = updatedTransaction.copy(description = TransactionDescription(it)) }
             fromAccount?.let { updatedTransaction = updatedTransaction.copy(fromAccount = it) }
             toAccount?.let { updatedTransaction = updatedTransaction.copy(toAccount = it) }
-            val transactionResponse = transferActions.updateTransaction(transaction.id,updatedTransaction)
+            val transactionResponse = transferActions.updateTransaction(updatedTransaction)
             if(transactionResponse == TransactionResponse.TRANSACTION_UPDATED){
                 val accountResult1 = accountManager.creditAccount(transaction.fromAccount, transaction.amount)
                 val accountResult2 = accountManager.debitAccount(updatedTransaction.toAccount, updatedTransaction.amount)

@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.sqlite)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(project(":data_sqlite"))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

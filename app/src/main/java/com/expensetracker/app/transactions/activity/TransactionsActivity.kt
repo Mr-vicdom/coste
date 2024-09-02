@@ -3,6 +3,8 @@ package com.expensetracker.app.transactions.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,12 +14,9 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.expensetracker.app.R
-import com.expensetracker.app.data.DataHandler.accountManager
-import com.expensetracker.app.data.DataHandler.accountProvider
-import com.expensetracker.app.data.DataHandler.categoryManager
-import com.expensetracker.app.data.DataHandler.categoryProvider
-import com.expensetracker.app.data.DataHandler.transactionManager
-import com.expensetracker.app.databinding.TransactionsScreenCoordinatorBinding
+import com.expensetracker.app.accounts.AccountActivity
+import com.expensetracker.app.data.DataHandler
+import com.expensetracker.app.databinding.TransactionsScreenBinding
 import com.expensetracker.app.support.DataGenerator
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
@@ -26,25 +25,24 @@ import com.expensetracker.app.transactions.support.Literals.YEAR_LABEL
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.Transaction
+import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.color.MaterialColors
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.Month
+import kotlin.math.log
 
 const val TAG = "TransactionActivity=>log"
 
 class TransactionsActivity: AppCompatActivity() {
 
-    init {
-        GlobalScope.launch {
-            DataGenerator.generateDefaultAccounts(accountManager)
-            DataGenerator.generateDefaultCategories(categoryManager)
-            DataGenerator.generateDummyTransactions(transactionManager, categoryProvider, accountProvider)
-        }
-    }
+
+    private val dataHandler by lazy { DataHandler(this) }
 
     private val transactionProviderViewModel: TransactionProviderViewModel by viewModels()
-    private lateinit var binding: TransactionsScreenCoordinatorBinding
+    private lateinit var binding: TransactionsScreenBinding
 
     private var transactionTotalIncome: Double = 0.0
     private var transactionTotalExpense: Double = 0.0
@@ -57,12 +55,17 @@ class TransactionsActivity: AppCompatActivity() {
         
         super.onCreate(savedInstanceState)
 
+        GlobalScope.launch(Dispatchers.IO) {
+            Log.d(TAG, "onCreate: ${dataHandler.accountProvider.accounts}")
+            transactionProviderViewModel.fetchTransactionsBetween()
+        }
+
         savedInstanceState?.getIntArray(FILTER_ACCOUNT_IDS_LABEL)?.let {
             filterAccounts.clear()
             filterAccounts.addAll(it.toList())
         }
 
-        binding = TransactionsScreenCoordinatorBinding.inflate(layoutInflater)
+        binding = TransactionsScreenBinding.inflate(layoutInflater)
 
 
         val transactionScreenSearchBtn = binding.transScreenSearchBtn
@@ -152,6 +155,15 @@ class TransactionsActivity: AppCompatActivity() {
             transactionTotalExpense = it
             binding.transInfo2.text = it.toString()
             binding.transInfo3.text = transactionTotalBalance.toString()
+        }
+        //BOTTOM NAV BAR
+        binding.transBottomNavBar.setOnItemSelectedListener {
+            Log.d(TAG, "onCreate: ${it.itemId} ${binding.transBottomNavBar.findViewById<BottomNavigationItemView>(it.itemId)}")
+            if(binding.transBottomNavBar.menu.size() > 2 && it.itemId == binding.transBottomNavBar.menu.getItem(2).itemId){
+                val intent = Intent(this, AccountActivity::class.java)
+                startActivity(intent)
+            }
+            return@setOnItemSelectedListener true
         }
 
         setContentView(binding.root)

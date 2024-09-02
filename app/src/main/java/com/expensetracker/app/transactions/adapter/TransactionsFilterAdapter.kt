@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.expensetracker.app.databinding.ListItemsTitleBinding
 import com.expensetracker.app.databinding.TransactionFilterFieldBinding
-import com.expensetracker.app.databinding.TransactionFilterFieldTitleBinding
 import com.expensetracker.app.transactions.support.TransactionFilterData
 import com.expensetracker.app.views.CurrencyTextView
 import com.expensetracker.core.models.Account
@@ -33,7 +33,7 @@ class TransactionsFilterAdapter(
         val layoutInflater: LayoutInflater = LayoutInflater.from(parent.context)
         return when(viewType){
             FILTER_TITLE_TYPE -> {
-                val binding = TransactionFilterFieldTitleBinding.inflate(layoutInflater,parent,false)
+                val binding = ListItemsTitleBinding.inflate(layoutInflater,parent,false)
                 FilterTitleViewHolder(binding)
             }
             FILTER_ITEM_TYPE -> {
@@ -71,8 +71,8 @@ class TransactionsFilterAdapter(
 
     sealed class FilterViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
-    inner class FilterTitleViewHolder(binding: TransactionFilterFieldTitleBinding): FilterViewHolder(binding.root) {
-        private val title: TextView = binding.transFilterFieldTitle
+    inner class FilterTitleViewHolder(binding: ListItemsTitleBinding): FilterViewHolder(binding.root) {
+        private val title: TextView = binding.listItemTitle
         fun bind(data: TransactionFilterData.TransactionFilterTitle){
             title.text = data.title
         }

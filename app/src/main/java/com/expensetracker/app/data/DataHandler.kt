@@ -1,5 +1,8 @@
 package com.expensetracker.app.data
 
+import android.content.Context
+import android.database.sqlite.SQLiteDatabase
+import com.expensetracker.app.support.DataGenerator
 import com.expensetracker.core.actions.BankAccountActions
 import com.expensetracker.core.actions.CashAccountActions
 import com.expensetracker.core.actions.CreditCardActions
@@ -9,17 +12,18 @@ import com.expensetracker.core.actions.ExpenseCategoryActions
 import com.expensetracker.core.actions.IncomeActions
 import com.expensetracker.core.actions.IncomeCategoryActions
 import com.expensetracker.core.actions.TransferActions
-import com.expensetracker.data.datastores.SimpleDataStore
-import com.expensetracker.data.services.accounts.BankAccountService
-import com.expensetracker.data.services.accounts.CashAccountService
-import com.expensetracker.data.services.accounts.CreditCardService
-import com.expensetracker.data.services.accounts.DebitCardService
-import com.expensetracker.data.services.category.ExpenseCategoryService
-import com.expensetracker.data.services.category.IncomeCategoryService
-import com.expensetracker.data.services.support.IdGenerator
-import com.expensetracker.data.services.transactions.ExpenseService
-import com.expensetracker.data.services.transactions.IncomeService
-import com.expensetracker.data.services.transactions.TransferService
+import com.expensetracker.data_sqlite.DatabaseHelper
+import com.expensetracker.data_sqlite.DatabaseSchema
+import com.expensetracker.data_sqlite.services.accounts.BankAccountService
+import com.expensetracker.data_sqlite.services.accounts.CashAccountService
+import com.expensetracker.data_sqlite.services.accounts.CreditCardService
+import com.expensetracker.data_sqlite.services.accounts.DebitCardService
+import com.expensetracker.data_sqlite.services.category.ExpenseCategoryService
+import com.expensetracker.data_sqlite.services.category.IncomeCategoryService
+import com.expensetracker.data_sqlite.services.support.IdGenerator
+import com.expensetracker.data_sqlite.services.transactions.ExpenseService
+import com.expensetracker.data_sqlite.services.transactions.IncomeService
+import com.expensetracker.data_sqlite.services.transactions.TransferService
 import com.expensetracker.domain.concretes.account.AccountManagerImp
 import com.expensetracker.domain.concretes.account.AccountProviderImp
 import com.expensetracker.domain.concretes.category.CategoryManagerImp
@@ -32,22 +36,32 @@ import com.expensetracker.domain.contracts.category.CategoryProvider
 import com.expensetracker.domain.contracts.transaction.TransactionManager
 import com.expensetracker.domain.contracts.transaction.TransactionProvider
 
-object DataHandler {
+class DataHandler(context: Context) {
     private val accountIdGenerator: IdGenerator by lazy { IdGenerator() }
     private val categoryIdGenerator: IdGenerator by lazy { IdGenerator() }
     private val transactionIdGenerator: IdGenerator by lazy { IdGenerator() }
 
-    private val bankAccountActions: BankAccountActions by lazy { BankAccountService(SimpleDataStore.bankAccounts,accountIdGenerator) }
-    private val cashAccountActions: CashAccountActions by lazy { CashAccountService(SimpleDataStore.cashAccounts,accountIdGenerator) }
-    private val creditCardActions: CreditCardActions by lazy { CreditCardService(SimpleDataStore.creditCards,accountIdGenerator) }
-    private val debitCardActions: DebitCardActions by lazy { DebitCardService(SimpleDataStore.debitCards,accountIdGenerator) }
+    companion object {
+        private var writableDatabase: SQLiteDatabase? = null
+    }
 
-    private val incomeCategoryActions: IncomeCategoryActions by lazy { IncomeCategoryService(SimpleDataStore.incomeCategories,categoryIdGenerator) }
-    private val expenseCategoryActions: ExpenseCategoryActions by lazy { ExpenseCategoryService(SimpleDataStore.expenseCategories,categoryIdGenerator) }
+    private val dbHelper = DatabaseHelper(context)
+    private val db : SQLiteDatabase = writableDatabase ?: let {
+        dbHelper.writableDatabase
+    }
 
-    val incomeActions: IncomeActions by lazy { IncomeService(SimpleDataStore.incomes,transactionIdGenerator) }
-    private val expenseActions: ExpenseActions by lazy { ExpenseService(SimpleDataStore.expenses,transactionIdGenerator) }
-    private val transferActions: TransferActions by lazy { TransferService(SimpleDataStore.transfers,transactionIdGenerator) }
+
+    private val bankAccountActions: BankAccountActions by lazy { BankAccountService(db, accountIdGenerator, DatabaseSchema.BankAccountTable) }
+    private val cashAccountActions: CashAccountActions by lazy { CashAccountService(db, accountIdGenerator, DatabaseSchema.CashAccountTable) }
+    private val creditCardActions: CreditCardActions by lazy { CreditCardService(db, accountIdGenerator, DatabaseSchema.CreditCardTable) }
+    private val debitCardActions: DebitCardActions by lazy { DebitCardService(db, accountIdGenerator ,DatabaseSchema.DebitCardTable, bankAccountActions) }
+
+    private val incomeCategoryActions: IncomeCategoryActions by lazy { IncomeCategoryService(db, categoryIdGenerator,DatabaseSchema.CategoryTable) }
+    private val expenseCategoryActions: ExpenseCategoryActions by lazy { ExpenseCategoryService(db, categoryIdGenerator,DatabaseSchema.CategoryTable) }
+
+    private val incomeActions: IncomeActions by lazy { IncomeService(db, transactionIdGenerator,DatabaseSchema.IncomeTable, incomeCategoryActions, bankAccountActions, cashAccountActions, creditCardActions, debitCardActions) }
+    private val expenseActions: ExpenseActions by lazy { ExpenseService(db, transactionIdGenerator,DatabaseSchema.ExpenseTable, expenseCategoryActions, bankAccountActions, cashAccountActions, creditCardActions, debitCardActions) }
+    private val transferActions: TransferActions by lazy { TransferService(db, transactionIdGenerator,DatabaseSchema.TransferTable, bankAccountActions, cashAccountActions, creditCardActions, debitCardActions) }
 
     val accountProvider: AccountProvider by lazy {  AccountProviderImp(bankAccountActions, cashAccountActions, creditCardActions, debitCardActions) }
     val accountManager: AccountManagerImp by lazy {
@@ -74,4 +88,15 @@ object DataHandler {
         )
     }
 
+    init {
+        if (writableDatabase == null) {
+            writableDatabase = db
+            dbHelper.onUpgrade(db,1,1)
+            DataGenerator.generateDefaultAccounts(accountManager)
+            DataGenerator.generateDefaultCategories(categoryManager)
+            DataGenerator.generateDummyTransactions(transactionManager, categoryProvider, accountProvider)
+
+            DataGenerator.displayAll(categoryManager, accountManager)
+        }
+    }
 }

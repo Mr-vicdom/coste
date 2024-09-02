@@ -21,11 +21,15 @@ abstract class TransactionService<T: Transaction>(
         return TransactionResponse.TRANSACTION_CREATED
     }
 
+    override fun hasTransaction(id: TransactionID): Boolean {
+        return transactions.contains(id)
+    }
+
     override fun getTransaction(id: TransactionID): T? = transactions[id]
 
     override fun getTransactions(from: TransactionDate, to: TransactionDate): List<T> {
         return transactions.filterValues {
-            (it.date in from..to)
+            (it.date in to..from)
         }.values.toList()
     }
 
@@ -47,7 +51,7 @@ abstract class TransactionService<T: Transaction>(
         predicate: (T) -> Boolean
     ): List<T> {
         return transactions.filterValues {
-            (it.date in from..to) && predicate(it)
+            (it.date in to..from) && predicate(it)
         }.values.toList().dropLast(offset.toInt()).takeLast(limit.toInt()).sortedByDescending{ it.id }
     }
 
@@ -55,7 +59,7 @@ abstract class TransactionService<T: Transaction>(
         var total = 0F
 
         transactions.filterValues {
-            it.date in from..to
+            it.date in to..from
         }.values.forEach { total += it.amount.value.toFloat() }
 
         return Amount(total.toString())
@@ -63,13 +67,13 @@ abstract class TransactionService<T: Transaction>(
 
     override fun getTransactionsCount(from: TransactionDate, to: TransactionDate): Int {
         return transactions.filterValues {
-            it.date in from..to
+            it.date in to..from
         }.values.size
     }
 
-    override fun updateTransaction(id: TransactionID, transaction: T): TransactionResponse {
-        if(transactions.contains(id)){
-            transactions[id] = transaction
+    override fun updateTransaction(transaction: T): TransactionResponse {
+        if(transactions.contains(transaction.id)){
+            transactions[transaction.id] = transaction
             return TransactionResponse.TRANSACTION_UPDATED
         } else return TransactionResponse.TRANSACTION_NOT_EXIST
     }

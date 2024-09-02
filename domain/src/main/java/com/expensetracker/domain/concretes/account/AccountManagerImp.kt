@@ -270,7 +270,8 @@ AccountProvider by accountProvider {
 
     private fun debitCreditCard(account: CreditCard, debitAmount: Amount) : AccountResponse {
         val currentBalance: Amount = account.balance - debitAmount
-        val updatedAccount = account.copy(balance = currentBalance)
+        val outStandings: Amount = account.outStandings + debitAmount
+        val updatedAccount = account.copy(balance = currentBalance, outStandings = outStandings)
         return this.updateAccount(updatedAccount)
     }
 

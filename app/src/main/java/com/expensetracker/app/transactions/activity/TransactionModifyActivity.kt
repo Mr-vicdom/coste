@@ -69,15 +69,15 @@ class TransactionModifyActivity: TransactionAddActivity() {
                 if (accountPosition != -1) accountField.setSelection(accountPosition)
 
 
-                if(appBarBinding.transAddTabBar.tabCount == 3){
-                    val tab1 = appBarBinding.transAddTabBar.getTabAt(0)
-                    val tab2 = appBarBinding.transAddTabBar.getTabAt(1)
-                    val tab3 = appBarBinding.transAddTabBar.getTabAt(2)
+                if(binding.transAddTabBar.tabCount == 3){
+                    val tab1 = binding.transAddTabBar.getTabAt(0)
+                    val tab2 = binding.transAddTabBar.getTabAt(1)
+                    val tab3 = binding.transAddTabBar.getTabAt(2)
                     when(fetchedTransaction){
                         is Expense -> tab2
                         is Income -> tab1
                         is Transfer -> tab3
-                    }.let { appBarBinding.transAddTabBar.selectTab(it) }
+                    }.let { binding.transAddTabBar.selectTab(it) }
                 }
 
                 dateField.text = date.toString()

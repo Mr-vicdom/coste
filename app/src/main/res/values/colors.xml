@@ -30,6 +30,7 @@
 
     <color name="transparent">#00000000</color>
     <color name="green_100">#A3FFA6</color>
+    <color name="red">#E53935</color>
     <color name="purple_100">#CDB2FF</color>
     <color name="blue_100">#A6B4FD</color>
     <color name="orange_100">#FFBCA7</color>
