@@ -141,11 +141,11 @@ open class TransactionAddActivity: AppCompatActivity() {
         //Date Field
         dateField.text = dateToString(date.dayOfMonth,date.monthValue,date.year)
         val onDateSetListener = DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-            val text = dateToString(dayOfMonth,month,year)
+            val text = dateToString(dayOfMonth,month+1,year)
             dateField.text = text
-            date = LocalDate.of(year, month, dayOfMonth)
+            date = LocalDate.of(year, month+1, dayOfMonth)
         }
-        val datePickerDialog = DatePickerDialog(this, R.style.NewAppTheme_DifferPrimary, onDateSetListener, date.year, date.monthValue, date.dayOfMonth)
+        val datePickerDialog = DatePickerDialog(this, androidx.appcompat.R.style.AlertDialog_AppCompat, onDateSetListener, date.year, date.monthValue-1, date.dayOfMonth)
         dateField.setOnClickListener { datePickerDialog.show() }
 
         //Amount

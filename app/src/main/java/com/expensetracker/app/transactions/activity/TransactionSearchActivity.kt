@@ -3,6 +3,7 @@ package com.expensetracker.app.transactions.activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,16 +16,27 @@ import com.expensetracker.app.databinding.TransactionSearchScreenBinding
 import com.expensetracker.app.transactions.adapter.TransactionSearchAdapter
 import com.expensetracker.app.transactions.adapter.TransactionsListAdapter
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
+import com.expensetracker.app.transactions.support.Literals.TRANSACTION_MONTH_LABEL
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
+import java.time.LocalDate
+import java.time.Month
 
 class TransactionSearchActivity: AppCompatActivity() {
 
-    val viewModel : TransactionProviderViewModel by viewModels<TransactionProviderViewModel>()
-    val transactionItems: MutableList<TransactionItems> = mutableListOf()
+    private val viewModel : TransactionProviderViewModel by viewModels<TransactionProviderViewModel>()
+    private val transactionItems: MutableList<TransactionItems> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        intent?.let { intent ->
+            intent.getIntExtra(TRANSACTION_MONTH_LABEL,LocalDate.now().monthValue).let {
+                try {
+                    viewModel.month = Month.of(it)
+                }catch (_: Exception){}
+            }
+        }
 
         val binding = TransactionSearchScreenBinding.inflate(layoutInflater)
 
@@ -41,6 +53,7 @@ class TransactionSearchActivity: AppCompatActivity() {
                 if(newText.isNullOrEmpty()){
                     viewModel.fetchTransactionsMatches()
                 } else {
+                    binding.transSearchLoading.visibility = View.VISIBLE
                     viewModel.fetchTransactionsMatches(query = newText)
                 }
                 return true
@@ -71,6 +84,9 @@ class TransactionSearchActivity: AppCompatActivity() {
         binding.transSearchResult.layoutManager = LinearLayoutManager(this)
 
         viewModel.transactionItems.observe(this, Observer {
+            binding.transSearchLoading.visibility = View.GONE
+            binding.transSearchNothingFound.visibility = if (it.isNotEmpty())  View.GONE
+            else View.VISIBLE
             transactionItems.clear()
             transactionItems.addAll(it)
             adapter.notifyDataSetChanged()

@@ -44,14 +44,12 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
     var month: Month = LocalDate.now().month
         set(value) {
             field = value
-            fetchTransactionsBetween()
             _monthValue.postValue(value)
         }
 
     var year: Year = Year.now()
         set(value) {
             field = value
-            fetchTransactionsBetween()
             _yearValue.postValue(value.value)
         }
 

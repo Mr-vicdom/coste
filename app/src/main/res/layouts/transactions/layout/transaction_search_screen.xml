@@ -59,6 +59,28 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <TextView
+        android:id="@+id/trans_search_nothing_found"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:visibility="gone"
+        android:text="Nothing Found"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/trans_search_guideline10"
+        />
+
+    <TextView
+        android:id="@+id/trans_search_Loading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:visibility="gone"
+        android:text="Loading"
+        android:textAlignment="center"
+        app:layout_constraintTop_toBottomOf="@id/trans_search_guideline10"
+        />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/trans_search_result"
         android:layout_width="match_parent"

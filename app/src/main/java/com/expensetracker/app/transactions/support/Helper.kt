@@ -14,6 +14,7 @@ object Literals {
     const val CATEGORY_ID_LABEL = CATEGORY_ID
     const val ACCOUNT_ID_LABEL = ACCOUNT_ID
     const val TRANSACTION_ID_LABEL = TRANSACTION_ID
+    const val TRANSACTION_MONTH_LABEL = "MonthOfTransactions"
     const val FROM_ACCOUNT_ID_LABEL = "From$ACCOUNT_ID"
     const val TO_ACCOUNT_ID_LABEL = "To$ACCOUNT_ID"
     const val NOTE_LABEL = NOTE

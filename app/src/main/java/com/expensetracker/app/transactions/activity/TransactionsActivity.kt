@@ -24,6 +24,7 @@ import com.expensetracker.app.transactions.adapter.TransactionsListAdapter
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
+import com.expensetracker.app.transactions.support.Literals.TRANSACTION_MONTH_LABEL
 import com.expensetracker.app.transactions.support.Literals.YEAR_LABEL
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
@@ -129,11 +130,13 @@ class TransactionsActivity : AppCompatActivity() {
         binding.transPreviousBtn.setOnClickListener {
             with(transactionProviderViewModel){
                  month = month.minus(1)
+                fetchTransactionsBetween(filterAccounts)
             }
         }
         binding.transNextBtn.setOnClickListener {
             with(transactionProviderViewModel){
                 month = month.plus(1)
+                fetchTransactionsBetween(filterAccounts)
             }
         }
 
@@ -146,7 +149,9 @@ class TransactionsActivity : AppCompatActivity() {
 
         //Search BTN
         transactionScreenSearchBtn.setOnClickListener {
-            startActivity(Intent(this, TransactionSearchActivity::class.java))
+            val intent = Intent(this, TransactionSearchActivity::class.java)
+            intent.putExtra(TRANSACTION_MONTH_LABEL, transactionProviderViewModel.month.value)
+            startActivity(intent)
         }
 
         if (filterAccounts.isNotEmpty()) {
@@ -218,6 +223,8 @@ class TransactionsActivity : AppCompatActivity() {
         transactionProviderViewModel.transactionItems.observe(this, Observer {
             transactionItems.clear()
             transactionItems.addAll(it)
+            binding.transScreenNothingFound.visibility = if (it.isEmpty()) View.VISIBLE
+            else View.GONE
             adapter.notifyDataSetChanged()
         })
 

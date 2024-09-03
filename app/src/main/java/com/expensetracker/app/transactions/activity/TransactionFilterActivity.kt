@@ -63,7 +63,6 @@ class TransactionFilterActivity: AppCompatActivity() {
         val monthValue = intent.getIntExtra(MONTH_LABEL, month.value)
         if (monthValue in 1..12) {
             month = Month.of(monthValue)
-            Toast.makeText(this, "$monthValue", Toast.LENGTH_SHORT).show()
         }
         try {
             year = Year.of(intent.getIntExtra(YEAR_LABEL, year.value))

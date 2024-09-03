@@ -122,6 +122,16 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:ignore="TextFields" />
 
+            <androidx.appcompat.widget.AppCompatImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/date_icon"
+                app:tint="?android:attr/textColor"
+                app:layout_constraintTop_toTopOf="@id/date_field"
+                app:layout_constraintBottom_toBottomOf="@id/date_field"
+                app:layout_constraintEnd_toEndOf="@id/date_field"
+                />
+
             <TextView
                 android:id="@+id/amount_label"
                 android:layout_width="wrap_content"
