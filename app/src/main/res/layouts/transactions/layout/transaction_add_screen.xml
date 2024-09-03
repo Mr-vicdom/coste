@@ -150,7 +150,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:maxLength="6"
+                android:maxLength="10"
                 android:inputType="numberDecimal|number"
                 style="@style/TransAddEditText"
                 app:layout_constraintTop_toBottomOf="@id/date_field"

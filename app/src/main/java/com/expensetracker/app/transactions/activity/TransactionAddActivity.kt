@@ -2,6 +2,8 @@ package com.expensetracker.app.transactions.activity
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.text.InputFilter
+import android.text.Spanned
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
@@ -150,6 +152,33 @@ open class TransactionAddActivity: AppCompatActivity() {
 
         //Amount
         amountField.setText(amount)
+
+        amountField.filters = arrayOf(object : InputFilter{
+            override fun filter(
+                source: CharSequence?,
+                start: Int,
+                end: Int,
+                dest: Spanned?,
+                dstart: Int,
+                dend: Int,
+            ): CharSequence? {
+                if(source.isNullOrEmpty()) return ""
+                try {
+                    val input = dest.toString() + source.toString()
+                    if (input.contains('.')) {
+                        val decimalPart = input.substringAfter('.')
+                        if (decimalPart.length > 2) {
+                            return ""
+                        }
+                    }
+                    val inputDouble = input.toDouble()
+                    if (inputDouble in 0.0..1000000.00) {
+                        return null
+                    }
+                } catch (_: Exception){ }
+                return ""
+            }
+        })
 
         //Category & Account Field
         val categoryItemSelectedListener = SpinnerItemSelectedListener{ position ->

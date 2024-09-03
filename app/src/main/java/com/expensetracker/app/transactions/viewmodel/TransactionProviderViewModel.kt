@@ -110,7 +110,7 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
         val transactionItems: MutableList<TransactionItems> = mutableListOf()
         var totalIncome1 = 0.0
         var totalExpense1 = 0.0
-        transactionList.groupBy { it.date }.forEach { (date, values) ->
+        transactionList.sortedByDescending { it.date }.groupBy { it.date }.forEach { (date, values) ->
             val totalPeriodicIncome: Double = values.filterIsInstance<Income>().sumOf { it.amount.toString().toDouble() }
             val totalPeriodicExpense: Double = values.filterIsInstance<Expense>().sumOf { it.amount.toString().toDouble() }
             totalIncome1 += totalPeriodicIncome
@@ -119,6 +119,8 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
             transactionItems.add(TransactionItems.PeriodicItem(periodicData))
             values.sortedByDescending { it.id }.forEach { transactionItems.add(TransactionItems.TransactionItem(it)) }
         }
+
+        Log.d(TAG, "prepareTransactionItemsForDay: $transactionItems")
 
         _transactionItems.postValue(transactionItems)
         _totalIncome.postValue(totalIncome1)

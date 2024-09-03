@@ -21,9 +21,6 @@ class DatabaseHelper(val context: Context): SQLiteOpenHelper(context, DB_NAME,nu
 
     override fun onCreate(db: SQLiteDatabase) {
         try {
-            GlobalScope.launch(Dispatchers.Main) {
-                Toast.makeText(context, "Created DB", Toast.LENGTH_SHORT).show()
-            }
             db.let {
                 it.execSQL(SQLQueries.CREATE_CATEGORY_TABLE)
                 it.execSQL(SQLQueries.CREATE_BANK_ACCOUNTS_TABLE)

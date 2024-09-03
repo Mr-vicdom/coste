@@ -1,10 +1,21 @@
 package com.expensetracker.app
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.expensetracker.app.accounts.AccountActivity
+import com.expensetracker.app.accounts.AccountFragment
+import com.expensetracker.app.category.SettingsActivity
+import com.expensetracker.app.category.SettingsFragment
+import com.expensetracker.app.databinding.AppMainBinding
 import com.expensetracker.data_sqlite.DatabaseHelper
 import com.expensetracker.data_sqlite.DatabaseSchema
 import com.expensetracker.data_sqlite.services.accounts.BankAccountService
@@ -16,6 +27,7 @@ import com.expensetracker.data_sqlite.services.category.IncomeCategoryService
 import com.expensetracker.data_sqlite.services.transactions.TransferService
 import com.expensetracker.app.databinding.TransactionsScreenBinding
 import com.expensetracker.app.support.DataGenerator
+import com.expensetracker.app.transactions.fragment.TransactionsList
 import com.expensetracker.app.transactions.viewmodel.TAG
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
 import com.expensetracker.core.actions.AccountActions
@@ -37,38 +49,68 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import kotlin.math.log
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: AppMainBinding
+    private val mainViewModel: MainViewModel by viewModels<MainViewModel>()
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
 
+        binding = AppMainBinding.inflate(layoutInflater)
 
-        val binding = TransactionsScreenBinding.inflate(layoutInflater)
-        val viewModel: TransactionProviderViewModel by viewModels<TransactionProviderViewModel>()
+        val home = TransactionsList()
+        val account = AccountFragment()
+        val settings = SettingsFragment()
 
+        updateFragment(mainViewModel.selectedFrag ?: home)
 
+        //BOTTOM NAV BAR
+        binding.appBottomNavBar.setOnItemSelectedListener {
+            return@setOnItemSelectedListener when(it.itemId){
+                R.id.home_nav_btn -> {
+                    updateFragment(home)
+                    true
+                }
+                R.id.account_nav_btn ->{
+                    updateFragment(account)
+                    true
+                }
+                R.id.settings_nav_btn -> {
+                    updateFragment(settings)
+                    true
+                }
+                else -> false
+            }
+        }
 
-        val dbHelper = DatabaseHelper(applicationContext)
-        val db = dbHelper.writableDatabase
+        onBackPressedDispatcher.addCallback {
+            if (mainViewModel.selectedFrag == home) finish()
+            else binding.appBottomNavBar.selectedItemId = R.id.home_nav_btn
+        }
 
-        val bankAccountService =
-            BankAccountService(db, IdGenerator(), DatabaseSchema.BankAccountTable)
-        val cashAccountService =
-            CashAccountService(db, IdGenerator(), DatabaseSchema.CashAccountTable)
-        val creditCardService = CreditCardService(db, IdGenerator(), DatabaseSchema.CreditCardTable)
-        val debitCardService =
-            DebitCardService(db, IdGenerator(), DatabaseSchema.DebitCardTable, bankAccountService)
-
-        val categoryIdGenerator = IdGenerator()
-        val incomeCategoryService =
-            IncomeCategoryService(db, categoryIdGenerator, DatabaseSchema.CategoryTable)
-        val expenseCategoryService =
-            ExpenseCategoryService(db, categoryIdGenerator, DatabaseSchema.CategoryTable)
+        mainViewModel.isBackPressed.observe(this, Observer {
+            if (mainViewModel.selectedFrag == home) finish()
+            else binding.appBottomNavBar.selectedItemId = R.id.home_nav_btn
+        })
 
         setContentView(binding.root)
+    }
 
+    private fun updateFragment(fragment: Fragment) {
+
+        mainViewModel.selectedFrag = fragment
+
+        val existingFrag = supportFragmentManager.findFragmentById(binding.appContainer.id)
+        if(fragment == existingFrag) return
+
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+        transaction.replace(binding.appContainer.id,fragment)
+
+        if (existingFrag != null) transaction.addToBackStack(null)
+        transaction.commit()
     }
 
 }

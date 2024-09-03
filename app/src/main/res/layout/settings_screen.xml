@@ -70,9 +70,10 @@
                 <TextView
                     android:id="@+id/income_categories_settings_label"
                     android:layout_width="0dp"
-                    android:padding="10dp"
+                    android:padding="20dp"
                     android:layout_height="wrap_content"
                     android:textAlignment="viewStart"
+                    android:textSize="@dimen/large_text"
                     style="@style/AppTextTheme"
                     android:text="@string/income_categories"
                     app:layout_constraintTop_toTopOf="parent"
@@ -113,8 +114,9 @@
                 <TextView
                     android:id="@+id/expense_categories_settings_label"
                     android:layout_width="0dp"
-                    android:padding="10dp"
+                    android:padding="20dp"
                     android:layout_height="wrap_content"
+                    android:textSize="@dimen/large_text"
                     android:textAlignment="viewStart"
                     style="@style/AppTextTheme"
                     android:text="@string/expense_categories"
