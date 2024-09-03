@@ -2,6 +2,7 @@ package com.expensetracker.data_sqlite.services.accounts
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import com.expensetracker.core.actions.BankAccountActions
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.BankAccount
@@ -24,6 +25,7 @@ class BankAccountService(
             db.beginTransaction()
             if (hasAccount(account.id)) {
                 db.setTransactionSuccessful()
+                Log.d("=>log", "addAccount: $account")
                 return AccountResponse.ACCOUNT_ALREADY_EXIST
             }
 

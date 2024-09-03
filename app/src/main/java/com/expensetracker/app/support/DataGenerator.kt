@@ -22,7 +22,7 @@ object DataGenerator {
         accountManager.createCreditCard("Card HDFC").let { println("=>log $it = \"Card HDFC") }
         accountManager.createCreditCard("UPI Card").let { println("=>log $it = \"UPI Card") }
         accountManager.createDebitCard("Platinum Debit", bankAccount = accountManager.bankAccounts.first()).let { println("=>log $it") }
-        accountManager.createDebitCard("SBI Debit", bankAccount = accountManager.bankAccounts.first()).let { println("=>log $it") }
+        accountManager.createDebitCard("SBI Debit", bankAccount = accountManager.bankAccounts[1]).let { println("=>log $it") }
     }
 
     fun generateDefaultCategories(categoryManager: CategoryManager) {

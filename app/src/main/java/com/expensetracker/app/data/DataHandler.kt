@@ -37,12 +37,12 @@ import com.expensetracker.domain.contracts.transaction.TransactionManager
 import com.expensetracker.domain.contracts.transaction.TransactionProvider
 
 class DataHandler(context: Context) {
-    private val accountIdGenerator: IdGenerator by lazy { IdGenerator() }
-    private val categoryIdGenerator: IdGenerator by lazy { IdGenerator() }
-    private val transactionIdGenerator: IdGenerator by lazy { IdGenerator() }
 
     companion object {
         private var writableDatabase: SQLiteDatabase? = null
+        private val accountIdGenerator: IdGenerator by lazy { IdGenerator() }
+        private val categoryIdGenerator: IdGenerator by lazy { IdGenerator() }
+        private val transactionIdGenerator: IdGenerator by lazy { IdGenerator() }
     }
 
     private val dbHelper = DatabaseHelper(context)

@@ -283,7 +283,4 @@ class TransactionManagerViewModel(private val application: Application): Android
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-    }
 }

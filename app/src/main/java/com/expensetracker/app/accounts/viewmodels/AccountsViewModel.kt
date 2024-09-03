@@ -7,28 +7,31 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.expensetracker.app.accounts.adapter.AccountsListAdapter
 import com.expensetracker.app.accounts.support.AccountListData
 import com.expensetracker.app.data.DataHandler
 import com.expensetracker.core.models.Account
+import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.BankAccount
+import com.expensetracker.core.models.CashAccount
+import com.expensetracker.core.models.CreditCard
+import com.expensetracker.core.models.DebitCard
+import com.expensetracker.core.support.AccountResponse
 import com.expensetracker.core.support.AccountType
+import com.expensetracker.core.support.Amount
 import com.expensetracker.core.support.Literals.BANK_ACCOUNT
 import com.expensetracker.core.support.Literals.CASH_ACCOUNT
 import com.expensetracker.core.support.Literals.CREDIT_CARD
 import com.expensetracker.core.support.Literals.DEBIT_CARD
 import com.expensetracker.domain.contracts.account.AccountManager
-import com.expensetracker.domain.contracts.account.AccountProvider
 import com.expensetracker.domain.support.Result
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AccountsViewModel(application: Application): AndroidViewModel(application) {
+class AccountsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val accountManager: AccountManager by lazy {
         DataHandler(application).accountManager
     }
-
-    private val _listAdapter: MutableLiveData<AccountsListAdapter> = MutableLiveData()
 
     private val _total: MutableLiveData<Double> = MutableLiveData()
 
@@ -40,8 +43,9 @@ class AccountsViewModel(application: Application): AndroidViewModel(application)
 
     private val _bankAccounts: MutableLiveData<List<BankAccount>> = MutableLiveData()
 
-    val listAdapter: LiveData<AccountsListAdapter>
-        get() = _listAdapter
+    private val _accountListData: MutableLiveData<List<AccountListData>> = MutableLiveData()
+
+    private val _updateAccount: MutableLiveData<Account?> = MutableLiveData()
 
     val total: LiveData<Double>
         get() = _total
@@ -55,17 +59,23 @@ class AccountsViewModel(application: Application): AndroidViewModel(application)
     val bankAccounts: LiveData<List<BankAccount>>
         get() = _bankAccounts
 
-    fun setRemovable(bool: Boolean){
+    val accountListData: LiveData<List<AccountListData>>
+        get() = _accountListData
+
+    val updateAccount: LiveData<Account?>
+        get() = _updateAccount
+
+    fun setRemovable(bool: Boolean) {
         canRemove = bool
         _isRemovable.postValue(canRemove)
-        getAdapter()
+        fetchAccounts()
     }
 
-    fun getIsRemovable(){
+    fun getIsRemovable() {
         _isRemovable.postValue(canRemove)
     }
 
-    fun getAdapter() {
+    fun fetchAccounts() {
         viewModelScope.launch {
             val bankAccounts = accountManager.bankAccounts
             val cashAccounts = accountManager.cashAccounts
@@ -98,18 +108,7 @@ class AccountsViewModel(application: Application): AndroidViewModel(application)
 
             Log.d("=>log", "getAdapter: $liabilities1")
 
-            val accountsListAdapter = if(canRemove){
-                AccountsListAdapter(accountListData,true, onAccountRemoved = {
-                    accountManager.deleteAccount(it)
-                    getAdapter()
-                })
-            } else {
-                AccountsListAdapter(accountListData,false){
-
-                }
-            }
-
-            _listAdapter.postValue(accountsListAdapter)
+            _accountListData.postValue(accountListData)
             _total.postValue(total1)
             _liabilities.postValue(liabilities1)
         }
@@ -121,24 +120,186 @@ class AccountsViewModel(application: Application): AndroidViewModel(application)
         }
     }
 
-    fun createAccount(accountType: AccountType,name: String, bankAccount: BankAccount? = null) {
+    fun createAccount(accountType: AccountType, name: String, bankAccount: BankAccount? = null) {
         viewModelScope.launch {
-            when(accountType){
+            when (accountType) {
                 AccountType.BANK_ACCOUNT -> accountManager.createBankAccount(name)
                 AccountType.CASH_ACCOUNT -> accountManager.createCashAccount(name)
                 AccountType.CREDIT_CARD -> accountManager.createCreditCard(name)
                 AccountType.DEBIT_CARD -> {
-                    if(bankAccount == null){
+                    if (bankAccount == null) {
                         Result.Failure("No BankAccount Found")
                     } else
-                    accountManager.createDebitCard(name,bankAccount)
+                        accountManager.createDebitCard(name, bankAccount)
                 }
             }.let {
-                when(it){
-                    is Result.Failure -> Toast.makeText(getApplication(), "$it", Toast.LENGTH_SHORT).show()
-                    is Result.Success -> Toast.makeText(getApplication(), "Account Created", Toast.LENGTH_SHORT).show()
+                when (it) {
+                    is Result.Failure -> Toast.makeText(getApplication(), "$it", Toast.LENGTH_SHORT)
+                        .show()
+
+                    is Result.Success -> Toast.makeText(
+                        getApplication(),
+                        "Account Created",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
+        }
+    }
+
+    fun updateAccountName(account: Account,  name: String){
+        viewModelScope.launch(Dispatchers.IO) {
+            when(account){
+                is CreditCard -> accountManager.updateCreditCard(account,name)
+                is DebitCard -> accountManager.updateDebitCard(account,name)
+                is BankAccount -> accountManager.updateBankAccount(account,name)
+                is CashAccount -> accountManager.updateCashAccount(account,name)
+            }.let { result ->
+                when(result){
+                    is Result.Failure -> result.data
+                    is Result.Success -> "Account Updated"
+                }.let {
+                    Toast.makeText(getApplication(), it, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun updateBankAccount(bankAccount: BankAccount, newAccountType: AccountType, name: String,  selectedBankAccount: BankAccount? = null){
+        when(newAccountType){
+            AccountType.BANK_ACCOUNT -> accountManager.updateBankAccount(bankAccount,name)
+            AccountType.DEBIT_CARD -> {
+                if(selectedBankAccount == null){
+                    Result.Failure(AccountResponse.ACCOUNT_NOT_EXIST.toString())
+                } else {
+                    val result = accountManager.createDebitCard(name, selectedBankAccount)
+                    if(result is Result.Success)
+                        accountManager.deleteAccount(bankAccount)
+                    else result
+                }
+            }
+            AccountType.CREDIT_CARD -> {
+                val result = accountManager.createCreditCard(name, balance = bankAccount.balance.toString(), outStandings = Amount.DEFAULT.toString())
+                if(result is Result.Success)
+                    accountManager.deleteAccount(bankAccount)
+                else result
+            }
+            AccountType.CASH_ACCOUNT -> {
+                val result = accountManager.createCashAccount(name, balance = bankAccount.balance.toString(), minimumBalance = bankAccount.minimumBalance.toString())
+                if(result is Result.Success)
+                    accountManager.deleteAccount(bankAccount)
+                else result
+            }
+        }.let {
+            result ->
+            Toast.makeText(getApplication(), result.data, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun updateCashAccount(cashAccount: CashAccount, newAccountType: AccountType, name: String,  selectedBankAccount: BankAccount? = null){
+        when(newAccountType){
+            AccountType.CASH_ACCOUNT -> accountManager.updateCashAccount(cashAccount,name)
+            AccountType.DEBIT_CARD -> {
+                if(selectedBankAccount == null){
+                    Result.Failure(AccountResponse.ACCOUNT_NOT_EXIST.toString())
+                } else {
+                    val result = accountManager.createDebitCard(name, selectedBankAccount)
+                    if(result is Result.Success)
+                        accountManager.deleteAccount(cashAccount)
+                    else result
+                }
+            }
+            AccountType.CREDIT_CARD -> {
+                val result = accountManager.createCreditCard(name, balance = cashAccount.balance.toString(), outStandings = Amount.DEFAULT.toString())
+                if(result is Result.Success)
+                    accountManager.deleteAccount(cashAccount)
+                else result
+            }
+            AccountType.BANK_ACCOUNT -> {
+                val result = accountManager.createBankAccount(name, balance = cashAccount.balance.toString(), minimumBalance = cashAccount.minimumBalance.toString())
+                if(result is Result.Success)
+                    accountManager.deleteAccount(cashAccount)
+                else result
+            }
+        }.let {
+                result ->
+            Toast.makeText(getApplication(), result.data, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun updateCreditCard(account: CreditCard, newAccountType: AccountType, name: String, selectedBankAccount: BankAccount? = null){
+        when(newAccountType){
+            AccountType.CREDIT_CARD -> accountManager.updateCreditCard(account,name)
+            AccountType.DEBIT_CARD -> {
+                if(selectedBankAccount == null){
+                    Result.Failure(AccountResponse.ACCOUNT_NOT_EXIST.toString())
+                } else {
+                    val result = accountManager.createDebitCard(name, selectedBankAccount)
+                    if(result is Result.Success)
+                        accountManager.deleteAccount(account)
+                    else result
+                }
+            }
+            AccountType.CASH_ACCOUNT -> {
+                val result = accountManager.createCashAccount(name, balance = Amount.DEFAULT.toString())
+                if(result is Result.Success)
+                    accountManager.deleteAccount(account)
+                else result
+            }
+            AccountType.BANK_ACCOUNT -> {
+                val result = accountManager.createBankAccount(name, balance = Amount.DEFAULT.toString())
+                if(result is Result.Success)
+                    accountManager.deleteAccount(account)
+                else result
+            }
+        }.let {
+                result ->
+            Toast.makeText(getApplication(), result.data, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun updateDebitCard(account: DebitCard, newAccountType: AccountType, name: String, selectedBankAccount: BankAccount? = null){
+        when(newAccountType){
+            AccountType.DEBIT_CARD -> accountManager.updateDebitCard(account,name)
+            AccountType.CREDIT_CARD -> {
+                val result = accountManager.createCreditCard(name)
+                if(result is Result.Success)
+                    accountManager.deleteAccount(account)
+                else result
+            }
+            AccountType.CASH_ACCOUNT -> {
+                val result = accountManager.createCashAccount(name, balance = account.balance.toString())
+                if(result is Result.Success)
+                    accountManager.deleteAccount(account)
+                else result
+            }
+            AccountType.BANK_ACCOUNT -> {
+                val result = accountManager.createBankAccount(name, balance = account.balance.toString())
+                if(result is Result.Success)
+                    accountManager.deleteAccount(account)
+                else result
+            }
+        }.let {
+                result ->
+            Toast.makeText(getApplication(), result.data, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun deleteAccount(account: Account) {
+        accountManager.deleteAccount(account).let { result ->
+            when (result) {
+                is Result.Failure -> result.data
+                is Result.Success -> "Account Deleted"
+            }.let {
+                Toast.makeText(getApplication(), it, Toast.LENGTH_SHORT).show()
+                fetchAccounts()
+            }
+        }
+    }
+
+    fun getAccount(accountID: AccountID) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _updateAccount.postValue(accountManager.accounts.getOrNull(accountID))
         }
     }
 

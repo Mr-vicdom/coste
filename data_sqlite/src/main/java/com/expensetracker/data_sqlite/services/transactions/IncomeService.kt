@@ -238,7 +238,7 @@ cursor.move(offset.toInt()+1)) {
     override fun getTotalOfTransactions(from: TransactionDate, to: TransactionDate): Amount {
         return try {
             val transactions = getTransactions(from, to)
-            var amount = Amount("0.0")
+            var amount = Amount.DEFAULT
             transactions.forEach {
                 amount += it.amount
             }

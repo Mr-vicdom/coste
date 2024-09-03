@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.expensetracker.app.R
@@ -18,10 +19,12 @@ import com.expensetracker.app.accounts.AccountActivity
 import com.expensetracker.app.data.DataHandler
 import com.expensetracker.app.databinding.TransactionsScreenBinding
 import com.expensetracker.app.support.DataGenerator
+import com.expensetracker.app.transactions.adapter.TransactionsListAdapter
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
 import com.expensetracker.app.transactions.support.Literals.YEAR_LABEL
+import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.Transaction
@@ -36,7 +39,7 @@ import kotlin.math.log
 
 const val TAG = "TransactionActivity=>log"
 
-class TransactionsActivity: AppCompatActivity() {
+class TransactionsActivity : AppCompatActivity() {
 
 
     private val dataHandler by lazy { DataHandler(this) }
@@ -49,10 +52,12 @@ class TransactionsActivity: AppCompatActivity() {
     private val transactionTotalBalance: Double
         get() = transactionTotalIncome - transactionTotalExpense
 
+    private val transactionItems: MutableList<TransactionItems> = mutableListOf()
+
     private val filterAccounts: MutableList<AccountID> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        
+
         super.onCreate(savedInstanceState)
 
         GlobalScope.launch(Dispatchers.IO) {
@@ -71,34 +76,41 @@ class TransactionsActivity: AppCompatActivity() {
         val transactionScreenSearchBtn = binding.transScreenSearchBtn
         val transactionScreenCloseFilterBtn = binding.transScreenCloseFilterBtn
         val transScreenFilterBtn = binding.transScreenFilterBtn
-        val transactionListView : RecyclerView = binding.transScreenListView
+        val transactionListView: RecyclerView = binding.transScreenListView
 
-        val addTransactionLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if(result.resultCode == Activity.RESULT_OK){
-                transactionProviderViewModel.fetchTransactionsBetween(filterIDs = filterAccounts)
+        val addTransactionLauncher: ActivityResultLauncher<Intent> =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    transactionProviderViewModel.fetchTransactionsBetween(filterIDs = filterAccounts)
+                }
             }
-        }
 
-        val adapter = transactionProviderViewModel.getTransactionListAdapter { transaction: Transaction ->
-            val modifyTransactionIntent = Intent(this,TransactionModifyActivity::class.java)
-            modifyTransactionIntent.putExtra(TRANSACTION_ID_LABEL,transaction.id)
+        val adapter = TransactionsListAdapter(transactionItems) { transaction: Transaction ->
+            val modifyTransactionIntent = Intent(this, TransactionModifyActivity::class.java)
+            modifyTransactionIntent.putExtra(TRANSACTION_ID_LABEL, transaction.id)
             addTransactionLauncher.launch(modifyTransactionIntent)
         }
 
-        val filterTransactionLauncher: ActivityResultLauncher<Intent> = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if(result.resultCode == Activity.RESULT_OK){
+        val filterTransactionLauncher: ActivityResultLauncher<Intent> =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
 
-                result.data?.getIntArrayExtra(FILTER_ACCOUNT_IDS_LABEL)?.let {
-                    filterAccounts.clear()
-                    filterAccounts.addAll(it.toList())
-                    transactionScreenSearchBtn.visibility = View.GONE
-                    transactionScreenCloseFilterBtn.visibility = View.VISIBLE
-                    updateStatusBar()
+                    result.data?.getIntArrayExtra(FILTER_ACCOUNT_IDS_LABEL)?.let {
+                        filterAccounts.clear()
+                        filterAccounts.addAll(it.toList())
+                        if (filterAccounts.isNotEmpty()) {
+                            transactionScreenSearchBtn.visibility = View.GONE
+                            transactionScreenCloseFilterBtn.visibility = View.VISIBLE
+                        } else {
+                            transactionScreenSearchBtn.visibility = View.VISIBLE
+                            transactionScreenCloseFilterBtn.visibility = View.GONE
+                        }
+                        updateStatusBar()
+                    }
+
+                    transactionProviderViewModel.fetchTransactionsBetween(filterIDs = filterAccounts)
                 }
-
-                transactionProviderViewModel.fetchTransactionsBetween(filterIDs = filterAccounts)
             }
-        }
 
 
         transactionListView.adapter = adapter
@@ -109,10 +121,10 @@ class TransactionsActivity: AppCompatActivity() {
 
         //Search BTN
         transactionScreenSearchBtn.setOnClickListener {
-            startActivity(Intent(this,TransactionSearchActivity::class.java))
+            startActivity(Intent(this, TransactionSearchActivity::class.java))
         }
 
-        if(filterAccounts.isNotEmpty()){
+        if (filterAccounts.isNotEmpty()) {
             transactionScreenSearchBtn.visibility = View.GONE
             transactionScreenCloseFilterBtn.visibility = View.VISIBLE
             updateStatusBar()
@@ -132,17 +144,17 @@ class TransactionsActivity: AppCompatActivity() {
         }
 
         //Filter BTN
-        transScreenFilterBtn.setOnClickListener{
+        transScreenFilterBtn.setOnClickListener {
             val filterIntent = Intent(this, TransactionFilterActivity::class.java)
-            filterIntent.putExtra(MONTH_LABEL,LocalDate.now().monthValue)
-            filterIntent.putExtra(YEAR_LABEL,LocalDate.now().year)
-            filterIntent.putExtra(FILTER_ACCOUNT_IDS_LABEL,filterAccounts.toIntArray())
+            filterIntent.putExtra(MONTH_LABEL, transactionProviderViewModel.month.value)
+            filterIntent.putExtra(YEAR_LABEL, transactionProviderViewModel.year.value)
+            filterIntent.putExtra(FILTER_ACCOUNT_IDS_LABEL, filterAccounts.toIntArray())
             filterTransactionLauncher.launch(filterIntent)
         }
 
         //Floating BTN
         binding.floatingBtn.setOnClickListener {
-            val transAddIntent: Intent = Intent(this,TransactionModifyActivity::class.java)
+            val transAddIntent: Intent = Intent(this, TransactionModifyActivity::class.java)
             addTransactionLauncher.launch(transAddIntent)
         }
 
@@ -158,23 +170,38 @@ class TransactionsActivity: AppCompatActivity() {
         }
         //BOTTOM NAV BAR
         binding.transBottomNavBar.setOnItemSelectedListener {
-            Log.d(TAG, "onCreate: ${it.itemId} ${binding.transBottomNavBar.findViewById<BottomNavigationItemView>(it.itemId)}")
-            if(binding.transBottomNavBar.menu.size() > 2 && it.itemId == binding.transBottomNavBar.menu.getItem(2).itemId){
+            Log.d(
+                TAG,
+                "onCreate: ${it.itemId} ${
+                    binding.transBottomNavBar.findViewById<BottomNavigationItemView>(it.itemId)
+                }"
+            )
+            if (binding.transBottomNavBar.menu.size() > 2 && it.itemId == binding.transBottomNavBar.menu.getItem(
+                    2
+                ).itemId
+            ) {
                 val intent = Intent(this, AccountActivity::class.java)
                 startActivity(intent)
             }
             return@setOnItemSelectedListener true
         }
 
+        transactionProviderViewModel.transactionItems.observe(this, Observer {
+            transactionItems.clear()
+            transactionItems.addAll(it)
+            adapter.notifyDataSetChanged()
+        })
+
         setContentView(binding.root)
     }
 
     private fun updateStatusBar() {
-        val colorPrimary = ContextCompat.getColor(this,R.color.colorPrimary)
-        var color = MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary, colorPrimary)
+        val colorPrimary = ContextCompat.getColor(this, R.color.colorPrimary)
+        var color =
+            MaterialColors.getColor(this, androidx.appcompat.R.attr.colorPrimary, colorPrimary)
         window.statusBarColor = color
-        if(filterAccounts.isNotEmpty()){
-            color = ContextCompat.getColor(this,R.color.dark_blue_600)
+        if (filterAccounts.isNotEmpty()) {
+            color = ContextCompat.getColor(this, R.color.dark_blue_600)
             window.statusBarColor = color
         }
         binding.transScreenAppBar.setBackgroundColor(color)
@@ -184,7 +211,7 @@ class TransactionsActivity: AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState.putIntArray(FILTER_ACCOUNT_IDS_LABEL,filterAccounts.toIntArray())
+        outState.putIntArray(FILTER_ACCOUNT_IDS_LABEL, filterAccounts.toIntArray())
     }
 
 

@@ -35,18 +35,12 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
         DataHandler(application).transactionProvider
     }
 
-
-
-    private val _transactions: MutableList<Transaction> by lazy {
-        mutableListOf()
-    }
     private val offset: Long = 0
     private val limit: Long = 30
     private val _totalIncome: MutableLiveData<Double> = MutableLiveData(0.0)
     private val _totalExpense: MutableLiveData<Double> = MutableLiveData(0.0)
-    private val transactionItems : MutableList<TransactionItems> = mutableListOf()
-    private lateinit var transactionsListAdapter: TransactionsListAdapter
 
+    private val _transactionItems : MutableLiveData<List<TransactionItems>> = MutableLiveData()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,23 +61,19 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
             fetchTransactionsBetween()
         }
 
+    val transactionItems: LiveData<List<TransactionItems>>
+        get() = _transactionItems
+
     val totalIncome: LiveData<Double>
         get() = _totalIncome
     val totalExpense: LiveData<Double>
         get() = _totalExpense
 
 
-    fun getTransactionListAdapter(onItemClickListener: (Transaction) -> Unit) : TransactionsListAdapter {
-        transactionsListAdapter = TransactionsListAdapter(transactionItems, onItemClickListener)
-        return transactionsListAdapter
-    }
-
-
-    fun fetchTransactionsBetween( filterIDs: List<AccountID> = listOf()) {
+    fun fetchTransactionsBetween(filterIDs: List<AccountID> = listOf()) {
         val from: LocalDate = YearMonth.of(year.value,month).atEndOfMonth()
         val to: LocalDate = LocalDate.of(year.value,month,1)
 
-        _transactions.clear()
         viewModelScope.launch(Dispatchers.IO) {
             val data = transactionProvider.getTransactionsBetween(from, to) {
                 if(filterIDs.isEmpty()) true
@@ -93,39 +83,29 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
                 }
             }
 
-            Log.d(TAG, "$data: ${filterIDs.isEmpty()}")
-
-            withContext(Dispatchers.Main){
-                _transactions.addAll(data)
-                prepareTransactionItemsForDay()
-                transactionsListAdapter.notifyDataSetChanged()
-
-                Log.d(TAG, "fetchTransactionsBetween $from and $to: ${_transactions.size}")
-            }
+            prepareTransactionItemsForDay(data)
 
         }
     }
 
     fun fetchTransactionsMatches(from: LocalDate = LocalDate.now(), to: LocalDate = LocalDate.now().withDayOfMonth(1), query: String = "") {
-        _transactions.clear()
+
         viewModelScope.launch {
-            val data = transactionProvider.getTransactions(offset, limit) {
-                if(query.isEmpty()) return@getTransactions false
+            val data = transactionProvider.getTransactionsBetween(from, to) {
+                if(query.isEmpty()) return@getTransactionsBetween false
                 it.note.toString().lowercase().contains(query.lowercase())
             }
-            _transactions.addAll(data)
-            prepareTransactionItemsForDay()
-            transactionsListAdapter.notifyDataSetChanged()
 
-            Log.d(TAG, "Filter fetchTransactions $from and $to: ${_transactions.size}")
+            prepareTransactionItemsForDay(data)
+
         }
     }
 
-    private fun prepareTransactionItemsForDay() {
-        transactionItems.clear()
+    private fun prepareTransactionItemsForDay(transactionList: List<Transaction>) {
+        val transactionItems: MutableList<TransactionItems> = mutableListOf()
         var totalIncome1 = 0.0
         var totalExpense1 = 0.0
-        _transactions.groupBy { it.date }.forEach { (date, values) ->
+        transactionList.groupBy { it.date }.forEach { (date, values) ->
             val totalPeriodicIncome: Double = values.filterIsInstance<Income>().sumOf { it.amount.toString().toDouble() }
             val totalPeriodicExpense: Double = values.filterIsInstance<Expense>().sumOf { it.amount.toString().toDouble() }
             totalIncome1 += totalPeriodicIncome
@@ -134,6 +114,8 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
             transactionItems.add(TransactionItems.PeriodicItem(periodicData))
             values.sortedByDescending { it.id }.forEach { transactionItems.add(TransactionItems.TransactionItem(it)) }
         }
+
+        _transactionItems.postValue(transactionItems)
         _totalIncome.postValue(totalIncome1)
         _totalExpense.postValue(totalExpense1)
     }

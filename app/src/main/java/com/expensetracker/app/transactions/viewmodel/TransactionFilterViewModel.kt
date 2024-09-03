@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.expensetracker.app.data.DataHandler
-import com.expensetracker.app.transactions.adapter.TransactionsFilterAdapter
 import com.expensetracker.app.transactions.support.TransactionFilterData
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.BankAccount
@@ -55,11 +54,14 @@ class TransactionFilterViewModel(application: Application): AndroidViewModel(app
 
     private val _selectedExpense: MutableLiveData<Double> = MutableLiveData()
 
-    private val _transactionsFilterAdapter: MutableLiveData<TransactionsFilterAdapter> = MutableLiveData()
-
-    private val checkBoxes: MutableMap<AccountID,CheckBox> = mutableMapOf()
-
     private val _selectedAccounts: MutableLiveData<List<Int>> = MutableLiveData()
+
+    private val selectedAccountsList: MutableList<Int> = mutableListOf()
+
+    private val _transactionFilterData: MutableLiveData<List<TransactionFilterData>> = MutableLiveData()
+
+    val transactionFilterData: LiveData<List<TransactionFilterData>>
+        get() = _transactionFilterData
 
     val totalIncome: LiveData<Double>
         get() = _totalIncome
@@ -76,11 +78,21 @@ class TransactionFilterViewModel(application: Application): AndroidViewModel(app
     val selectedAccounts: LiveData<List<Int>>
         get() = _selectedAccounts
 
-    val transactionsFilterAdapter: LiveData<TransactionsFilterAdapter>
-        get() = _transactionsFilterAdapter
-
-    fun prepareTransactionFilter(year: Year, month: Month, selectedAccounts: List<AccountID>) {
+    fun prepareTransactionFilter(year: Year, month: Month, selectedAccountIds: Set<AccountID> ) {
         viewModelScope.launch {
+
+            val selectedAccounts: MutableSet<AccountID> = mutableSetOf()
+            if(selectedAccountIds.isNotEmpty()) {
+                selectedAccounts.addAll(selectedAccountIds)
+                selectedAccountsList.addAll(selectedAccountIds)
+            }
+            if(selectedAccountsList.isNotEmpty()) selectedAccounts.addAll(selectedAccountsList)
+
+            Log.d(TAG, "prepareTransactionFilter: $selectedAccountIds")
+
+            selectedExpenseTracker = 0.0
+            selectedIncomeTracker = 0.0
+
             val incomeTransactions = transactionProvider.getIncomeBetween(
                 from = LocalDate.of(year.value, month, month.length(year.isLeap)),
                 to = LocalDate.of(year.value, month, 1)
@@ -96,19 +108,21 @@ class TransactionFilterViewModel(application: Application): AndroidViewModel(app
             val accounts = accountProvider.accounts
 
             val accountIncomes: Map<Int, Double> =
-                incomeTransactions.groupBy { it.account.id }.mapKeys { it.key }.mapValues { incomes ->
+                incomeTransactions.groupBy { it.account.id }.mapValues { incomes ->
+                    if (incomes.key in selectedAccounts) selectedIncomeTracker += incomes.value.sumOf { it.amount.toString().toDouble() }
                     incomes.value.sumOf { it.amount.toString().toDouble() }
                 }
             val accountExpenses: Map<Int, Double> =
-                expenseTransactions.groupBy { it.account.id }.mapKeys { it.key }.mapValues { expenses ->
+                expenseTransactions.groupBy { it.account.id }.mapValues { expenses ->
+                    if (expenses.key in selectedAccounts) selectedExpenseTracker += expenses.value.sumOf { it.amount.toString().toDouble() }
                     expenses.value.sumOf { it.amount.toString().toDouble() }
                 }
             val accountTransferIns: Map<Int, Double> =
-                transferTransactions.groupBy { it.toAccount.id }.mapKeys { it.key }.mapValues { transfers ->
+                transferTransactions.groupBy { it.toAccount.id }.mapValues { transfers ->
                     transfers.value.sumOf { it.amount.toString().toDouble() }
                 }
             val accountTransferOuts: Map<Int, Double> =
-                transferTransactions.groupBy { it.fromAccount.id }.mapKeys { it.key }.mapValues { transfers ->
+                transferTransactions.groupBy { it.fromAccount.id }.mapValues { transfers ->
                     transfers.value.sumOf { it.amount.toString().toDouble() }
                 }
 
@@ -122,6 +136,7 @@ class TransactionFilterViewModel(application: Application): AndroidViewModel(app
                 mutableListOf()
             val debitCardsData: MutableList<TransactionFilterData.TransactionFilterItem> =
                 mutableListOf()
+
 
             accounts.forEach { account ->
                 val income: Double = accountIncomes[account.id] ?: 0.0
@@ -170,55 +185,38 @@ class TransactionFilterViewModel(application: Application): AndroidViewModel(app
                 }
             }
 
-            val selected: Set<AccountID> = mutableSetOf<AccountID>().also { set ->
-                if(checkBoxes.isNotEmpty()) set.addAll(checkBoxes.filter { it.value.isChecked }.keys)
-                set.addAll(selectedAccounts)
-            }
-
-            _transactionsFilterAdapter.postValue(
-                TransactionsFilterAdapter(
-                    transactionFilterDataList,
-                    selected,
-                    checkBoxes,
-                    onFilterApplied = { data ->
-                        Log.d(TAG, "onFilterApplied $data ")
-                        updateTotals(data)
-                    },
-                    onFilterRemoved = { data ->
-                        Log.d(TAG, "onFilterRemoved ${checkBoxes[data.accountID]?.isChecked}")
-                        updateTotals(data)
-                    })
-            )
+            _transactionFilterData.postValue(transactionFilterDataList)
 
             accountIncomes.values.sumOf { it }.let { _totalIncome.postValue(it) }
             accountExpenses.values.sumOf { it }.let { _totalExpense.postValue(it) }
-        }
-    }
-
-    fun selectAccounts(accountIDs: List<AccountID>) {
-        if(checkBoxes.isNotEmpty()){
-            accountIDs.forEach { 
-                if(checkBoxes.contains(it)){
-                    checkBoxes[it]?.isChecked = true
-                }
+            if (selectedAccounts.isNotEmpty()){
+                _selectedIncome.postValue(selectedIncomeTracker)
+                _selectedExpense.postValue(selectedExpenseTracker)
             }
         }
     }
 
-    fun updateTotals(data:  TransactionFilterData. TransactionFilterItem){
-        if(checkBoxes.containsKey(data.accountID) && checkBoxes[data.accountID]?.isChecked == true){
+    fun getSelectedIds() {
+        viewModelScope.launch {
+            _selectedAccounts.postValue(selectedAccountsList)
+        }
+    }
+
+
+    fun updateTotals(data: TransactionFilterData.TransactionFilterItem){
+        if(!selectedAccountsList.contains(data.accountID)){
+            selectedAccountsList.add(data.accountID)
             selectedIncomeTracker += data.income
             selectedExpenseTracker += data.expense
         } else {
+            Log.d(TAG, "updateTotals: removed")
+            selectedAccountsList.remove(data.accountID)
             selectedIncomeTracker -= data.income
             selectedExpenseTracker -= data.expense
         }
-        _selectedAccounts.postValue(selectedAccountIds())
         _selectedIncome.postValue(selectedIncomeTracker)
         _selectedExpense.postValue(selectedExpenseTracker)
+        _selectedAccounts.postValue(selectedAccountsList)
     }
-    
-    fun selectedAccountIds(): List<Int> {
-        return checkBoxes.filter { it.value.isChecked }.keys.toList()
-    }
+
 }

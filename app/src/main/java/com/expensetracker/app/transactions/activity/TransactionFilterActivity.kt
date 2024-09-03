@@ -7,9 +7,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.expensetracker.app.databinding.TransactionsFilterScreenBinding
+import com.expensetracker.app.transactions.adapter.TransactionsFilterAdapter
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
 import com.expensetracker.app.transactions.support.Literals.YEAR_LABEL
@@ -44,51 +47,53 @@ class TransactionFilterActivity: AppCompatActivity() {
     private val selectedBalance: Double
         get() = selectedIncome - selectedExpense
 
-    private val selectedAccountIds: MutableList<AccountID> = mutableListOf()
+    private val selectedAccountIds: MutableSet<AccountID> = mutableSetOf()
+    private val transactionFilterData: MutableList<TransactionFilterData> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if(savedInstanceState != null) {
-            totalIncome = savedInstanceState.getDouble(TOTAL_INCOME,totalIncome)
-            totalExpense = savedInstanceState.getDouble(TOTAL_EXPENSE,totalExpense)
-            selectedIncome = savedInstanceState.getDouble(SELECTED_INCOME,selectedIncome)
-            selectedExpense = savedInstanceState.getDouble(SELECTED_EXPENSE,selectedExpense)
+        if (savedInstanceState != null) {
+            totalIncome = savedInstanceState.getDouble(TOTAL_INCOME, totalIncome)
+            totalExpense = savedInstanceState.getDouble(TOTAL_EXPENSE, totalExpense)
+            selectedIncome = savedInstanceState.getDouble(SELECTED_INCOME, selectedIncome)
+            selectedExpense = savedInstanceState.getDouble(SELECTED_EXPENSE, selectedExpense)
         }
 
-        val monthValue = intent.getIntExtra(MONTH_LABEL,month.value)
-        if(monthValue < 1 || monthValue > 12) month = Month.of(monthValue)
-        try { year = Year.of(intent.getIntExtra(YEAR_LABEL,year.value)) } catch (_: Exception) {}
+        val monthValue = intent.getIntExtra(MONTH_LABEL, month.value)
+        if (monthValue in 1..12) {
+            month = Month.of(monthValue)
+            Toast.makeText(this, "$monthValue", Toast.LENGTH_SHORT).show()
+        }
+        try {
+            year = Year.of(intent.getIntExtra(YEAR_LABEL, year.value))
+        } catch (_: Exception) {
+        }
         intent.getIntArrayExtra(FILTER_ACCOUNT_IDS_LABEL)?.let {
             selectedAccountIds.clear()
             selectedAccountIds.addAll(it.toList())
         }
 
+        transactionFilterViewModel.getSelectedIds()
+
         binding = TransactionsFilterScreenBinding.inflate(layoutInflater)
 
         binding.transFilterMonth.text = month.name
         binding.transFilterCloseBtn.setOnClickListener {
+            val resultIntent = Intent()
+            resultIntent.putExtra(FILTER_ACCOUNT_IDS_LABEL, selectedAccountIds.toIntArray())
+            setResult(RESULT_OK, resultIntent)
             finish()
         }
 
         binding.transFilterBtn.visibility = View.GONE
         binding.transFilterBtn.setOnClickListener {
-            val ids = transactionFilterViewModel.selectedAccountIds()
-//            Toast.makeText(this, "$ids", Toast.LENGTH_SHORT).show()
+            transactionFilterViewModel.getSelectedIds()
             val resultIntent = Intent()
-            resultIntent.putExtra(FILTER_ACCOUNT_IDS_LABEL,ids.toIntArray())
+            resultIntent.putExtra(FILTER_ACCOUNT_IDS_LABEL, selectedAccountIds.toIntArray())
             setResult(RESULT_OK, resultIntent)
             finish()
         }
-
-        val listView = binding.transFilterList
-        listView.layoutManager = LinearLayoutManager(this)
-
-        transactionFilterViewModel.prepareTransactionFilter(year, month, selectedAccountIds)
-
-        transactionFilterViewModel.transactionsFilterAdapter.observe(this, Observer {
-            listView.adapter = it
-        })
 
         val totalIncomeObserver = Observer<Double> {
             totalIncome = it
@@ -102,20 +107,45 @@ class TransactionFilterActivity: AppCompatActivity() {
             binding.transFilterInfo3.text = totalBalance.toString()
         }
 
+        val listView = binding.transFilterList
+        val adapter = TransactionsFilterAdapter(
+            transactionFilterData,
+            selectedAccountIds,
+            mutableMapOf(),
+            onFilterApplied = { data ->
+                transactionFilterViewModel.updateTotals(data)
+            },
+            onFilterRemoved = { data ->
+                transactionFilterViewModel.updateTotals(data)
+            })
+
+        listView.adapter = adapter
+        listView.layoutManager = LinearLayoutManager(this)
+
+        transactionFilterViewModel.prepareTransactionFilter(year, month, selectedAccountIds)
+
         transactionFilterViewModel.selectedAccounts.observe(this, Observer {
-            if(it.isNotEmpty()){
+            selectedAccountIds.clear()
+            selectedAccountIds.addAll(it)
+            if (selectedAccountIds.isNotEmpty()) {
                 binding.transFilterBtn.visibility = View.VISIBLE
                 transactionFilterViewModel.totalIncome.removeObserver(totalIncomeObserver)
                 transactionFilterViewModel.totalExpense.removeObserver(totalExpenseObserver)
             } else {
                 binding.transFilterBtn.visibility = View.GONE
-                transactionFilterViewModel.totalIncome.observe(this,totalIncomeObserver)
-                transactionFilterViewModel.totalExpense.observe(this,totalExpenseObserver)
+                transactionFilterViewModel.totalIncome.observe(this, totalIncomeObserver)
+                transactionFilterViewModel.totalExpense.observe(this, totalExpenseObserver)
             }
         })
 
-        transactionFilterViewModel.totalIncome.observe(this,totalIncomeObserver)
-        transactionFilterViewModel.totalExpense.observe(this,totalExpenseObserver)
+        transactionFilterViewModel.transactionFilterData.observe(this, Observer {
+            transactionFilterData.clear()
+            transactionFilterData.addAll(it)
+            adapter.notifyDataSetChanged()
+        })
+
+        transactionFilterViewModel.totalIncome.observe(this, totalIncomeObserver)
+        transactionFilterViewModel.totalExpense.observe(this, totalExpenseObserver)
 
         transactionFilterViewModel.selectedIncome.observe(this, Observer {
             selectedIncome = it
@@ -130,6 +160,7 @@ class TransactionFilterActivity: AppCompatActivity() {
         })
 
         setContentView(binding.root)
+
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

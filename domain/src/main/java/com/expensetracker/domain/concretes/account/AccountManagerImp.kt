@@ -16,6 +16,7 @@ import com.expensetracker.core.support.SimpleName
 import com.expensetracker.domain.contracts.account.AccountManager
 import com.expensetracker.domain.contracts.account.AccountProvider
 import com.expensetracker.domain.support.Result
+import kotlin.math.log
 
 
 class AccountManagerImp(
@@ -51,7 +52,7 @@ AccountProvider by accountProvider {
             val minimumBalance1: Amount = Amount(minimumBalance)
             return createAccount(
                 BankAccount(
-                    bankAccountActions.generateId(), name1, balance1, minimumBalance1
+                    cashAccountActions.generateId(), name1, balance1, minimumBalance1
                 )
             )
         } catch (e: CustomException) {

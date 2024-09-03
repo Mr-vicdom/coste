@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -19,14 +20,14 @@ import com.expensetracker.core.models.BankAccount
 import com.expensetracker.core.models.DebitCardID
 import com.expensetracker.core.support.AccountType
 
-class AccountAddActivity : AppCompatActivity() {
+open class AccountAddActivity : AppCompatActivity() {
 
     protected lateinit var binding: AccountAddScreenBinding
     protected val viewModel: AccountsViewModel by viewModels<AccountsViewModel>()
     protected var groupType: AccountType = AccountType.BANK_ACCOUNT
     protected val bankAccounts: MutableMap<Int, BankAccount> = mutableMapOf()
-    protected val bankAccountAsItems: List<String>
-        get() = bankAccounts.map { it.value.name.toString() }
+    protected val bankAccountAsItems: MutableList<String>
+        get() = bankAccounts.values.map { it.name.toString() }.toMutableList()
     protected var selectedBankAccount: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,16 +49,14 @@ class AccountAddActivity : AppCompatActivity() {
 
         val groupField: Spinner = binding.groupField
         val bankAccountLabel: TextView = binding.bankAccountsLabel
-        val bankAccountField: Spinner = binding.groupField
+        val bankAccountField: Spinner = binding.bankAccountsField
         val nameField: EditText = binding.nameField
         val saveBtn: Button = binding.saveBtn
 
 
         val groupSelectedListener = SpinnerItemSelectedListener { position ->
-            Log.d("=>log", "onCreate: ")
             if (accountTypes.keys.toList().indices.contains(position))
                 groupType = accountTypes.keys.toList().elementAt(position)
-            Log.d("=>log", "onCreate: $groupType")
             if (groupType == AccountType.DEBIT_CARD) {
                 viewModel.getBankAccounts()
                 bankAccountLabel.visibility = View.VISIBLE
@@ -77,21 +76,39 @@ class AccountAddActivity : AppCompatActivity() {
         bankAccountField.onItemSelectedListener = bankSelectedListener
 
         groupField.adapter = adapter
-        bankAccountField.adapter = adapter
+        bankAccountField.adapter = bankAccountAdapter
 
+        //Back btn
+        binding.accountAddBackBtn.setOnClickListener{
+            setResult(RESULT_CANCELED)
+            finish()
+        }
+
+        // fetched bank accounts
         viewModel.bankAccounts.observe(this, Observer { accounts ->
             bankAccounts.clear()
             bankAccounts.putAll(accounts.associateBy { it.id })
+            bankAccountAdapter.clear()
+            bankAccountAdapter.addAll(bankAccountAsItems)
             bankAccountAdapter.notifyDataSetChanged()
         })
 
+
+        //Save btn
         saveBtn.setOnClickListener {
-            viewModel.createAccount(groupType, nameField.text.toString(),
-                selectedBankAccount?.let {
-                    if (bankAccounts.contains(it))
-                        bankAccounts[it]
-                    else null
+            val name = nameField.text.toString()
+            if (name.isNotEmpty()) {
+                viewModel.createAccount(groupType, name,
+                    selectedBankAccount?.let {
+                        if (bankAccounts.contains(it))
+                            bankAccounts[it]
+                        else null
                 })
+                setResult(RESULT_OK)
+                finish()
+            } else {
+                Toast.makeText(this, "Name can't be empty", Toast.LENGTH_SHORT).show()
+            }
         }
 
         setContentView(binding.root)

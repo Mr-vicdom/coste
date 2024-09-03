@@ -9,15 +9,20 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.expensetracker.app.databinding.TransactionSearchScreenBinding
 import com.expensetracker.app.transactions.adapter.TransactionSearchAdapter
+import com.expensetracker.app.transactions.adapter.TransactionsListAdapter
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
+import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
 
 class TransactionSearchActivity: AppCompatActivity() {
 
     val viewModel : TransactionProviderViewModel by viewModels<TransactionProviderViewModel>()
+    val transactionItems: MutableList<TransactionItems> = mutableListOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -55,13 +60,21 @@ class TransactionSearchActivity: AppCompatActivity() {
             }
         }
 
-        binding.transSearchResult.adapter = viewModel.getTransactionListAdapter {
+        val adapter = TransactionsListAdapter(transactionItems) {
             val modifyTransactionIntent = Intent(this,TransactionModifyActivity::class.java)
             modifyTransactionIntent.putExtra(TRANSACTION_ID_LABEL,it.id)
             modifyActivityLauncher.launch(modifyTransactionIntent)
         }
 
+        binding.transSearchResult.adapter = adapter
+
         binding.transSearchResult.layoutManager = LinearLayoutManager(this)
+
+        viewModel.transactionItems.observe(this, Observer {
+            transactionItems.clear()
+            transactionItems.addAll(it)
+            adapter.notifyDataSetChanged()
+        })
 
         setContentView(binding.root)
     }

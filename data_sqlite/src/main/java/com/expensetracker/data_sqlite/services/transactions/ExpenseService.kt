@@ -163,7 +163,6 @@ class ExpenseService(
             cursor.close()
             transactions
         } catch (e: Exception) {
-            Log.d(TAG, "getSomeTransactions: ec$")
             e.printStackTrace()
             emptyList()
         }
@@ -284,7 +283,6 @@ class ExpenseService(
 
                     if (expense.date in to..from)
                         transactions.add(expense)
-                    Log.d(TAG, "getTransactions: $expense")
                 } while (cursor.moveToNext())
             }
             cursor.close()

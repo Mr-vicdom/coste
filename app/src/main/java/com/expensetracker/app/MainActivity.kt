@@ -48,9 +48,6 @@ class MainActivity : AppCompatActivity() {
         val binding = TransactionsScreenBinding.inflate(layoutInflater)
         val viewModel: TransactionProviderViewModel by viewModels<TransactionProviderViewModel>()
 
-        binding.transScreenListView.adapter = viewModel.getTransactionListAdapter {}
-        binding.transScreenListView.layoutManager = LinearLayoutManager(this)
-        viewModel.fetchTransactionsBetween()
 
 
         val dbHelper = DatabaseHelper(applicationContext)

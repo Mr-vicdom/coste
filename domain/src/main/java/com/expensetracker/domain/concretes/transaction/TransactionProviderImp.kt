@@ -107,9 +107,9 @@ class TransactionProviderImp(
     ): List<Transaction> {
         val transactions: MutableList<Transaction> = mutableListOf()
         with(transactions){
-            addAll(getIncomeBetween(from, to))
-            addAll(getExpenseBetween(from, to))
-            addAll(getTransferBetween(from, to))
+            addAll(getIncomeBetween(from, to, predicate))
+            addAll(getExpenseBetween(from, to, predicate))
+            addAll(getTransferBetween(from, to, predicate))
         }
         return transactions
     }
