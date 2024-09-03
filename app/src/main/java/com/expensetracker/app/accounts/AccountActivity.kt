@@ -42,9 +42,6 @@ class AccountActivity: AppCompatActivity() {
             }
         }
 
-        binding.accountScreenBackBtn.setOnClickListener {
-            finish()
-        }
 
         binding.accountScreenEditBtn.setOnClickListener {
             viewModel.setRemovable(true)
@@ -54,9 +51,6 @@ class AccountActivity: AppCompatActivity() {
             viewModel.setRemovable(false)
         }
 
-        binding.accountScreenBackBtn.setOnClickListener {
-            finish()
-        }
 
         binding.accountScreenAddBtn.setOnClickListener {
             val intent = Intent(this, AccountAddActivity::class.java)

@@ -27,15 +27,6 @@
                 app:layout_constraintTop_toTopOf="@id/category_screen_title"
                 app:layout_constraintBottom_toBottomOf="@id/category_screen_title"/>
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/category_screen_close_btn"
-                style="@style/AppIconTheme"
-                android:src="@drawable/close_icon"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@id/category_screen_title"
-                app:layout_constraintBottom_toBottomOf="@id/category_screen_title"/>
-
             <TextView
                 android:id="@+id/category_screen_title"
                 style="@style/AppTextTheme"
@@ -46,18 +37,11 @@
                 android:text="@string/category"
                 android:textColor="@color/white"
                 android:textSize="@dimen/large_text"
-                app:layout_constraintEnd_toStartOf="@+id/category_screen_edit_btn"
+                app:layout_constraintEnd_toStartOf="@+id/category_screen_add_btn"
                 app:layout_constraintStart_toEndOf="@id/category_screen_back_btn"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/category_screen_edit_btn"
-                style="@style/AppIconTheme"
-                android:src="@drawable/edit_icon"
-                app:layout_constraintEnd_toStartOf="@id/category_screen_add_btn"
-                app:layout_constraintTop_toTopOf="@id/category_screen_title"
-                app:layout_constraintBottom_toBottomOf="@id/category_screen_title"/>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/category_screen_add_btn"
@@ -71,14 +55,14 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <ScrollView
-        android:id="@+id/categorys_screen_scroll_view"
+        android:id="@+id/category_screen_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:background="?attr/background"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/categorys_screen_list_view"
+            android:id="@+id/category_screen_list_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="120dp"

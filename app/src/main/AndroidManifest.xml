@@ -29,6 +29,8 @@
         <activity android:name=".accounts.AccountActivity" android:exported="true"/>
         <activity android:name=".accounts.AccountAddActivity" android:exported="true"/>
         <activity android:name=".accounts.AccountModifyActivity" android:exported="true"/>
+        <activity android:name=".category.CategoryActivity" android:exported="true"/>
+        <activity android:name=".category.SettingsActivity" android:exported="true"/>
     </application>
 
 </manifest>

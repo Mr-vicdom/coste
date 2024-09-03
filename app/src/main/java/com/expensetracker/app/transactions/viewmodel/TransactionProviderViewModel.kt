@@ -35,31 +35,35 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
         DataHandler(application).transactionProvider
     }
 
-    private val offset: Long = 0
-    private val limit: Long = 30
     private val _totalIncome: MutableLiveData<Double> = MutableLiveData(0.0)
     private val _totalExpense: MutableLiveData<Double> = MutableLiveData(0.0)
 
     private val _transactionItems : MutableLiveData<List<TransactionItems>> = MutableLiveData()
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            delay(3000)
-            month = Month.AUGUST
-        }
-    }
 
     var month: Month = LocalDate.now().month
         set(value) {
             field = value
             fetchTransactionsBetween()
+            _monthValue.postValue(value)
         }
 
     var year: Year = Year.now()
         set(value) {
             field = value
             fetchTransactionsBetween()
+            _yearValue.postValue(value.value)
         }
+
+    private val _monthValue: MutableLiveData<Month> = MutableLiveData()
+
+    val monthValue: LiveData<Month>
+        get() = _monthValue
+
+    private val _yearValue: MutableLiveData<Int> = MutableLiveData()
+
+    val yearValue: LiveData<Int>
+        get() = _yearValue
 
     val transactionItems: LiveData<List<TransactionItems>>
         get() = _transactionItems
@@ -88,7 +92,10 @@ class TransactionProviderViewModel(application: Application): AndroidViewModel(a
         }
     }
 
-    fun fetchTransactionsMatches(from: LocalDate = LocalDate.now(), to: LocalDate = LocalDate.now().withDayOfMonth(1), query: String = "") {
+    fun fetchTransactionsMatches(query: String = "") {
+
+        val from: LocalDate = YearMonth.of(year.value,month).atEndOfMonth()
+        val to: LocalDate = LocalDate.of(year.value,month,1)
 
         viewModelScope.launch {
             val data = transactionProvider.getTransactionsBetween(from, to) {

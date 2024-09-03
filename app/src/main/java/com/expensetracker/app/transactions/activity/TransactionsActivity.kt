@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.expensetracker.app.R
 import com.expensetracker.app.accounts.AccountActivity
+import com.expensetracker.app.category.SettingsActivity
 import com.expensetracker.app.data.DataHandler
 import com.expensetracker.app.databinding.TransactionsScreenBinding
 import com.expensetracker.app.support.DataGenerator
@@ -26,6 +27,7 @@ import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
 import com.expensetracker.app.transactions.support.Literals.YEAR_LABEL
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
+import com.expensetracker.core.actions.TransactionActions
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.Transaction
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
@@ -35,6 +37,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Month
+import java.util.Locale
 import kotlin.math.log
 
 const val TAG = "TransactionActivity=>log"
@@ -119,6 +122,28 @@ class TransactionsActivity : AppCompatActivity() {
             transactionProviderViewModel.fetchTransactionsBetween(filterIDs = filterAccounts)
         }
 
+        //month pagination
+
+        binding.transScreenMonth.text = transactionProviderViewModel.month.name.lowercase().replaceFirstChar {c -> c.uppercase() }
+
+        binding.transPreviousBtn.setOnClickListener {
+            with(transactionProviderViewModel){
+                 month = month.minus(1)
+            }
+        }
+        binding.transNextBtn.setOnClickListener {
+            with(transactionProviderViewModel){
+                month = month.plus(1)
+            }
+        }
+
+        transactionProviderViewModel.monthValue.observe(this, Observer {
+            binding.transScreenMonth.text = it.name.lowercase().replaceFirstChar {c -> c.uppercase() }
+        })
+        transactionProviderViewModel.yearValue.observe(this, Observer {
+           // Year impl
+        })
+
         //Search BTN
         transactionScreenSearchBtn.setOnClickListener {
             startActivity(Intent(this, TransactionSearchActivity::class.java))
@@ -170,20 +195,24 @@ class TransactionsActivity : AppCompatActivity() {
         }
         //BOTTOM NAV BAR
         binding.transBottomNavBar.setOnItemSelectedListener {
-            Log.d(
-                TAG,
-                "onCreate: ${it.itemId} ${
-                    binding.transBottomNavBar.findViewById<BottomNavigationItemView>(it.itemId)
-                }"
-            )
-            if (binding.transBottomNavBar.menu.size() > 2 && it.itemId == binding.transBottomNavBar.menu.getItem(
-                    2
-                ).itemId
-            ) {
-                val intent = Intent(this, AccountActivity::class.java)
-                startActivity(intent)
+            return@setOnItemSelectedListener when(it.itemId){
+                R.id.home_nav_btn -> {
+                    val intent = Intent(this, TransactionsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.account_nav_btn ->{
+                    val intent = Intent(this, AccountActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.settings_nav_btn -> {
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
             }
-            return@setOnItemSelectedListener true
         }
 
         transactionProviderViewModel.transactionItems.observe(this, Observer {

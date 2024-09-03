@@ -38,4 +38,6 @@
     <string name="name_label">Name</string>
     <string name="liabilities">Liabilities</string>
     <string name="bank_accounts_label">Bank Accounts</string>
+    <string name="income_categories">Income Categories</string>
+    <string name="expense_categories">Expense Categories</string>
 </resources>

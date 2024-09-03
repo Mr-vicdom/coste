@@ -50,7 +50,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/trans_screen_filter_btn"
                 app:layout_constraintStart_toEndOf="@id/trans_screen_search_btn"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toTopOf="@id/trans_screen_month"/>
 
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/trans_screen_filter_btn"
@@ -59,6 +59,42 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@id/trans_screen_title"
                 app:layout_constraintBottom_toBottomOf="@id/trans_screen_title"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/trans_previous_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/previous_arrow_icon"
+                style="@style/AppIconTheme"
+                app:layout_constraintTop_toTopOf="@id/trans_screen_month"
+                app:layout_constraintBottom_toBottomOf="@id/trans_screen_month"
+                app:layout_constraintStart_toStartOf="parent"
+                />
+
+            <TextView
+                android:id="@+id/trans_screen_month"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/AppTextTheme"
+                android:text="@string/month_label"
+                android:textAlignment="center"
+                android:textColor="@color/white"
+                app:layout_constraintTop_toBottomOf="@id/trans_screen_title"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/trans_next_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/next_arrow_icon"
+                style="@style/AppIconTheme"
+                app:layout_constraintTop_toTopOf="@id/trans_screen_month"
+                app:layout_constraintBottom_toBottomOf="@id/trans_screen_month"
+                app:layout_constraintEnd_toEndOf="parent"
+                />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.tabs.TabLayout
