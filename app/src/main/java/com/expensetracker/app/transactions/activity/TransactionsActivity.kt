@@ -64,11 +64,6 @@ class TransactionsActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
 
-        GlobalScope.launch(Dispatchers.IO) {
-            Log.d(TAG, "onCreate: ${dataHandler.accountProvider.accounts}")
-            transactionProviderViewModel.fetchTransactionsBetween()
-        }
-
         savedInstanceState?.getIntArray(FILTER_ACCOUNT_IDS_LABEL)?.let {
             filterAccounts.clear()
             filterAccounts.addAll(it.toList())
@@ -98,7 +93,6 @@ class TransactionsActivity : AppCompatActivity() {
         val filterTransactionLauncher: ActivityResultLauncher<Intent> =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
-
                     result.data?.getIntArrayExtra(FILTER_ACCOUNT_IDS_LABEL)?.let {
                         filterAccounts.clear()
                         filterAccounts.addAll(it.toList())

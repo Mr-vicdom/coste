@@ -234,93 +234,31 @@ object DataGenerator {
 
         transactionManager.addTransfer(
             _date = LocalDate.now().minusDays(1),
-            _amount = "100.0",
-            _note = "Self Transfer",
+            _amount = "1000.0",
+            _note = "TO Transfer",
             _description = "Transferred money to another account",
-            fromAccount = accountProvider.accounts.random(),
-            toAccount = accountProvider.accounts.random()
+            fromAccount = accountProvider.accounts.first(),
+            toAccount = accountProvider.accounts.last()
         )
 
         transactionManager.addTransfer(
-            _date = LocalDate.now().minusDays(2),
-            _amount = "150.0",
-            _note = "Rent Payment",
-            _description = "Transferred rent to landlord",
-            fromAccount = accountProvider.accounts.random(),
-            toAccount = accountProvider.accounts.random()
+            _date = LocalDate.now().plusDays(1),
+            _amount = "100.0",
+            _note = "Self",
+            _description = "Transferred money to another account",
+            fromAccount = accountProvider.accounts.first(),
+            toAccount = accountProvider.accounts.last()
         )
 
         transactionManager.addTransfer(
             _date = LocalDate.now().minusDays(3),
-            _amount = "200.0",
-            _note = "Savings Deposit",
-            _description = "Transferred to savings account",
-            fromAccount = accountProvider.accounts.random(),
-            toAccount = accountProvider.accounts.random()
+            _amount = "100.0",
+            _note = "With Draw",
+            _description = "Transferred money to another account",
+            fromAccount = accountProvider.accounts.last(),
+            toAccount = accountProvider.accounts.first()
         )
 
-        transactionManager.addTransfer(
-            _date = LocalDate.now().minusDays(4),
-            _amount = "50.0",
-            _note = "Loan Repayment",
-            _description = "Repayment of personal loan",
-            fromAccount = accountProvider.accounts.random(),
-            toAccount = accountProvider.accounts.random()
-        )
-
-        transactionManager.addTransfer(
-            _date = LocalDate.now().minusDays(5),
-            _amount = "300.0",
-            _note = "Investment Account",
-            _description = "Transferred to investment account",
-            fromAccount = accountProvider.accounts.random(),
-            toAccount = accountProvider.accounts.random()
-        )
-
-        transactionManager.addTransfer(
-            _date = LocalDate.now().minusDays(6),
-            _amount = "25.0",
-            _note = "Gift Money",
-            _description = "Transferred gift money to a friend",
-            fromAccount = accountProvider.accounts.random(),
-            toAccount = accountProvider.accounts.random()
-        )
-
-        transactionManager.addTransfer(
-            _date = LocalDate.now().minusDays(7),
-            _amount = "75.0",
-            _note = "Charity Donation",
-            _description = "Donated to charity",
-            fromAccount = accountProvider.accounts.random(),
-            toAccount = accountProvider.accounts.random()
-        )
-
-        transactionManager.addTransfer(
-            _date = LocalDate.now().minusDays(8),
-            _amount = "120.0",
-            _note = "Utility Bill Payment",
-            _description = "Paid utility bill",
-            fromAccount = accountProvider.accounts.random(),
-            toAccount = accountProvider.accounts.random()
-        )
-
-        transactionManager.addTransfer(
-            _date = LocalDate.now().minusDays(9),
-            _amount = "45.0",
-            _note = "Emergency Fund",
-            _description = "Transferred to emergency fund",
-            fromAccount = accountProvider.accounts.random(),
-            toAccount = accountProvider.accounts.random()
-        )
-
-        transactionManager.addTransfer(
-            _date = LocalDate.now().minusDays(10),
-            _amount = "90.0",
-            _note = "Holiday Savings",
-            _description = "Transferred to holiday savings account",
-            fromAccount = accountProvider.accounts.random(),
-            toAccount = accountProvider.accounts.random()
-        )
 
 
     }

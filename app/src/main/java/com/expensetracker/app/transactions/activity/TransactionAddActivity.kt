@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
@@ -27,6 +28,7 @@ import com.expensetracker.app.transactions.support.Literals.CATEGORY_ID_LABEL
 import com.expensetracker.app.transactions.support.Literals.DATE_LABEL
 import com.expensetracker.app.transactions.support.Literals.DESCRIPTION_LABEL
 import com.expensetracker.app.transactions.support.Literals.NOTE_LABEL
+import com.expensetracker.app.transactions.support.Literals.TRANSACTION_TYPE
 import com.expensetracker.app.transactions.support.getAlertDialog
 import com.expensetracker.app.transactions.viewmodel.TransactionManagerViewModel
 import com.expensetracker.core.support.Helper
@@ -81,6 +83,13 @@ open class TransactionAddActivity: AppCompatActivity() {
             accountID = savedInstanceState.getInt(ACCOUNT_ID_LABEL,accountID)
             note = savedInstanceState.getString(NOTE_LABEL,note)
             description = savedInstanceState.getString(DESCRIPTION_LABEL,description)
+            val type = savedInstanceState.getString(TRANSACTION_TYPE)
+            type?.let {
+                try{
+                    transactionType = TransactionType.valueOf(it)
+                }
+                catch (_:Exception){}
+            }
         }
 
         binding = TransactionAddScreenBinding.inflate(layoutInflater)
@@ -182,7 +191,6 @@ open class TransactionAddActivity: AppCompatActivity() {
 
         //Category & Account Field
         val categoryItemSelectedListener = SpinnerItemSelectedListener{ position ->
-            Log.d(TAG, "onCreate: $categoryMap $position")
             categoryID = categoryMap.keys.toList()[position]
         }
         val accountItemSelectedListener = SpinnerItemSelectedListener{ position ->
@@ -220,17 +228,55 @@ open class TransactionAddActivity: AppCompatActivity() {
         //Save btn
         saveBtn.setOnClickListener {
             amount = amountField.text.toString()
-            note = noteField.text.toString()
-            description = descriptionField.text.toString()
 
-            when(transactionType){
-                TransactionType.INCOME -> transactionManagerViewModel.addIncome(date,amount,note,description,categoryID, accountID)
-                TransactionType.EXPENSE -> transactionManagerViewModel.addExpense(date,amount,note,description,categoryID, accountID)
-                TransactionType.TRANSFER -> transactionManagerViewModel.addTransfer(date,amount,note,description, fromAccountID = categoryID, toAccountID =  accountID)
+            if ((amount.toDoubleOrNull() ?: 0.0) <= 0.0 ){
+                Toast.makeText(this, "Amount can't be <=0", Toast.LENGTH_SHORT).show()
+            } else {
+                note = noteField.text.toString()
+                description = descriptionField.text.toString()
+
+                when (transactionType) {
+                    TransactionType.INCOME -> transactionManagerViewModel.addIncome(
+                        date,
+                        amount,
+                        note,
+                        description,
+                        categoryID,
+                        accountID
+                    )
+
+                    TransactionType.EXPENSE -> transactionManagerViewModel.addExpense(
+                        date,
+                        amount,
+                        note,
+                        description,
+                        categoryID,
+                        accountID
+                    )
+
+                    TransactionType.TRANSFER -> {
+                        if (accountID != categoryID) transactionManagerViewModel.addTransfer(
+                            date,
+                            amount,
+                            note,
+                            description,
+                            fromAccountID = categoryID,
+                            toAccountID = accountID
+                        )
+                        else {
+                            Toast.makeText(this, "Can't transfer on same A/C", Toast.LENGTH_SHORT)
+                                .show()
+                        }
+                    }
+                }
             }
 
             setResult(RESULT_OK)
             finish()
+        }
+
+        onBackPressedDispatcher.addCallback {
+            onBackClicked()
         }
 
         setContentView(binding.root)
@@ -252,11 +298,6 @@ open class TransactionAddActivity: AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-       if(onBackClicked()){
-           super.onBackPressed()
-       }
-    }
 
     private fun isFieldsEmpty(): Boolean {
         return (note.isEmpty() && description.isEmpty() &&
@@ -335,6 +376,7 @@ open class TransactionAddActivity: AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
+        outState.putSerializable(TRANSACTION_TYPE,transactionType.toString())
         outState.putLong(DATE_LABEL,Helper.dateToMillis(date))
         outState.putString(AMOUNT_LABEL,amount)
         outState.putInt(CATEGORY_ID_LABEL,categoryID)

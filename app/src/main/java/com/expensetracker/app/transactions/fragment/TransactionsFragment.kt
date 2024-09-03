@@ -9,25 +9,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.expensetracker.app.R
-import com.expensetracker.app.accounts.AccountActivity
-import com.expensetracker.app.category.SettingsActivity
 import com.expensetracker.app.data.DataHandler
-import com.expensetracker.app.databinding.TransactionsScreenBinding
 import com.expensetracker.app.databinding.TransactionsScreenFragBinding
 import com.expensetracker.app.transactions.activity.TAG
 import com.expensetracker.app.transactions.activity.TransactionFilterActivity
 import com.expensetracker.app.transactions.activity.TransactionModifyActivity
 import com.expensetracker.app.transactions.activity.TransactionSearchActivity
-import com.expensetracker.app.transactions.activity.TransactionsActivity
 import com.expensetracker.app.transactions.adapter.TransactionsListAdapter
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
@@ -43,7 +37,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class TransactionsList: Fragment() {
+class TransactionsFragment: Fragment() {
 
     private val dataHandler by lazy { DataHandler(requireContext()) }
 
@@ -63,10 +57,6 @@ class TransactionsList: Fragment() {
 
         super.onCreate(savedInstanceState)
 
-        GlobalScope.launch(Dispatchers.IO) {
-            Log.d(TAG, "onCreate: ${dataHandler.accountProvider.accounts}")
-            transactionProviderViewModel.fetchTransactionsBetween()
-        }
 
         savedInstanceState?.getIntArray(FILTER_ACCOUNT_IDS_LABEL)?.let {
             filterAccounts.clear()
@@ -102,7 +92,7 @@ class TransactionsList: Fragment() {
         val filterTransactionLauncher: ActivityResultLauncher<Intent> =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
-
+                    Log.d(TAG, "onCreate: Waited for filter...")
                     result.data?.getIntArrayExtra(FILTER_ACCOUNT_IDS_LABEL)?.let {
                         filterAccounts.clear()
                         filterAccounts.addAll(it.toList())

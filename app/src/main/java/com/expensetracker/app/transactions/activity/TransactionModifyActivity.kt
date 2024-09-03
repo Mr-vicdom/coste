@@ -73,10 +73,10 @@ class TransactionModifyActivity: TransactionAddActivity() {
                     val tab1 = binding.transAddTabBar.getTabAt(0)
                     val tab2 = binding.transAddTabBar.getTabAt(1)
                     val tab3 = binding.transAddTabBar.getTabAt(2)
-                    when(fetchedTransaction){
-                        is Expense -> tab2
-                        is Income -> tab1
-                        is Transfer -> tab3
+                    when(transactionType){
+                        TransactionType.INCOME -> tab1
+                        TransactionType.EXPENSE -> tab2
+                        TransactionType.TRANSFER -> tab3
                     }.let { binding.transAddTabBar.selectTab(it) }
                 }
 
@@ -97,47 +97,62 @@ class TransactionModifyActivity: TransactionAddActivity() {
 
                 saveBtn.setOnClickListener {
 
+                    amount = amountField.text.toString()
+                    note = noteField.text.toString()
+                    description = descriptionField.text.toString()
                     if(isTransactionChanged()){
 
                         val onYesClickListener = {
 
-                            amount = amountField.text.toString()
-                            note = noteField.text.toString()
-                            description = descriptionField.text.toString()
 
-                            when (transactionType) {
-                                TransactionType.INCOME -> transactionManagerViewModel.updateIncome(
-                                    fetchedTransaction,
-                                    date,
-                                    amount,
-                                    note,
-                                    description,
-                                    categoryID,
-                                    accountID
-                                )
+                            if ((amount.toDoubleOrNull() ?: 0.0) <= 0.0 ){
+                                Toast.makeText(this, "Amount can't be <=0", Toast.LENGTH_SHORT).show()
+                            } else {
 
-                                TransactionType.EXPENSE -> transactionManagerViewModel.updateExpense(
-                                    fetchedTransaction,
-                                    date,
-                                    amount,
-                                    note,
-                                    description,
-                                    categoryID,
-                                    accountID
-                                )
+                                when (transactionType) {
+                                    TransactionType.INCOME -> transactionManagerViewModel.updateIncome(
+                                        fetchedTransaction,
+                                        date,
+                                        amount,
+                                        note,
+                                        description,
+                                        categoryID,
+                                        accountID
+                                    )
 
-                                TransactionType.TRANSFER -> transactionManagerViewModel.updateTransfer(
-                                    fetchedTransaction,
-                                    date,
-                                    amount,
-                                    note,
-                                    description,
-                                    fromAccountID = categoryID,
-                                    toAccountID = accountID
-                                )
+                                    TransactionType.EXPENSE -> transactionManagerViewModel.updateExpense(
+                                        fetchedTransaction,
+                                        date,
+                                        amount,
+                                        note,
+                                        description,
+                                        categoryID,
+                                        accountID
+                                    )
+
+                                    TransactionType.TRANSFER -> {
+                                        if (accountID != categoryID) transactionManagerViewModel.updateTransfer(
+                                            fetchedTransaction,
+                                            date,
+                                            amount,
+                                            note,
+                                            description,
+                                            fromAccountID = categoryID,
+                                            toAccountID = accountID
+                                        )
+                                        else {
+                                            Toast.makeText(
+                                                this,
+                                                "Can't transfer on same A/C",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                    }
+                                }
                             }
                             setResult(RESULT_OK)
                             finish()
+
                         }
                         getAlertDialog(this,"Update","Are You Sure?", onYesClick = onYesClickListener).show()
 

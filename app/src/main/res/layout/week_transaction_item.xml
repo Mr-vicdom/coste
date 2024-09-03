@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/period_space_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="10dp"
+            android:background="?attr/cardBackgroundColor"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+        <View
+            style="@style/MildBorder"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints" />
+        <View
+            style="@style/MildBorder"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:ignore="MissingConstraints" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/period_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        style="@style/AppTextTheme"
+        android:text="22"
+        android:textSize="@dimen/large_text"
+        android:textStyle="bold"
+        android:maxLength="4"
+        app:layout_constraintTop_toBottomOf="@id/period_space_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/day_container"
+        app:layout_constraintVertical_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_bias="0.1"
+        />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/day_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="3dp"
+        android:backgroundTint="@color/textSecondary"
+        app:layout_constraintTop_toTopOf="@id/period_info"
+        app:layout_constraintBottom_toBottomOf="@id/period_info"
+        app:layout_constraintStart_toEndOf="@id/period_info"
+        app:layout_constraintEnd_toStartOf="@id/periodic_info_guideline50"
+        >
+        <TextView
+            android:id="@+id/periodic_day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="5dp"
+            style="@style/AppTextTheme"
+            android:text="Friday"
+            android:background="@android:color/transparent"
+            android:textColor="@color/white"
+            android:textSize="@dimen/small_text"
+            android:maxLength="3"/>
+
+    </androidx.cardview.widget.CardView>
+
+
+    <com.expensetracker.app.views.CurrencyTextView
+        android:id="@+id/periodic_income"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:textAlignment="textEnd"
+        style="@style/AppTextTheme"
+        android:text="@string/default_amount"
+        android:textColor="@color/secondaryContentColor"
+        app:layout_constraintTop_toBottomOf="@id/period_space_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/periodic_info_guideline50"
+        app:layout_constraintEnd_toStartOf="@id/periodic_expense"
+        />
+
+
+    <com.expensetracker.app.views.CurrencyTextView
+        android:id="@+id/periodic_expense"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:textAlignment="textEnd"
+        style="@style/AppTextTheme"
+        android:text="@string/default_amount"
+        android:textColor="@color/primaryContentColor"
+        app:layout_constraintTop_toBottomOf="@id/period_space_bar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/periodic_income"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/periodic_info_guideline50"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5"/>
+
+    <View
+        style="@style/MildBorder"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="MissingConstraints" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

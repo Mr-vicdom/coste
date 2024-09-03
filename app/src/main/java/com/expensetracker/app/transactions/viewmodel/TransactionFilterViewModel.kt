@@ -88,7 +88,7 @@ class TransactionFilterViewModel(application: Application): AndroidViewModel(app
             }
             if(selectedAccountsList.isNotEmpty()) selectedAccounts.addAll(selectedAccountsList)
 
-            Log.d(TAG, "prepareTransactionFilter: $selectedAccountIds")
+            Log.d(TAG, "prepareTransactionFilter: $selectedAccountsList")
 
             selectedExpenseTracker = 0.0
             selectedIncomeTracker = 0.0

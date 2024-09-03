@@ -91,6 +91,7 @@ class DataHandler(context: Context) {
     init {
         if (writableDatabase == null) {
             writableDatabase = db
+            dbHelper.onUpgrade(db,1,1)
             DataGenerator.generateDefaultAccounts(accountManager)
             DataGenerator.generateDefaultCategories(categoryManager)
             DataGenerator.generateDummyTransactions(transactionManager, categoryProvider, accountProvider)

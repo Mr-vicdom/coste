@@ -53,12 +53,6 @@ class TransactionFilterActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (savedInstanceState != null) {
-            totalIncome = savedInstanceState.getDouble(TOTAL_INCOME, totalIncome)
-            totalExpense = savedInstanceState.getDouble(TOTAL_EXPENSE, totalExpense)
-            selectedIncome = savedInstanceState.getDouble(SELECTED_INCOME, selectedIncome)
-            selectedExpense = savedInstanceState.getDouble(SELECTED_EXPENSE, selectedExpense)
-        }
 
         val monthValue = intent.getIntExtra(MONTH_LABEL, month.value)
         if (monthValue in 1..12) {
@@ -80,18 +74,21 @@ class TransactionFilterActivity: AppCompatActivity() {
         binding.transFilterMonth.text = month.name
         binding.transFilterCloseBtn.setOnClickListener {
             val resultIntent = Intent()
-            resultIntent.putExtra(FILTER_ACCOUNT_IDS_LABEL, selectedAccountIds.toIntArray())
-            setResult(RESULT_OK, resultIntent)
+            setResult(RESULT_CANCELED, resultIntent)
             finish()
         }
 
+        //Filter BTN
         binding.transFilterBtn.visibility = View.GONE
         binding.transFilterBtn.setOnClickListener {
             transactionFilterViewModel.getSelectedIds()
-            val resultIntent = Intent()
-            resultIntent.putExtra(FILTER_ACCOUNT_IDS_LABEL, selectedAccountIds.toIntArray())
-            setResult(RESULT_OK, resultIntent)
-            finish()
+            transactionFilterViewModel.selectedAccounts.observe(this, Observer {
+                val resultIntent = Intent()
+                Log.d(TAG, "onCreate: $it")
+                resultIntent.putExtra(FILTER_ACCOUNT_IDS_LABEL, it.toIntArray())
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            })
         }
 
         val totalIncomeObserver = Observer<Double> {
@@ -160,15 +157,6 @@ class TransactionFilterActivity: AppCompatActivity() {
 
         setContentView(binding.root)
 
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        outState.putDouble(TOTAL_INCOME,totalIncome)
-        outState.putDouble(TOTAL_EXPENSE,totalExpense)
-        outState.putDouble(SELECTED_INCOME,selectedIncome)
-        outState.putDouble(SELECTED_EXPENSE,selectedExpense)
     }
 
 }

@@ -10,14 +10,11 @@ import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.io.FileOutputStream
 import java.sql.SQLException
 
 
 class DatabaseHelper(val context: Context): SQLiteOpenHelper(context, DB_NAME,null, DB_VERSION) {
-
-    init {
-
-    }
 
     override fun onCreate(db: SQLiteDatabase) {
         try {
