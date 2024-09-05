@@ -1,10 +1,8 @@
-package com.expensetracker.app.transactions.activity
+package com.expensetracker.app.support
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,11 +13,14 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.expensetracker.app.R
-import com.expensetracker.app.accounts.AccountActivity
-import com.expensetracker.app.category.SettingsActivity
+import com.expensetracker.app.accounts.support.AccountActivity
+import com.expensetracker.app.category.support.SettingsActivity
 import com.expensetracker.app.data.DataHandler
 import com.expensetracker.app.databinding.TransactionsScreenBinding
-import com.expensetracker.app.support.DataGenerator
+import com.expensetracker.app.transactions.activity.TransactionAddActivity
+import com.expensetracker.app.transactions.activity.TransactionFilterActivity
+import com.expensetracker.app.transactions.activity.TransactionModifyActivity
+import com.expensetracker.app.transactions.activity.TransactionSearchActivity
 import com.expensetracker.app.transactions.adapter.TransactionsListAdapter
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
@@ -28,18 +29,9 @@ import com.expensetracker.app.transactions.support.Literals.TRANSACTION_MONTH_LA
 import com.expensetracker.app.transactions.support.Literals.YEAR_LABEL
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
-import com.expensetracker.core.actions.TransactionActions
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.Transaction
-import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.color.MaterialColors
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.Month
-import java.util.Locale
-import kotlin.math.log
 
 const val TAG = "TransactionActivity=>log"
 
@@ -178,7 +170,7 @@ class TransactionsActivity : AppCompatActivity() {
 
         //Floating BTN
         binding.floatingBtn.setOnClickListener {
-            val transAddIntent: Intent = Intent(this, TransactionModifyActivity::class.java)
+            val transAddIntent: Intent = Intent(this, TransactionAddActivity::class.java)
             addTransactionLauncher.launch(transAddIntent)
         }
 

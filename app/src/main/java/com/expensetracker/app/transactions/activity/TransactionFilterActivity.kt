@@ -4,14 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.expensetracker.app.databinding.TransactionsFilterScreenBinding
+import com.expensetracker.app.databinding.TransactionFilterScreenCoBinding
+import com.expensetracker.app.support.TAG
 import com.expensetracker.app.transactions.adapter.TransactionsFilterAdapter
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
@@ -31,7 +29,7 @@ const val SELECTED_EXPENSE = "SelectedExpense"
 
 class TransactionFilterActivity: AppCompatActivity() {
 
-    private lateinit var binding : TransactionsFilterScreenBinding
+    private lateinit var binding : TransactionFilterScreenCoBinding
     private val transactionFilterViewModel: TransactionFilterViewModel by viewModels<TransactionFilterViewModel>()
 
     private var month : Month = LocalDate.now().month
@@ -69,7 +67,7 @@ class TransactionFilterActivity: AppCompatActivity() {
 
         transactionFilterViewModel.getSelectedIds()
 
-        binding = TransactionsFilterScreenBinding.inflate(layoutInflater)
+        binding = TransactionFilterScreenCoBinding.inflate(layoutInflater)
 
         binding.transFilterMonth.text = month.name
         binding.transFilterCloseBtn.setOnClickListener {

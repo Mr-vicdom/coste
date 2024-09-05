@@ -1,6 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="NewAppTheme.DifferPrimary">
-        <item name="colorPrimary">@color/colorPrimary</item>
+    <style name="AppDatePickerDialog" parent="@android:style/Theme.DeviceDefault.Light.Dialog">
+        <item name="android:datePickerStyle">@style/DatePickerStyle</item>
+        <item name="colorPrimary">@color/colorSecondary</item>
+        <item name="colorAccent">@color/colorSecondary</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="AppAlertDialog" parent="NewAppTheme">
+        <item name="colorPrimary">@color/colorSecondary</item>
+    </style>
+    <style name="DatePickerStyle">
+        <item name="android:headerBackground">@color/colorSecondary</item>
+        <item name="android:calendarTextColor">@color/colorSecondary</item>
+        <item name="android:dayOfWeekBackground">@android:color/darker_gray</item>
+        <item name="android:dayOfWeekTextAppearance">@style/CustomDayOfWeekTextAppearance</item>
+        <item name="android:selectedWeekBackgroundColor">@color/colorSecondary</item>
+        <item name="android:datePickerMode">calendar</item>
+    </style>
+    <style name="CustomDayOfWeekTextAppearance">
+        <item name="android:textColor">@color/purple_200</item>
+        <item name="android:textSize">14sp</item>
     </style>
 </resources>

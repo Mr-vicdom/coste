@@ -5,6 +5,8 @@
     <string name="daily">Daily</string>
     <string name="weekly">Weekly</string>
     <string name="monthly">Monthly</string>
+    <string name="transaction_add">Add Transaction</string>
+    <string name="transaction_modify">Modify Transaction</string>
     <string name="income">Income</string>
     <string name="expense">Expense</string>
     <string name="transfer">Transfer</string>

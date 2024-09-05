@@ -228,7 +228,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             >
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/trans_screen_list_view"
@@ -238,14 +238,32 @@
                 app:layout_constraintTop_toTopOf="parent"
                 />
             <TextView
+                android:id="@+id/trans_screen_loading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:visibility="visible"
+                android:text="Loading.."
+                android:textColor="@color/textSecondary"
+                android:textStyle="bold"
+                android:textSize="@dimen/large_text"
+                android:textAlignment="center"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+            <TextView
                 android:id="@+id/trans_screen_nothing_found"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:padding="10dp"
                 android:visibility="gone"
-                android:text="Nothing Found"
+                android:text="Nothing Found!"
+                android:textColor="@color/textSecondary"
+                android:textStyle="bold"
+                android:textSize="@dimen/large_text"
                 android:textAlignment="center"
                 app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

@@ -21,6 +21,7 @@ import com.expensetracker.data_sqlite.services.accounts.DebitCardService
 import com.expensetracker.data_sqlite.services.category.ExpenseCategoryService
 import com.expensetracker.data_sqlite.services.category.IncomeCategoryService
 import com.expensetracker.data_sqlite.services.support.IdGenerator
+import com.expensetracker.data_sqlite.services.support.IdStoreMaster
 import com.expensetracker.data_sqlite.services.transactions.ExpenseService
 import com.expensetracker.data_sqlite.services.transactions.IncomeService
 import com.expensetracker.data_sqlite.services.transactions.TransferService
@@ -40,15 +41,18 @@ class DataHandler(context: Context) {
 
     companion object {
         private var writableDatabase: SQLiteDatabase? = null
-        private val accountIdGenerator: IdGenerator by lazy { IdGenerator() }
-        private val categoryIdGenerator: IdGenerator by lazy { IdGenerator() }
-        private val transactionIdGenerator: IdGenerator by lazy { IdGenerator() }
     }
 
     private val dbHelper = DatabaseHelper(context)
     private val db : SQLiteDatabase = writableDatabase ?: let {
         dbHelper.writableDatabase
     }
+
+
+    private val idStoreMaster: IdStoreMaster by lazy { IdStoreMaster(db) }
+    private val accountIdGenerator: IdGenerator by lazy { idStoreMaster.forAccount }
+    private val categoryIdGenerator: IdGenerator by lazy { idStoreMaster.forCategory }
+    private val transactionIdGenerator: IdGenerator by lazy { idStoreMaster.forTransaction }
 
 
     private val bankAccountActions: BankAccountActions by lazy { BankAccountService(db, accountIdGenerator, DatabaseSchema.BankAccountTable) }
@@ -91,12 +95,10 @@ class DataHandler(context: Context) {
     init {
         if (writableDatabase == null) {
             writableDatabase = db
-            dbHelper.onUpgrade(db,1,1)
-            DataGenerator.generateDefaultAccounts(accountManager)
-            DataGenerator.generateDefaultCategories(categoryManager)
-            DataGenerator.generateDummyTransactions(transactionManager, categoryProvider, accountProvider)
-
-            DataGenerator.displayAll(categoryManager, accountManager)
+//            DataGenerator.generateDefaultAccounts(accountManager)
+//            DataGenerator.generateDefaultCategories(categoryManager)
+//            DataGenerator.generateDummyTransactions(transactionManager, categoryProvider, accountProvider)
         }
     }
+
 }

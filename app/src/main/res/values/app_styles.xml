@@ -8,7 +8,7 @@
         <item name="android:layout_margin">0dp</item>
         <item name="android:padding">10dp</item>
         <item name="tint">@color/white</item>
-        <item name="android:background">@android:color/transparent</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
     </style>
     <style name="AppTextTheme" parent="NewAppTheme">
         <item name="android:ellipsize">end</item>
@@ -35,14 +35,13 @@
         <item name="android:layout_height">1dp</item>
         <item name="android:background">?attr/colorOutline</item>
     </style>
-    <style name="TransAddEditText" parent="Widget.AppCompat.EditText">
+    <style name="AppEditText" parent="Widget.AppCompat.EditText">
         <item name="android:inputType">text</item>
-        <item name="android:textStyle">bold</item>
         <item name="android:textSize">@dimen/large_text</item>
         <item name="android:theme">@style/TransAddTheme</item>
     </style>
     <style name="AppSpinnerTheme" parent="TextAppearance.AppCompat.Widget.TextView.SpinnerItem">
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/large_text</item>
         <item name="android:theme">@style/TransAddTheme</item>
     </style>

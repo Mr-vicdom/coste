@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import com.expensetracker.app.accounts.AccountFragment
 import com.expensetracker.app.category.SettingsFragment
 import com.expensetracker.app.databinding.AppMainBinding
-import com.expensetracker.app.transactions.fragment.TransactionsFragment
+import com.expensetracker.app.transactions.activity.TransactionsFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -70,7 +70,6 @@ class MainActivity : AppCompatActivity() {
         val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
         transaction.replace(binding.appContainer.id,fragment)
 
-        if (existingFrag != null) transaction.addToBackStack(null)
         transaction.commit()
     }
 

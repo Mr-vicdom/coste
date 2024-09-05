@@ -1,6 +1,10 @@
 package com.expensetracker.app.category.adapter
 
+import android.content.Context
+import android.graphics.Typeface
+import android.inputmethodservice.InputMethodService
 import android.text.Editable
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,56 +12,95 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.expensetracker.app.R
 import com.expensetracker.app.databinding.CategoryListItemBinding
 import com.expensetracker.core.models.Category
 
 const val TAG = "Cate List Adapter =>log"
 
-class CategoryListAdapter<T: Category>(
-    private val categories: MutableList<T>,
-    private val onItemRemoved: (T) -> Unit = {},
-    private val onItemChanged: (String, T) -> Unit = { a,b -> }
-): RecyclerView.Adapter<CategoryListAdapter<T>.ViewHolder>() {
+class CategoryListAdapter<T : Category>(
+    private val categories: MutableList<Pair<T, Boolean>>,
+    private val onItemRemoved: (T, Int) -> Unit = { a, b -> },
+    private val onSaveTrigger: (String, T, Int) -> Unit = { a, b, c -> },
+) : RecyclerView.Adapter<CategoryListAdapter<T>.ViewHolder>() {
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryListAdapter<T>.ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): CategoryListAdapter<T>.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = CategoryListItemBinding.inflate(inflater,parent,false)
+        val binding = CategoryListItemBinding.inflate(inflater, parent, false)
         return ViewHolder(binding)
     }
 
     override fun getItemCount(): Int = categories.size
 
     override fun onBindViewHolder(holder: CategoryListAdapter<T>.ViewHolder, position: Int) {
-        holder.bind(categories[position])
+        holder.bind(position)
     }
 
-    inner class ViewHolder(binding: CategoryListItemBinding): RecyclerView.ViewHolder(binding.root) {
-        private val removeBtn : CardView = binding.removeIcon
-        private val fieldText : EditText = binding.fieldText
-        fun bind(data: T){
+    inner class ViewHolder(binding: CategoryListItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        private val removeBtn: CardView = binding.removeIcon
+        private val fieldText: EditText = binding.fieldText
+        private val editBtn: AppCompatImageView = binding.editCategoryBtn
+        private val discardBtn: AppCompatImageView = binding.editCategoryDiscardBtn
+        private val doneBtn: AppCompatImageView = binding.editCategoryDoneBtn
+        fun bind(position: Int) {
+            val data: Pair<T, Boolean> = categories[position]
 
             removeBtn.setOnClickListener {
-                onItemRemoved(data)
+                Log.d(TAG, "bind: delete pos $position ${categories[position]}")
+                onItemRemoved(data.first, position)
             }
-            fieldText.setText(data.name.toString())
-            fieldText.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int,
-                ) {}
 
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                    onItemChanged(s.toString(),data)
-                    Log.d(TAG, "onTextChanged: $s")
-                }
+            discardBtn.setOnClickListener {
+                categories[position] = data.first to false
+                notifyItemChanged(position)
+            }
 
-                override fun afterTextChanged(s: Editable?) {}
-            })
+            editBtn.setOnClickListener {
+                categories[position] = data.first to true
+                notifyItemChanged(position)
+            }
+
+            doneBtn.setOnClickListener {
+                categories[position] = data.first to false
+                if (fieldText.text.toString().isEmpty()
+                    || data.first.name.toString() == fieldText.text.toString()
+                ) notifyItemChanged(position)
+                else onSaveTrigger(fieldText.text.toString(), data.first, position)
+            }
+
+            fieldText.setText(data.first.name.toString())
+
+            if (data.second) { // Is Editable
+                discardBtn.visibility = View.VISIBLE
+                doneBtn.visibility = View.VISIBLE
+
+                fieldText.setTextAppearance(R.style.AppEditText)
+                fieldText.isEnabled = true
+                fieldText.isFocusable = true
+                fieldText.requestFocus()
+                fieldText.maxLines = 1
+                fieldText.typeface = Typeface.DEFAULT
+                fieldText.ellipsize = TextUtils.TruncateAt.END
+
+                editBtn.visibility = View.GONE
+            } else {
+                discardBtn.visibility = View.GONE
+                doneBtn.visibility = View.GONE
+
+                fieldText.clearFocus()
+                fieldText.isEnabled = false
+                fieldText.setTextAppearance(R.style.AppTextTheme)
+
+                editBtn.visibility = View.VISIBLE
+            }
         }
     }
 }

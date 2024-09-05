@@ -1,38 +1,34 @@
-package com.expensetracker.app.accounts
+package com.expensetracker.app.accounts.support
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.expensetracker.app.accounts.AccountAddActivity
+import com.expensetracker.app.accounts.AccountModifyActivity
 import com.expensetracker.app.accounts.adapter.AccountsListAdapter
-import com.expensetracker.app.accounts.support.AccountListData
-import com.expensetracker.app.accounts.support.Literals.ACCOUNT_NAME_LABEL
-import com.expensetracker.app.accounts.support.Literals.ACCOUNT_TYPE_LABEL
 import com.expensetracker.app.accounts.viewmodels.AccountsViewModel
-import com.expensetracker.app.databinding.ListingScreenBinding
+import com.expensetracker.app.databinding.AccountListingScreenBinding
 import com.expensetracker.app.transactions.support.Literals.ACCOUNT_ID_LABEL
-import com.expensetracker.core.models.BankAccount
-import com.expensetracker.core.models.CashAccount
-import com.expensetracker.core.models.CreditCard
-import com.expensetracker.core.models.DebitCard
-import com.expensetracker.core.support.AccountType
 
 class AccountActivity: AppCompatActivity() {
 
-    private lateinit var binding: ListingScreenBinding
+    val TAG = "AccountActivity=>log"
+
+    private lateinit var binding: AccountListingScreenBinding
     private val viewModel: AccountsViewModel by viewModels<AccountsViewModel>()
     private val accountListData: MutableList<AccountListData> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ListingScreenBinding.inflate(layoutInflater)
+        binding = AccountListingScreenBinding.inflate(layoutInflater)
 
         binding.accountsScreenListView.layoutManager = LinearLayoutManager(this)
 
@@ -62,7 +58,8 @@ class AccountActivity: AppCompatActivity() {
         })
 
         val listingAdapter = AccountsListAdapter(accountListData,false, onAccountClicked = { account ->
-            val modifyIntent = Intent(this,AccountModifyActivity::class.java)
+            val modifyIntent = Intent(this, AccountModifyActivity::class.java)
+            Log.d(TAG, "onClicked: $account")
             modifyIntent.putExtra(ACCOUNT_ID_LABEL,account.id)
             modifyAccountActivityLauncher.launch(modifyIntent)
         })

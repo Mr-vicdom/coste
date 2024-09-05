@@ -115,7 +115,8 @@
     <View
         style="@style/MildBorder"
         app:layout_constraintBottom_toBottomOf="parent"
-        tools:ignore="MissingConstraints" />
+        tools:ignore="MissingConstraints"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

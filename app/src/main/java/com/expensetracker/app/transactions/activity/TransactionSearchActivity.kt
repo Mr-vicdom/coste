@@ -12,8 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.expensetracker.app.databinding.TransactionSearchScreenBinding
-import com.expensetracker.app.transactions.adapter.TransactionSearchAdapter
+import com.expensetracker.app.databinding.TransactionSearchScreenCoBinding
+import com.expensetracker.app.support.TAG
 import com.expensetracker.app.transactions.adapter.TransactionsListAdapter
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_MONTH_LABEL
@@ -38,7 +38,7 @@ class TransactionSearchActivity: AppCompatActivity() {
             }
         }
 
-        val binding = TransactionSearchScreenBinding.inflate(layoutInflater)
+        val binding = TransactionSearchScreenCoBinding.inflate(layoutInflater)
 
         val searchView: SearchView = binding.transSearchView
 

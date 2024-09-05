@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
-import android.os.Message
 import androidx.appcompat.view.ContextThemeWrapper
 import com.expensetracker.app.R
 
@@ -16,10 +15,10 @@ class AppDialog(context: Context,text: String,onYesClick: () -> Unit, onNoClick:
 
 }
 
-fun getAlertDialog(context: Context,title: String, message: String, onYesClick: () -> Unit = {}, onNoClick: () -> Unit = {}): AlertDialog {
+fun getChoiceAlertDialog(context: Context, title: String, message: String, onYesClick: () -> Unit = {}, onNoClick: () -> Unit = {}): AlertDialog {
 
 
-    val contextThemeWrapper: Context = ContextThemeWrapper(context,R.style.NewAppTheme_DifferPrimary)
+    val contextThemeWrapper: Context = ContextThemeWrapper(context,R.style.AppAlertDialog)
 
     val builder = AlertDialog.Builder(contextThemeWrapper)
 
@@ -32,6 +31,29 @@ fun getAlertDialog(context: Context,title: String, message: String, onYesClick: 
     }
     builder.setNegativeButton("No"){ dialog,_ ->
         onNoClick()
+        dialog.dismiss()
+    }
+
+    val alertDialog: AlertDialog = builder.create()
+
+    alertDialog.setCancelable(false)
+
+    return alertDialog
+}
+
+
+fun getWarningAlertDialog(context: Context, title: String, message: String, onOkClick: () -> Unit = {}): AlertDialog {
+
+
+    val contextThemeWrapper: Context = ContextThemeWrapper(context,R.style.AppAlertDialog)
+
+    val builder = AlertDialog.Builder(contextThemeWrapper)
+
+    builder.setTitle(title)
+    builder.setMessage(message)
+
+    builder.setPositiveButton("Ok"){ dialog, _ ->
+        onOkClick()
         dialog.dismiss()
     }
 

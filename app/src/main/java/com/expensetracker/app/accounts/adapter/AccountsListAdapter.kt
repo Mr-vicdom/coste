@@ -1,5 +1,6 @@
 package com.expensetracker.app.accounts.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -91,6 +92,7 @@ class AccountsListAdapter(
             else
                 balance.text = data.account.balance.toString()
 
+            Log.d("=>log", "bind: $data")
             binding.root.setOnClickListener {
                 onAccountClicked(data.account)
             }

@@ -2,32 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="10dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/period_space_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent">
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="10dp"
-            android:background="?attr/cardBackgroundColor"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            />
-        <View
-            style="@style/MildBorder"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="MissingConstraints" />
-        <View
-            style="@style/MildBorder"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:ignore="MissingConstraints" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:id="@+id/period_info"
@@ -39,11 +16,10 @@
         android:textSize="@dimen/large_text"
         android:textStyle="bold"
         android:maxLength="4"
-        app:layout_constraintTop_toBottomOf="@id/period_space_bar"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/day_container"
-        app:layout_constraintVertical_bias="0.5"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintHorizontal_bias="0.1"
         />
@@ -83,7 +59,7 @@
         style="@style/AppTextTheme"
         android:text="@string/default_amount"
         android:textColor="@color/secondaryContentColor"
-        app:layout_constraintTop_toBottomOf="@id/period_space_bar"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/periodic_info_guideline50"
         app:layout_constraintEnd_toStartOf="@id/periodic_expense"
@@ -99,7 +75,7 @@
         style="@style/AppTextTheme"
         android:text="@string/default_amount"
         android:textColor="@color/primaryContentColor"
-        app:layout_constraintTop_toBottomOf="@id/period_space_bar"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/periodic_income"
         app:layout_constraintEnd_toEndOf="parent"
@@ -112,10 +88,6 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5"/>
 
-    <View
-        style="@style/MildBorder"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:ignore="MissingConstraints" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

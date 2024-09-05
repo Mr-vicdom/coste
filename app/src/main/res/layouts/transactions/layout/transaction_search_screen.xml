@@ -65,9 +65,13 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:visibility="gone"
-        android:text="Nothing Found"
+        android:text="Nothing found!"
+        android:textColor="@color/textSecondary"
+        android:textStyle="bold"
+        android:textSize="@dimen/large_text"
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/trans_search_guideline10"
+        app:layout_constraintBottom_toBottomOf="parent"
         />
 
     <TextView
@@ -76,9 +80,13 @@
         android:layout_height="wrap_content"
         android:padding="10dp"
         android:visibility="gone"
-        android:text="Loading"
+        android:text="Loading.."
+        android:textColor="@color/textSecondary"
+        android:textStyle="bold"
+        android:textSize="@dimen/large_text"
         android:textAlignment="center"
         app:layout_constraintTop_toBottomOf="@id/trans_search_guideline10"
+        app:layout_constraintBottom_toBottomOf="parent"
         />
 
     <androidx.recyclerview.widget.RecyclerView

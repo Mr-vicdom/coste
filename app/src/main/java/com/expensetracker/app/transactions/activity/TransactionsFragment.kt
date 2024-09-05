@@ -1,4 +1,4 @@
-package com.expensetracker.app.transactions.fragment
+package com.expensetracker.app.transactions.activity
 
 import android.app.Activity
 import android.content.Intent
@@ -18,10 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.expensetracker.app.R
 import com.expensetracker.app.data.DataHandler
 import com.expensetracker.app.databinding.TransactionsScreenFragBinding
-import com.expensetracker.app.transactions.activity.TAG
-import com.expensetracker.app.transactions.activity.TransactionFilterActivity
-import com.expensetracker.app.transactions.activity.TransactionModifyActivity
-import com.expensetracker.app.transactions.activity.TransactionSearchActivity
+import com.expensetracker.app.support.TAG
 import com.expensetracker.app.transactions.adapter.TransactionsListAdapter
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
@@ -33,9 +30,6 @@ import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewMode
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.Transaction
 import com.google.android.material.color.MaterialColors
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 class TransactionsFragment: Fragment() {
 
@@ -178,7 +172,7 @@ class TransactionsFragment: Fragment() {
 
         //Floating BTN
         binding.floatingBtn.setOnClickListener {
-            val transAddIntent: Intent = Intent(requireContext(), TransactionModifyActivity::class.java)
+            val transAddIntent: Intent = Intent(requireContext(), TransactionAddActivity::class.java)
             addTransactionLauncher.launch(transAddIntent)
         }
 
@@ -197,8 +191,8 @@ class TransactionsFragment: Fragment() {
         transactionProviderViewModel.transactionItems.observe(this, Observer {
             transactionItems.clear()
             transactionItems.addAll(it)
-            binding.transScreenNothingFound.visibility = if (it.isEmpty()) View.VISIBLE
-            else View.GONE
+            binding.transScreenNothingFound.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
+            binding.transScreenLoading.visibility = View.GONE
             adapter.notifyDataSetChanged()
         })
     }

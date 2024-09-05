@@ -38,6 +38,7 @@ class AccountModifyActivity: AccountAddActivity() {
                 finish()
                 return@Observer
             }
+
             oldAccount = account
             binding.nameField.setText(account.name.toString())
             when(account){

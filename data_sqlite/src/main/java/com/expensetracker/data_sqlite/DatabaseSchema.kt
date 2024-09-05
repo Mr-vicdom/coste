@@ -15,8 +15,7 @@ object DatabaseSchema {
         const val CATEGORY_ID = "category_id"
         const val ACCOUNT_ID = "account_id"
 
-        val columns: Array<String>
-            get() = arrayOf(
+        val columns: Array<String> = arrayOf(
                 ID, DATE, AMOUNT, NOTE, DESCRIPTION, CATEGORY_ID, ACCOUNT_ID
             )
     }
@@ -31,8 +30,7 @@ object DatabaseSchema {
         const val CATEGORY_ID = "category_id"
         const val ACCOUNT_ID = "account_id"
 
-        val columns: Array<String>
-            get() = arrayOf(
+        val columns: Array<String> = arrayOf(
                 ID, DATE, AMOUNT, NOTE, DESCRIPTION, CATEGORY_ID, ACCOUNT_ID
             )
     }
@@ -47,8 +45,7 @@ object DatabaseSchema {
         const val FROM_ACCOUNT = "from_account"
         const val TO_ACCOUNT = "to_account"
 
-        val columns: Array<String>
-            get() = arrayOf(
+        val columns: Array<String> = arrayOf(
                 ID, DATE, AMOUNT, NOTE, DESCRIPTION, FROM_ACCOUNT, TO_ACCOUNT
             )
     }
@@ -60,8 +57,7 @@ object DatabaseSchema {
         const val BALANCE = "balance"
         const val MINIMUM_BALANCE = "minimum_balance"
 
-        val columns: Array<String>
-            get() = arrayOf(
+        val columns: Array<String> = arrayOf(
                 ID, NAME, BALANCE, MINIMUM_BALANCE
             )
     }
@@ -73,8 +69,7 @@ object DatabaseSchema {
         const val BALANCE = "balance"
         const val MINIMUM_BALANCE = "minimum_balance"
 
-        val columns: Array<String>
-            get() = arrayOf(
+        val columns: Array<String> = arrayOf(
                 ID, NAME, BALANCE, MINIMUM_BALANCE
             )
     }
@@ -86,8 +81,7 @@ object DatabaseSchema {
         const val BALANCE = "balance"
         const val OUT_STANDING = "out_standings"
 
-        val columns: Array<String>
-            get() = arrayOf(
+        val columns: Array<String> = arrayOf(
                 ID, NAME, BALANCE, OUT_STANDING
             )
     }
@@ -100,8 +94,7 @@ object DatabaseSchema {
         const val BANK_ACCOUNT_ID = "bank_account_id"
         const val DEBIT_LIMIT = "debit_limit"
 
-        val columns: Array<String>
-            get() = arrayOf(
+        val columns: Array<String> = arrayOf(
                 ID, NAME, BALANCE, BANK_ACCOUNT_ID, DEBIT_LIMIT
             )
     }
@@ -112,11 +105,21 @@ object DatabaseSchema {
         const val NAME = "name"
         const val IS_INCOME = "is_income"
 
-        val columns: Array<String>
-            get() = arrayOf(
+        val columns: Array<String> = arrayOf(
                 ID, NAME
             )
     }
-
-
+    
+    object IdStoreTable : BaseColumns {
+        const val TABLE_NAME = "id_store"
+        const val LAST_ACCOUNT_ID = "account_id"
+        const val LAST_CATEGORY_ID = "category_id"
+        const val LAST_TRANSACTION_ID = "transaction_id"
+        
+        val columns: Array<String> = arrayOf(
+                LAST_ACCOUNT_ID,
+                LAST_CATEGORY_ID,
+                LAST_TRANSACTION_ID
+            )
+    }
 }

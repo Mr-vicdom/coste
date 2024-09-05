@@ -57,7 +57,10 @@ CategoryProvider by categoryProvider {
         }
     }
     override fun delete(category: Category): Result {
-        val result = incomeCategoryActions.deleteCategory(category.id)
+        val result = when(category){
+            is ExpenseCategory -> expenseCategoryActions.deleteCategory(category.id)
+            is IncomeCategory -> incomeCategoryActions.deleteCategory(category.id)
+        }
         return if(result == CategoryResponse.CATEGORY_DELETED){
             Result.Success(result.toString())
         } else Result.Failure(result.toString())

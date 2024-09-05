@@ -3,6 +3,7 @@ package com.expensetracker.app.category
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
@@ -11,12 +12,11 @@ import com.expensetracker.app.category.adapter.CategoryListAdapter
 import com.expensetracker.app.category.support.Literals.IS_EXPENSE_LABEL
 import com.expensetracker.app.category.viewmodel.CategoryViewModel
 import com.expensetracker.app.databinding.CategoryScreenBinding
+import com.expensetracker.app.transactions.support.getChoiceAlertDialog
 import com.expensetracker.core.models.Category
 import com.expensetracker.core.models.ExpenseCategory
 import com.expensetracker.core.models.IncomeCategory
 import com.expensetracker.core.support.CategoryType
-import com.expensetracker.core.support.SimpleName
-import kotlin.reflect.typeOf
 
 val TAG = "Cata Ac =>log"
 
@@ -25,32 +25,30 @@ class CategoryActivity : AppCompatActivity(){
     private lateinit var binding: CategoryScreenBinding
     private val viewModel: CategoryViewModel by viewModels<CategoryViewModel>()
 
-    private val categories: MutableList<Category> = mutableListOf()
     private var categoryType: CategoryType = CategoryType.INCOME_CATEGORY
-    private val incomeCategoryList: MutableList<IncomeCategory> = categories.mapNotNull { if (it is IncomeCategory) it else null }.toMutableList()
-    private val expenseCategoryList: MutableList<ExpenseCategory> = categories.mapNotNull { if (it is ExpenseCategory) it else null }.toMutableList()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         intent?.let { intent: Intent ->
             intent.getBooleanExtra(IS_EXPENSE_LABEL,false).let {
-                if(it) categoryType = CategoryType.EXPENSE_CATEGORY
+                if(it) categoryType = CategoryType.EXPENSE_CATEGORY.also { Log.d(TAG, "onCreate: Its Expense now") }
             }
         }
 
         binding = CategoryScreenBinding.inflate(layoutInflater)
 
-        val onItemChanged = fun(text: String, category: Category) {
-            viewModel.updateCategory(text,category)
+        val onSaveTrigger = fun(text: String, category: Category, position: Int) {
+            if (text.isNotEmpty() && text != category.name.toString()) viewModel.updateCategory(text,category,position)
         }
 
-        val onItemRemoved = fun(category: Category) {
-            viewModel.deleteCategory(category)
+        val onItemRemoved = fun(category: Category, position: Int) {
+            getChoiceAlertDialog(this,"Delete Category","Are You Sure?", onYesClick = {
+                viewModel.deleteCategory(category, position)
+            }).show()
         }
 
-        val incomeCategoryListAdapter = CategoryListAdapter<IncomeCategory>(incomeCategoryList, onItemChanged = onItemChanged, onItemRemoved = onItemRemoved)
-        val expenseCategoryListAdapter = CategoryListAdapter<ExpenseCategory>(expenseCategoryList, onItemChanged = onItemChanged, onItemRemoved = onItemRemoved)
+        val incomeCategoryListAdapter = CategoryListAdapter<IncomeCategory>(viewModel.incomeCategoriesList, onSaveTrigger = onSaveTrigger, onItemRemoved = onItemRemoved)
+        val expenseCategoryListAdapter = CategoryListAdapter<ExpenseCategory>(viewModel.expenseCategoriesList, onSaveTrigger = onSaveTrigger, onItemRemoved = onItemRemoved)
 
         when(categoryType){
             CategoryType.INCOME_CATEGORY -> binding.categoryScreenListView.adapter =  incomeCategoryListAdapter
@@ -61,37 +59,55 @@ class CategoryActivity : AppCompatActivity(){
 
         viewModel.fetchCategories(categoryType)
 
+        viewModel.updatePosition.observe(this, Observer {
+            Log.d(TAG, "onUpdated: position ; $it")
+            when(categoryType){
+                CategoryType.INCOME_CATEGORY -> incomeCategoryListAdapter.notifyItemChanged(it)
+                CategoryType.EXPENSE_CATEGORY -> expenseCategoryListAdapter.notifyItemChanged(it)
+            }
+        })
+
+        viewModel.deletePosition.observe(this, Observer {
+            Log.d(TAG, "onDeleted: position ; $it")
+            when(categoryType){
+                CategoryType.INCOME_CATEGORY -> incomeCategoryListAdapter.notifyDataSetChanged()
+                CategoryType.EXPENSE_CATEGORY -> expenseCategoryListAdapter.notifyDataSetChanged()
+            }
+        })
+
+        viewModel.addPosition.observe(this, Observer {
+            Log.d(TAG, "onAdded: position ; $it")
+            when(categoryType){
+                CategoryType.INCOME_CATEGORY -> incomeCategoryListAdapter.notifyDataSetChanged()
+                CategoryType.EXPENSE_CATEGORY -> expenseCategoryListAdapter.notifyDataSetChanged()
+            }
+        })
+
         binding.categoryScreenBackBtn.setOnClickListener {
             finish()
         }
 
-        viewModel.categoryList.observe(this, Observer { categoryList ->
-            categories.clear()
-            categories.addAll(categoryList)
-            when(categoryType){
-                CategoryType.INCOME_CATEGORY -> {
-                    incomeCategoryList.clear()
-                    incomeCategoryList.addAll(categories.mapNotNull { if (it is IncomeCategory) it else null }.toMutableList())
-                    binding.categoryScreenListView.adapter = incomeCategoryListAdapter
-                    incomeCategoryListAdapter.notifyDataSetChanged()
-                }
-                CategoryType.EXPENSE_CATEGORY -> {
-                    expenseCategoryList.clear()
-                    expenseCategoryList.addAll(categories.mapNotNull { if (it is ExpenseCategory) it else null }.toMutableList())
-                    binding.categoryScreenListView.adapter = expenseCategoryListAdapter
-                    expenseCategoryListAdapter.notifyDataSetChanged()
+        val addCategoryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
+            if (result.resultCode == RESULT_OK){
+                when(categoryType){
+                    CategoryType.INCOME_CATEGORY -> viewModel.fetchCategories(categoryType)
+                    CategoryType.EXPENSE_CATEGORY -> viewModel.fetchCategories(categoryType)
                 }
             }
-            Log.d(TAG, "onCreate: $incomeCategoryList")
-        })
+        }
+
+        binding.categoryScreenAddBtn.setOnClickListener {
+            val intent = Intent(this, CategoryAddActivity::class.java)
+            if (categoryType == CategoryType.EXPENSE_CATEGORY) intent.putExtra(IS_EXPENSE_LABEL,true)
+            addCategoryLauncher.launch(intent)
+        }
 
         setContentView(binding.root)
     }
 
-    override fun onPause() {
-        super.onPause()
-
-        viewModel.saveCategories()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        Toast.makeText(this, if(resultCode == RESULT_OK) "RESULT_OK" else "RESULT NO", Toast.LENGTH_SHORT).show()
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
 }

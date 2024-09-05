@@ -9,8 +9,10 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
+import com.expensetracker.app.R
+import com.expensetracker.app.support.TAG
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
-import com.expensetracker.app.transactions.support.getAlertDialog
+import com.expensetracker.app.transactions.support.getChoiceAlertDialog
 import com.expensetracker.core.models.Expense
 import com.expensetracker.core.models.FinancialTransaction
 import com.expensetracker.core.models.Income
@@ -35,6 +37,8 @@ class TransactionModifyActivity: TransactionAddActivity() {
                 transactionManagerViewModel.fetchTransaction(id)
             }
         }
+
+        binding.transactionAddTitle.setText(R.string.transaction_modify)
 
         val dateField: TextView = binding.dateField
         val amountField: EditText = binding.amountField
@@ -92,7 +96,7 @@ class TransactionModifyActivity: TransactionAddActivity() {
                         setResult(RESULT_OK)
                         finish()
                     }
-                    getAlertDialog(this,"Delete","Are You Sure?", onYesClick = onYesClickListener).show()
+                    getChoiceAlertDialog(this,"Delete","Are You Sure?", onYesClick = onYesClickListener).show()
                 }
 
                 saveBtn.setOnClickListener {
@@ -154,7 +158,7 @@ class TransactionModifyActivity: TransactionAddActivity() {
                             finish()
 
                         }
-                        getAlertDialog(this,"Update","Are You Sure?", onYesClick = onYesClickListener).show()
+                        getChoiceAlertDialog(this,"Update","Are You Sure?", onYesClick = onYesClickListener).show()
 
                     } else {
                         Toast.makeText(this, NO_CHANGES_FOUND, Toast.LENGTH_SHORT).show()
@@ -177,7 +181,7 @@ class TransactionModifyActivity: TransactionAddActivity() {
                 setResult(RESULT_OK)
                 finish()
             }
-            getAlertDialog(this,"Discard Changes","Are You Sure?", onYesClick = onYesClickListener).show()
+            getChoiceAlertDialog(this,"Discard Changes","Are You Sure?", onYesClick = onYesClickListener).show()
             return false
         } else {
             setResult(RESULT_OK)

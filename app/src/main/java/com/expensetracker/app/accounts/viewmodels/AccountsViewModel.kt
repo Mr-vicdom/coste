@@ -299,7 +299,7 @@ class AccountsViewModel(application: Application) : AndroidViewModel(application
 
     fun getAccount(accountID: AccountID) {
         viewModelScope.launch(Dispatchers.IO) {
-            _updateAccount.postValue(accountManager.accounts.getOrNull(accountID))
+            _updateAccount.postValue(accountManager.accounts.firstOrNull { it.id == accountID })
         }
     }
 

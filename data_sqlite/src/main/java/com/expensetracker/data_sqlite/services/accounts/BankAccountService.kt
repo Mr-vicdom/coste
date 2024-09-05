@@ -25,7 +25,6 @@ class BankAccountService(
             db.beginTransaction()
             if (hasAccount(account.id)) {
                 db.setTransactionSuccessful()
-                Log.d("=>log", "addAccount: $account")
                 return AccountResponse.ACCOUNT_ALREADY_EXIST
             }
 

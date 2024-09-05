@@ -16,9 +16,27 @@ import java.sql.SQLException
 
 class DatabaseHelper(val context: Context): SQLiteOpenHelper(context, DB_NAME,null, DB_VERSION) {
 
+    init {
+        copyDatabase(context)
+    }
+
+    private fun copyDatabase(context: Context) {
+        val dbFile = context.getDatabasePath(DB_NAME)
+        if (!dbFile.exists()) {
+            dbFile.parentFile?.mkdirs()
+            context.assets.open(DB_NAME).use { inputStream ->
+                FileOutputStream(dbFile).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+        }
+    }
+
+
     override fun onCreate(db: SQLiteDatabase) {
         try {
             db.let {
+                it.execSQL(SQLQueries.CREATE_ID_STORE_TABLE)
                 it.execSQL(SQLQueries.CREATE_CATEGORY_TABLE)
                 it.execSQL(SQLQueries.CREATE_BANK_ACCOUNTS_TABLE)
                 it.execSQL(SQLQueries.CREATE_CASH_ACCOUNTS_TABLE)
@@ -36,6 +54,7 @@ class DatabaseHelper(val context: Context): SQLiteOpenHelper(context, DB_NAME,nu
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.let {
+            it.execSQL(SQLQueries.DROP_ID_STORE_TABLE)
             it.execSQL(SQLQueries.DROP_CATEGORY_TABLE)
             it.execSQL(SQLQueries.DROP_BANK_ACCOUNTS_TABLE)
             it.execSQL(SQLQueries.DROP_CASH_ACCOUNTS_TABLE)

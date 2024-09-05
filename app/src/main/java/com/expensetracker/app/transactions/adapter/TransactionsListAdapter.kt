@@ -78,14 +78,14 @@ class TransactionsListAdapter(
     sealed class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
     inner class TransactionViewHolder(private val binding: TransactionItemBinding, itemView: View): TransactionsListAdapter.ViewHolder(itemView) {
-        val transCategory: TextView = binding.transCategory
-        val transNote: TextView = binding.transNote
-        val transAccount: TextView = binding.transAccount
-        val transAmount: CurrencyTextView = binding.transAmount
+        private val transCategory: TextView = binding.transCategory
+        private val transNote: TextView = binding.transNote
+        private val transAccount: TextView = binding.transAccount
+        private val transAmount: CurrencyTextView = binding.transAmount
 
-        val expenseColor = ContextCompat.getColor(itemView.context, R.color.primaryContentColor)
-        val incomeColor = ContextCompat.getColor(itemView.context, R.color.secondaryContentColor)
-        val transferColor = ContextCompat.getColor(itemView.context, R.color.textSecondary)
+        private val expenseColor = ContextCompat.getColor(itemView.context, R.color.primaryContentColor)
+        private val incomeColor = ContextCompat.getColor(itemView.context, R.color.secondaryContentColor)
+        private val transferColor = ContextCompat.getColor(itemView.context, R.color.textSecondary)
 
         fun bind(item: TransactionItems.TransactionItem) {
             val transaction = item.transaction
@@ -106,8 +106,13 @@ class TransactionsListAdapter(
                 }
             }
 
-            val x = "${transaction.note}"
-            transNote.text = x
+            if (transaction.note.toString().isEmpty()){
+                transNote.visibility = View.GONE
+            } else {
+                val x = "${transaction.note}"
+                transNote.text = x
+                transNote.visibility = View.VISIBLE
+            }
             transAmount.text = transaction.amount.toString()
 
             itemView.setOnClickListener {
@@ -118,14 +123,14 @@ class TransactionsListAdapter(
     }
 
     inner class PeriodicDataViewHolder(private val binding: TransactionPeriodicInfoBinding, itemView: View): TransactionsListAdapter.ViewHolder(itemView) {
-        val periodicInfo : TextView = binding.periodInfo
-        val periodicDay : TextView = binding.periodicDay
-        val periodicIncome: CurrencyTextView = binding.periodicIncome
-        val periodicExpense: CurrencyTextView = binding.periodicExpense
+        private val periodicInfo : TextView = binding.periodInfo
+        private val periodicDay : TextView = binding.periodicDay
+        private val periodicIncome: CurrencyTextView = binding.periodicIncome
+        private val periodicExpense: CurrencyTextView = binding.periodicExpense
 
-        val expenseColor = ContextCompat.getColor(itemView.context, R.color.primaryContentColor)
-        val incomeColor = ContextCompat.getColor(itemView.context, R.color.secondaryContentColor)
-        val transferColor = ContextCompat.getColor(itemView.context, R.color.textSecondary)
+        private val expenseColor = ContextCompat.getColor(itemView.context, R.color.primaryContentColor)
+        private val incomeColor = ContextCompat.getColor(itemView.context, R.color.secondaryContentColor)
+        private val transferColor = ContextCompat.getColor(itemView.context, R.color.textSecondary)
 
         fun bind(item: TransactionItems.PeriodicItem) {
             val periodicData = item.periodicData

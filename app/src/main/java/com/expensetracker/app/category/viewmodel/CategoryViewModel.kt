@@ -12,100 +12,137 @@ import com.expensetracker.core.models.Category
 import com.expensetracker.core.models.ExpenseCategory
 import com.expensetracker.core.models.IncomeCategory
 import com.expensetracker.core.support.CategoryType
-import com.expensetracker.core.support.SimpleName
 import com.expensetracker.domain.contracts.category.CategoryManager
 import com.expensetracker.domain.support.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class CategoryViewModel(application: Application): AndroidViewModel(application) {
+class CategoryViewModel(application: Application) : AndroidViewModel(application) {
 
     private val categoryManager: CategoryManager by lazy {
         DataHandler(application).categoryManager
     }
 
-    private val categories: MutableList<Category> = mutableListOf()
+    val incomeCategoriesList: MutableList<Pair<IncomeCategory, Boolean>> = mutableListOf()
 
+    val expenseCategoriesList: MutableList<Pair<ExpenseCategory, Boolean>> = mutableListOf()
 
-    private val updatedCategoriesMap: MutableMap<Int, Category> = mutableMapOf()
+    private val _addPosition: MutableLiveData<Int> = MutableLiveData()
 
-    private val updatedCategories: List<Category>
-        get() = updatedCategoriesMap.values.toList()
+    private val _updatePosition: MutableLiveData<Int> = MutableLiveData()
 
-    private val _categoryList: MutableLiveData<List<Category>> = MutableLiveData()
+    private val _deletePosition: MutableLiveData<Int> = MutableLiveData()
 
-    private val _oldCategoryList: MutableLiveData<List<Category>> = MutableLiveData()
+    val updatePosition: LiveData<Int>
+        get() = _updatePosition
 
-    val categoryList: LiveData<List<Category>>
-        get() = _categoryList
+    val deletePosition: LiveData<Int>
+        get() = _deletePosition
 
+    val addPosition: LiveData<Int>
+        get() = _addPosition
 
-    val oldCategoryList: LiveData<List<Category>>
-        get() = _oldCategoryList
-
-    fun fetchCategories(type: CategoryType = CategoryType.INCOME_CATEGORY) {
-        viewModelScope.launch(Dispatchers.IO) {
-            when (type){
-               CategoryType.INCOME_CATEGORY -> categoryManager.incomeCategories
-               CategoryType.EXPENSE_CATEGORY -> categoryManager.expenseCategories
-            }.let { categories1 ->
-                categories.clear()
-                categories.addAll(categories1)
-                updatedCategoriesMap.clear()
-                updatedCategoriesMap.putAll(categories1.associateBy { it.id })
-            }
-
-            Log.d("=>log", "fetchCategories: ${updatedCategories}")
-
-            _categoryList.postValue(updatedCategories)
-        }
-    }
-
-    fun getOldCategories() {
-        viewModelScope.launch {
-            _oldCategoryList.postValue(categories)
-        }
-    }
-
-    fun updateCategory(text: String, category: Category) {
-        val cate = updatedCategoriesMap[category.id]
-        if (cate != null){
-            try {
-                val name = SimpleName(text)
-                val updatedCategory = when (cate) {
-                    is ExpenseCategory -> cate.copy(name = name)
-                    is IncomeCategory -> cate.copy(name = name)
+    private fun initializeCategoryLists(type: CategoryType, list: List<Category>) {
+        when(type){
+            CategoryType.INCOME_CATEGORY -> {
+                Log.d("=>log", "initializeCategoryLists: HOW?")
+                if (incomeCategoriesList.isEmpty())
+                    incomeCategoriesList.addAll(list.filterIsInstance<IncomeCategory>().map{ it to false }
+                        .toMutableList())
+                else {
+                    val newList = list.filterIsInstance<IncomeCategory>()
+                        .filter { e -> incomeCategoriesList.none { b -> b.first.id == e.id } }
+                        .map { it to false }
+                    if (newList.isNotEmpty()) {
+                        _addPosition.postValue(incomeCategoriesList.size)
+                        incomeCategoriesList.addAll(newList)
+                    }
                 }
-                updatedCategoriesMap[category.id] = updatedCategory
-            } catch (_ : Exception) {
-                Toast.makeText(getApplication(), "Category Name Invalid", Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-    fun saveCategories() {
-        viewModelScope.launch(Dispatchers.IO) {
-            categories.forEach { category ->
-                if(updatedCategoriesMap.contains(category.id)){
-                    val updatedCategory = updatedCategoriesMap[category.id]
-                    if(updatedCategory != null && updatedCategory.name != category.name){
-                        categoryManager.update(category, updatedCategory.name.toString())
+            CategoryType.EXPENSE_CATEGORY -> {
+                Log.d("=>log", "initializeCategoryLists: i have posted $list")
+                if (expenseCategoriesList.isEmpty())
+                    expenseCategoriesList.addAll(list.mapNotNull { if (it is ExpenseCategory) it  to false else null }
+                        .toMutableList())
+                else {
+                    val newList = list.filterIsInstance<ExpenseCategory>()
+                        .filter { e -> expenseCategoriesList.none { b -> b.first.id == e.id } }
+                        .map { it to false }
+                    Log.d("=>log", "initializeCategoryLists: i have posted $newList")
+                    if (newList.isNotEmpty()) {
+                        Log.d("=>log", "initializeCategoryLists: i have posted")
+                        _addPosition.postValue(expenseCategoriesList.size)
+                        expenseCategoriesList.addAll(newList)
                     }
                 }
             }
         }
     }
 
-    fun deleteCategory(category: Category){
+    fun fetchCategories(type: CategoryType = CategoryType.INCOME_CATEGORY) {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (type) {
+                CategoryType.INCOME_CATEGORY -> categoryManager.incomeCategories
+                CategoryType.EXPENSE_CATEGORY -> categoryManager.expenseCategories
+            }.let { categories1 ->
+                initializeCategoryLists(type,categories1)
+            }
+        }
+    }
+
+    fun addCategory(text: String, type: CategoryType) {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (type) {
+                CategoryType.INCOME_CATEGORY -> categoryManager.addIncomeCategory(text)
+                CategoryType.EXPENSE_CATEGORY -> categoryManager.addExpenseCategory(text)
+            }.let {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(getApplication(), it.data, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    fun updateCategory(text: String, category: Category, position: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            when (category) {
+                is ExpenseCategory -> categoryManager.update(category, text)
+                is IncomeCategory -> categoryManager.update(category, text)
+            }.let { result ->
+                val updatedCategory: Category? = when(category){
+                    is ExpenseCategory -> categoryManager.expenseCategories.firstOrNull{ it.id == category.id}
+                    is IncomeCategory -> categoryManager.incomeCategories.firstOrNull{ it.id == category.id}
+                }
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(getApplication(), result.data, Toast.LENGTH_SHORT).show()
+                    if (result is Result.Success) {
+                        if (updatedCategory != null) {
+                            Log.d("=>log", "updateCategory1: $category")
+                            when(updatedCategory){
+                                is ExpenseCategory -> expenseCategoriesList[position] = updatedCategory to false
+                                is IncomeCategory -> incomeCategoriesList[position] = updatedCategory to false
+                            }
+                        }
+                        _updatePosition.postValue(position)
+                    }
+                }
+            }
+        }
+    }
+
+
+    fun deleteCategory(category: Category, position: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             categoryManager.delete(category).let {
-                withContext(Dispatchers.Main){
+                withContext(Dispatchers.Main) {
                     Toast.makeText(getApplication(), it.data, Toast.LENGTH_SHORT).show()
-                    if (it is Result.Success){
-                        categories.removeIf { it.id == category.id }
-                        updatedCategoriesMap.remove(category.id)
-                        _categoryList.postValue(updatedCategories)
+                    if (it is Result.Success) {
+                        when(category){
+                            is ExpenseCategory -> if(expenseCategoriesList.indices.contains(position)) expenseCategoriesList.removeAt(position)
+                            is IncomeCategory ->  if(incomeCategoriesList.indices.contains(position)) incomeCategoriesList.removeAt(position)
+                        }
+                        _deletePosition.postValue(position)
                     }
                 }
             }

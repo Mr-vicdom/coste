@@ -73,6 +73,12 @@ object SQLQueries {
             "${DatabaseSchema.CategoryTable.IS_INCOME} BOOLEAN" +
             ");"
 
+    const val CREATE_ID_STORE_TABLE = "CREATE TABLE ${DatabaseSchema.IdStoreTable.TABLE_NAME} (" +
+            "${DatabaseSchema.IdStoreTable.LAST_CATEGORY_ID} INTEGER," +
+            "${DatabaseSchema.IdStoreTable.LAST_ACCOUNT_ID} INTEGER," +
+            "${DatabaseSchema.IdStoreTable.LAST_TRANSACTION_ID} INTEGER" +
+            ");"
+
     const val DROP_INCOMES_TABLE = "DROP TABLE IF EXISTS ${DatabaseSchema.IncomeTable.TABLE_NAME};"
     const val DROP_EXPENSES_TABLE = "DROP TABLE IF EXISTS ${DatabaseSchema.ExpenseTable.TABLE_NAME};"
     const val DROP_TRANSFERS_TABLE = "DROP TABLE IF EXISTS ${DatabaseSchema.TransferTable.TABLE_NAME};"
@@ -81,5 +87,6 @@ object SQLQueries {
     const val DROP_CREDIT_CARDS_TABLE = "DROP TABLE IF EXISTS ${DatabaseSchema.CreditCardTable.TABLE_NAME};"
     const val DROP_DEBIT_CARDS_TABLE = "DROP TABLE IF EXISTS ${DatabaseSchema.DebitCardTable.TABLE_NAME};"
     const val DROP_CATEGORY_TABLE = "DROP TABLE IF EXISTS ${DatabaseSchema.CategoryTable.TABLE_NAME};"
+    const val DROP_ID_STORE_TABLE = "DROP TABLE IF EXISTS ${DatabaseSchema.IdStoreTable.TABLE_NAME};"
 
 }

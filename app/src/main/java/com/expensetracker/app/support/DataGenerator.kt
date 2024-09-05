@@ -16,249 +16,101 @@ object DataGenerator {
     fun generateDefaultAccounts(accountManager: AccountManager) {
 
         if(accountsGenerated) return else accountsGenerated = true
-        accountManager.createBankAccount("HDFC").let { println("=>log $it = \"HDFC") }
-        accountManager.createBankAccount("ICICI").let { println("=>log $it = \"ICICI") }
-        accountManager.createCashAccount("MyWallet").let { println("=>log $it = \"MyWallet") }
-        accountManager.createCreditCard("Card HDFC").let { println("=>log $it = \"Card HDFC") }
-        accountManager.createCreditCard("UPI Card").let { println("=>log $it = \"UPI Card") }
-        accountManager.createDebitCard("Platinum Debit", bankAccount = accountManager.bankAccounts.first()).let { println("=>log $it") }
-        accountManager.createDebitCard("SBI Debit", bankAccount = accountManager.bankAccounts[1]).let { println("=>log $it") }
+        accountManager.createBankAccount("HDFC").let { println("=>datalog $it = \"HDFC") }
+        accountManager.createBankAccount("ICICI").let { println("=>datalog $it = \"ICICI") }
+        accountManager.createCashAccount("MyWallet").let { println("=>datalog $it = \"MyWallet") }
+        accountManager.createCreditCard("Card HDFC").let { println("=>datalog $it = \"Card HDFC") }
+        accountManager.createCreditCard("UPI Card").let { println("=>datalog $it = \"UPI Card") }
+        accountManager.createDebitCard("Platinum Debit", bankAccount = accountManager.bankAccounts.first()).let { println("=>datalog $it") }
+        accountManager.createDebitCard("SBI Debit", bankAccount = accountManager.bankAccounts[1]).let { println("=>datalog $it") }
     }
 
     fun generateDefaultCategories(categoryManager: CategoryManager) {
 
         if(categoriesGenerated) return else categoriesGenerated = true
-        categoryManager.addIncomeCategory("Salary").let { println("=>log $it s") }
-        categoryManager.addIncomeCategory("Loan").let { println("=>log $it l") }
-        categoryManager.addIncomeCategory("Investment").let { println("=>log $it i") }
+        categoryManager.addIncomeCategory("Salary").let { println("=>datalog $it s") }
+        categoryManager.addIncomeCategory("Loan").let { println("=>datalog $it l") }
+        categoryManager.addIncomeCategory("Investment").let { println("=>datalog $it i") }
 
-        categoryManager.addExpenseCategory("Food").let { println("=>log $it f") }
-        categoryManager.addExpenseCategory("Clothes").let { println("=>log $it c") }
-        categoryManager.addExpenseCategory("LifeStyle").let { println("=>log $it") }
-        categoryManager.addExpenseCategory("Travel").let { println("=>log $it") }
-        categoryManager.addExpenseCategory("Bills").let { println("=>log $it") }
+        categoryManager.addExpenseCategory("Food").let { println("=>datalog $it f") }
+        categoryManager.addExpenseCategory("Clothes").let { println("=>datalog $it c") }
+        categoryManager.addExpenseCategory("LifeStyle").let { println("=>datalog $it") }
+        categoryManager.addExpenseCategory("Travel").let { println("=>datalog $it") }
+        categoryManager.addExpenseCategory("Bills").let { println("=>datalog $it") }
     }
 
     fun displayAll(categoryManager: CategoryManager, accountManager: AccountManager){
         categoryManager.incomeCategories.forEach {
-            println("=>log $it")
+            println("=>datalog $it")
         }
         accountManager.accounts.forEach {
-            println("=> log $it")
+            println("=>datalog $it")
         }
     }
 
     fun generateDummyTransactions(transactionManager: TransactionManager, categoryProvider: CategoryProvider, accountProvider: AccountProvider) {
-        // Generate 10 Income Transactions
 
-        if(transactionsGenerated) return else transactionsGenerated = true
-        transactionManager.addIncome(
-            _date = LocalDate.now(),
-            _amount = "100.0",
-            _note = "Pocket Money",
-            _description = "From mom",
-            category = categoryProvider.incomeCategories.random(),
-            account = accountProvider.accounts.random()
-        ).let { println("=>log $it") }
-
-        transactionManager.addIncome(
-            _date = LocalDate.now().minusDays(1),
-            _amount = "150.0",
-            _note = "Monthly Salary",
-            _description = "Monthly salary",
-            category = categoryProvider.incomeCategories.random(),
-            account = accountProvider.accounts.random()
+        val incomeNotes = listOf(
+            "Pocket Money 💸", "Monthly Salary 💼", "Birthday Gift 🎁",
+            "Freelance Payment 💻", "Performance Bonus 🏆",
+            "Monthly Allowance 💰", "Credit Card Cashback 💳",
+            "Lottery Win 🎲", "Sold Old Books 📚", "Dividend Income 📈"
         )
 
-        transactionManager.addIncome(
-            _date = LocalDate.now().minusDays(2),
-            _amount = "50.0",
-            _note = "Birthday Gift",
-            _description = "Gift from a friend",
-            category = categoryProvider.incomeCategories.random(),
-            account = accountProvider.accounts.random()
+        val expenseNotes = listOf(
+            "Snack 🍪", "Morning Coffee ☕", "Bus Fare 🚌",
+            "Groceries 🛒", "Dinner Out 🍽️",
+            "Cinema Ticket 🎟️", "Electricity Bill 💡",
+            "Taxi Ride 🚕", "Evening Snacks 🍿", "Book Purchase 📖"
         )
 
-        transactionManager.addIncome(
-            _date = LocalDate.now().minusDays(3),
-            _amount = "200.0",
-            _note = "Freelance Payment",
-            _description = "Payment for freelance project",
-            category = categoryProvider.incomeCategories.random(),
-            account = accountProvider.accounts.random()
+        val transferNotes = listOf(
+            "TO Transfer 🔄", "Self ↔️", "With Draw 🏧",
+            "Savings Transfer 💼", "Emergency Fund 💸",
+            "Investment 💹", "Loan Repayment 💵",
+            "Rent Payment 🏠", "Credit Card Payment 💳", "Gift 🎁"
         )
 
-        transactionManager.addIncome(
-            _date = LocalDate.now().minusDays(4),
-            _amount = "75.0",
-            _note = "Performance Bonus",
-            _description = "Bonus for good performance",
-            category = categoryProvider.incomeCategories.random(),
-            account = accountProvider.accounts.random()
-        )
+        for (i in 0 until 10) {
+            transactionManager.addIncome(
+                _date = LocalDate.now().minusDays(i.toLong()),
+                _amount = (100 + i * 10).toString(),
+                _note = incomeNotes[i],
+                _description = "Description for ${incomeNotes[i]}",
+                category = categoryProvider.incomeCategories.random(),
+                account = accountProvider.accounts.random()
+            )
+        }
 
-        transactionManager.addIncome(
-            _date = LocalDate.now().minusDays(5),
-            _amount = "80.0",
-            _note = "Monthly Allowance",
-            _description = "Allowance received",
-            category = categoryProvider.incomeCategories.random(),
-            account = accountProvider.accounts.random()
-        )
+        for (i in 0 until 10) {
+            transactionManager.addExpense(
+                _date = LocalDate.now().minusDays(i.toLong()),
+                _amount = (20 + i * 5).toString(),
+                _note = expenseNotes[i],
+                _description = "Description for ${expenseNotes[i]}",
+                category = categoryProvider.expenseCategories.random(),
+                account = accountProvider.accounts.random()
+            )
+        }
 
-        transactionManager.addIncome(
-            _date = LocalDate.now().minusDays(6),
-            _amount = "120.0",
-            _note = "Credit Card Cashback",
-            _description = "Cashback from credit card",
-            category = categoryProvider.incomeCategories.random(),
-            account = accountProvider.accounts.random()
-        )
+        val accounts = accountProvider.accounts
+        for (i in 0 until 10) {
+            val fromAccount = accounts.random()
+            var toAccount = accounts.random()
 
-        transactionManager.addIncome(
-            _date = LocalDate.now().minusDays(7),
-            _amount = "30.0",
-            _note = "Lottery Win",
-            _description = "Small lottery prize",
-            category = categoryProvider.incomeCategories.random(),
-            account = accountProvider.accounts.random()
-        )
+            while (toAccount == fromAccount) {
+                toAccount = accounts.random()
+            }
 
-        transactionManager.addIncome(
-            _date = LocalDate.now().minusDays(8),
-            _amount = "60.0",
-            _note = "Sold Old Books",
-            _description = "Sold used books",
-            category = categoryProvider.incomeCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addIncome(
-            _date = LocalDate.now().minusDays(9),
-            _amount = "45.0",
-            _note = "Dividend Income",
-            _description = "Quarterly dividends",
-            category = categoryProvider.incomeCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addExpense(
-            _date = LocalDate.now().minusDays(2),
-            _amount = "10.0",
-            _note = "Snack",
-            _description = "Bought a snack",
-            category = categoryProvider.expenseCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addExpense(
-            _date = LocalDate.now().minusDays(3),
-            _amount = "15.0",
-            _note = "Morning Coffee",
-            _description = "Bought morning coffee",
-            category = categoryProvider.expenseCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addExpense(
-            _date = LocalDate.now().minusDays(4),
-            _amount = "20.0",
-            _note = "Bus Fare",
-            _description = "Paid for bus fare",
-            category = categoryProvider.expenseCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addExpense(
-            _date = LocalDate.now().minusDays(5),
-            _amount = "50.0",
-            _note = "Groceries",
-            _description = "Weekly grocery shopping",
-            category = categoryProvider.expenseCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addExpense(
-            _date = LocalDate.now().minusDays(6),
-            _amount = "100.0",
-            _note = "Dinner Out",
-            _description = "Dinner at a restaurant",
-            category = categoryProvider.expenseCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addExpense(
-            _date = LocalDate.now().minusDays(7),
-            _amount = "30.0",
-            _note = "Cinema Ticket",
-            _description = "Watched a movie",
-            category = categoryProvider.expenseCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addExpense(
-            _date = LocalDate.now().minusDays(8),
-            _amount = "60.0",
-            _note = "Electricity Bill",
-            _description = "Paid electricity bill",
-            category = categoryProvider.expenseCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addExpense(
-            _date = LocalDate.now().minusDays(9),
-            _amount = "25.0",
-            _note = "Taxi Ride",
-            _description = "Taxi fare",
-            category = categoryProvider.expenseCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addExpense(
-            _date = LocalDate.now().minusDays(10),
-            _amount = "12.0",
-            _note = "Evening Snacks",
-            _description = "Bought snacks",
-            category = categoryProvider.expenseCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addExpense(
-            _date = LocalDate.now().minusDays(11),
-            _amount = "40.0",
-            _note = "Book Purchase",
-            _description = "Bought a new book",
-            category = categoryProvider.expenseCategories.random(),
-            account = accountProvider.accounts.random()
-        )
-
-        transactionManager.addTransfer(
-            _date = LocalDate.now().minusDays(1),
-            _amount = "1000.0",
-            _note = "TO Transfer",
-            _description = "Transferred money to another account",
-            fromAccount = accountProvider.accounts.first(),
-            toAccount = accountProvider.accounts.last()
-        )
-
-        transactionManager.addTransfer(
-            _date = LocalDate.now().plusDays(1),
-            _amount = "100.0",
-            _note = "Self",
-            _description = "Transferred money to another account",
-            fromAccount = accountProvider.accounts.first(),
-            toAccount = accountProvider.accounts.last()
-        )
-
-        transactionManager.addTransfer(
-            _date = LocalDate.now().minusDays(3),
-            _amount = "100.0",
-            _note = "With Draw",
-            _description = "Transferred money to another account",
-            fromAccount = accountProvider.accounts.last(),
-            toAccount = accountProvider.accounts.first()
-        )
-
+            transactionManager.addTransfer(
+                _date = LocalDate.now().minusDays(i.toLong()),
+                _amount = (200 + i * 50).toString(),
+                _note = transferNotes[i],
+                _description = "Description for ${transferNotes[i]}",
+                fromAccount = fromAccount,
+                toAccount = toAccount
+            )
+        }
 
 
     }

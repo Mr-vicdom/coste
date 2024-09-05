@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.Spanned
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
@@ -29,7 +28,8 @@ import com.expensetracker.app.transactions.support.Literals.DATE_LABEL
 import com.expensetracker.app.transactions.support.Literals.DESCRIPTION_LABEL
 import com.expensetracker.app.transactions.support.Literals.NOTE_LABEL
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_TYPE
-import com.expensetracker.app.transactions.support.getAlertDialog
+import com.expensetracker.app.transactions.support.getChoiceAlertDialog
+import com.expensetracker.app.transactions.support.getWarningAlertDialog
 import com.expensetracker.app.transactions.viewmodel.TransactionManagerViewModel
 import com.expensetracker.core.support.Helper
 import com.expensetracker.core.support.Literals.DEFAULT_AMOUNT
@@ -50,6 +50,7 @@ open class TransactionAddActivity: AppCompatActivity() {
     protected var accountID: Int = DEFAULT_INDEX
     protected var note: String = DEFAULT_STRING
     protected var description: String = DEFAULT_STRING
+    private lateinit var datePickerDialog: DatePickerDialog
 
     protected var transactionType: TransactionType = TransactionType.EXPENSE
 
@@ -93,6 +94,7 @@ open class TransactionAddActivity: AppCompatActivity() {
         }
 
         binding = TransactionAddScreenBinding.inflate(layoutInflater)
+        binding.transactionAddTitle.setText(R.string.transaction_add)
 
         binding.transAddTabBar.addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -134,6 +136,9 @@ open class TransactionAddActivity: AppCompatActivity() {
 
         //Back Btn
         binding.transAddBackBtn.setOnClickListener {
+            note = noteField.text.toString()
+            description = descriptionField.text.toString()
+            amount = amountField.text.toString()
             onBackClicked()
         }
 
@@ -156,7 +161,8 @@ open class TransactionAddActivity: AppCompatActivity() {
             dateField.text = text
             date = LocalDate.of(year, month+1, dayOfMonth)
         }
-        val datePickerDialog = DatePickerDialog(this, androidx.appcompat.R.style.AlertDialog_AppCompat, onDateSetListener, date.year, date.monthValue-1, date.dayOfMonth)
+
+        datePickerDialog = DatePickerDialog(this, R.style.AppDatePickerDialog, onDateSetListener, date.year, date.monthValue-1, date.dayOfMonth)
         dateField.setOnClickListener { datePickerDialog.show() }
 
         //Amount
@@ -230,7 +236,8 @@ open class TransactionAddActivity: AppCompatActivity() {
             amount = amountField.text.toString()
 
             if ((amount.toDoubleOrNull() ?: 0.0) <= 0.0 ){
-                Toast.makeText(this, "Amount can't be <=0", Toast.LENGTH_SHORT).show()
+                getWarningAlertDialog(this,"Invalid Input","Amount can't be <=0").show()
+                return@setOnClickListener
             } else {
                 note = noteField.text.toString()
                 description = descriptionField.text.toString()
@@ -264,18 +271,21 @@ open class TransactionAddActivity: AppCompatActivity() {
                             toAccountID = accountID
                         )
                         else {
-                            Toast.makeText(this, "Can't transfer on same A/C", Toast.LENGTH_SHORT)
-                                .show()
+                            getWarningAlertDialog(this,"Invalid Input","Can't transfer on same A/C").show()
+                            return@setOnClickListener
                         }
                     }
                 }
+                setResult(RESULT_OK)
+                finish()
             }
 
-            setResult(RESULT_OK)
-            finish()
         }
 
         onBackPressedDispatcher.addCallback {
+            note = noteField.text.toString()
+            description = descriptionField.text.toString()
+            amount = amountField.text.toString()
             onBackClicked()
         }
 
@@ -293,7 +303,7 @@ open class TransactionAddActivity: AppCompatActivity() {
                 setResult(RESULT_CANCELED)
                 finish()
             }
-            getAlertDialog(this,"Exit","Are You Sure?", onYesClick = onYesClickListener).show()
+            getChoiceAlertDialog(this,"Exit","Are You Sure?", onYesClick = onYesClickListener).show()
             return false
         }
     }
@@ -369,8 +379,9 @@ open class TransactionAddActivity: AppCompatActivity() {
     }
 
     private fun onDataSetEmpty(){
-        Toast.makeText(this, EMPTY_CATEGORY_ACCOUNT,Toast.LENGTH_SHORT).show()
-        finish()
+        getWarningAlertDialog(this,"Empty Category or Account","Add Accounts or Category", onOkClick = {
+            finish()
+        }).show()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -383,6 +394,11 @@ open class TransactionAddActivity: AppCompatActivity() {
         outState.putInt(ACCOUNT_ID_LABEL,accountID)
         outState.putString(NOTE_LABEL,note)
         outState.putString(description,description)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (::datePickerDialog.isInitialized) datePickerDialog.dismiss()
     }
 }
 

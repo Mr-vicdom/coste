@@ -1,8 +1,9 @@
-package com.expensetracker.app.category
+package com.expensetracker.app.category.support
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.expensetracker.app.category.CategoryActivity
 import com.expensetracker.app.category.support.Literals.IS_EXPENSE_LABEL
 import com.expensetracker.app.databinding.SettingsScreenBinding
 
