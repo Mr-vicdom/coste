@@ -38,6 +38,7 @@
     <style name="AppEditText" parent="Widget.AppCompat.EditText">
         <item name="android:inputType">text</item>
         <item name="android:textSize">@dimen/large_text</item>
+        <item name="maxLines">1</item>
         <item name="android:theme">@style/TransAddTheme</item>
     </style>
     <style name="AppSpinnerTheme" parent="TextAppearance.AppCompat.Widget.TextView.SpinnerItem">

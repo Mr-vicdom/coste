@@ -82,14 +82,10 @@ class CategoryListAdapter<T : Category>(
                 discardBtn.visibility = View.VISIBLE
                 doneBtn.visibility = View.VISIBLE
 
-                fieldText.setTextAppearance(R.style.AppEditText)
                 fieldText.isEnabled = true
                 fieldText.isFocusable = true
                 fieldText.requestFocus()
-                fieldText.maxLines = 1
-                fieldText.typeface = Typeface.DEFAULT
-                fieldText.ellipsize = TextUtils.TruncateAt.END
-
+                fieldText.setSingleLine()
                 editBtn.visibility = View.GONE
             } else {
                 discardBtn.visibility = View.GONE

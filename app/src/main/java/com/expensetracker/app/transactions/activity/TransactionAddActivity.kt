@@ -163,7 +163,8 @@ open class TransactionAddActivity: AppCompatActivity() {
             date = LocalDate.of(year, month+1, dayOfMonth)
         }
 
-        datePickerDialog = DatePickerDialog(this, R.style.AppDatePickerDialog, onDateSetListener, date.year, date.monthValue-1, date.dayOfMonth)
+        datePickerDialog = DatePickerDialog(this,onDateSetListener, date.year, date.monthValue-1, date.dayOfMonth)
+        datePickerDialog.context.setTheme(R.style.DatePickerStyle)
         dateField.setOnClickListener { datePickerDialog.show() }
 
         //Amount

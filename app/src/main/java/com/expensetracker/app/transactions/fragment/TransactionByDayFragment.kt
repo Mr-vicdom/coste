@@ -49,8 +49,10 @@ class TransactionByDayFragment: Fragment() {
             modifyTransactionLauncher.launch(modifyTransactionIntent)
         }
 
+        val layoutManager = LinearLayoutManager(requireContext())
+
         binding.theList.adapter = adapter
-        binding.theList.layoutManager = LinearLayoutManager(requireContext())
+        binding.theList.layoutManager = layoutManager
         binding.theList.post {
             viewModel.fetchTransactionsBetween()
         }
@@ -69,10 +71,11 @@ class TransactionByDayFragment: Fragment() {
                 val position =
                     transactionItems.indexOfFirst { (it is TransactionItems.PeriodicItem) && (it.periodicData.date == selectedDate) }
                 if (position > 0) {
-                    binding.theList.scrollToPosition(position)
+                    layoutManager.scrollToPosition(position)
                     Log.d("=>log", "onCreate: Scroll to $selectedDate $position")
                 }
             }
+            viewModel.scrollToDate.removeObservers(viewLifecycleOwner)
         })
         return binding.root
     }

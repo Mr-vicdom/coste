@@ -105,7 +105,10 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
         _scrollToDate.postValue(date)
     }
 
+    fun clearFilter(){ this.filterIDs.clear() }
+
     fun fetchTransactionsBetween(filterIDs: List<AccountID> = listOf()) {
+        if (filterIDs.isNotEmpty()) clearFilter()
         this.filterIDs.addAll(filterIDs)
 
         val from: LocalDate = YearMonth.of(year.value, month).atEndOfMonth()

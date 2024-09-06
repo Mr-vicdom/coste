@@ -7,7 +7,12 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.OnBackPressedDispatcher
+import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -35,6 +40,8 @@ import com.expensetracker.core.models.Transaction
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
+import java.time.LocalDate
+import java.time.Month
 
 class TransactionsFragment: Fragment() {
 
@@ -90,6 +97,7 @@ class TransactionsFragment: Fragment() {
                 }
             }
 
+
         val searchTransactionLauncher: ActivityResultLauncher<Intent> =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 transactionProviderViewModel.fetchTransactionsBetween()
@@ -129,21 +137,33 @@ class TransactionsFragment: Fragment() {
         binding.transPreviousBtn.setOnClickListener {
             with(transactionProviderViewModel){
                 month = month.minus(1)
+                if (month == Month.DECEMBER) {
+                    year = year.minusYears(1)
+                }
                 fetchTransactionsBetween(filterAccounts)
             }
         }
         binding.transNextBtn.setOnClickListener {
             with(transactionProviderViewModel){
                 month = month.plus(1)
+                if (month == Month.JANUARY) {
+                    year = year.plusYears(1)
+                }
                 fetchTransactionsBetween(filterAccounts)
             }
         }
 
         transactionProviderViewModel.monthValue.observe(viewLifecycleOwner, Observer {
-            binding.transScreenMonth.text = it.name.lowercase().replaceFirstChar {c -> c.uppercase() }
+            val monthValue = it.name.lowercase().replaceFirstChar {c -> c.uppercase() }
+            binding.transScreenMonth.text = monthValue
         })
         transactionProviderViewModel.yearValue.observe(viewLifecycleOwner, Observer {
-            // Year impl
+            if (it != LocalDate.now().year) {
+                binding.transScreenYear.visibility = View.VISIBLE
+                binding.transScreenYear.text = it.toString()
+            } else {
+                binding.transScreenYear.visibility = View.GONE
+            }
         })
 
         //Search BTN
@@ -165,11 +185,25 @@ class TransactionsFragment: Fragment() {
         //Filter Cancel BTN
         transactionScreenCloseFilterBtn.setOnClickListener {
             filterAccounts.clear()
+            transactionProviderViewModel.clearFilter()
             //back status bar color
             transactionScreenSearchBtn.visibility = View.VISIBLE
             transactionScreenCloseFilterBtn.visibility = View.GONE
             transactionProviderViewModel.fetchTransactionsBetween()
             updateStatusBar()
+        }
+
+        //OnBack Filter cancel
+        requireActivity().onBackPressedDispatcher.addCallback {
+            if (filterAccounts.isEmpty()) requireActivity().finish()
+            else {
+                filterAccounts.clear()
+                transactionProviderViewModel.clearFilter()
+                transactionScreenSearchBtn.visibility = View.VISIBLE
+                transactionScreenCloseFilterBtn.visibility = View.GONE
+                transactionProviderViewModel.fetchTransactionsBetween()
+                updateStatusBar()
+            }
         }
 
         //Filter BTN
