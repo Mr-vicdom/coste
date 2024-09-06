@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.expensetracker.app.category.support.Literals.IS_EXPENSE_LABEL
 import com.expensetracker.app.category.viewmodel.CategoryViewModel
 import com.expensetracker.app.databinding.CategoryAddScreenBinding
+import com.expensetracker.app.transactions.support.SURETY
 import com.expensetracker.app.transactions.support.getChoiceAlertDialog
 import com.expensetracker.core.support.CategoryType
 
@@ -31,7 +32,7 @@ class CategoryAddActivity: AppCompatActivity() {
 
         binding.accountAddBackBtn.setOnClickListener {
             if(binding.categoryNameField.text.toString().isNotEmpty()){
-                getChoiceAlertDialog(this,"Discard & Exit","Are You Sure?", onYesClick = {
+                getChoiceAlertDialog(this,"Discard & Exit",SURETY, onYesClick = {
                     setResult(RESULT_CANCELED)
                     finish()
                 }).show()

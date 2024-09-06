@@ -52,9 +52,23 @@ class TransactionsFragment: Fragment() {
 
     private val filterAccounts: MutableList<AccountID> = mutableListOf()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    private fun updateFrag(fragment: Fragment){
 
-        super.onCreate(savedInstanceState)
+        val existingFrag = childFragmentManager.findFragmentById(binding.transFragContainer.id)
+        if(fragment == existingFrag) return
+
+        val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
+        transaction.replace(binding.transFragContainer.id,fragment)
+
+        transaction.commit()
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+
 
 
         savedInstanceState?.getIntArray(FILTER_ACCOUNT_IDS_LABEL)?.let {
@@ -78,7 +92,7 @@ class TransactionsFragment: Fragment() {
 
         val searchTransactionLauncher: ActivityResultLauncher<Intent> =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                    transactionProviderViewModel.fetchTransactionsBetween()
+                transactionProviderViewModel.fetchTransactionsBetween()
             }
 
         val adapter = TransactionsDayListAdapter(transactionItems) { transaction: Transaction ->
@@ -125,10 +139,10 @@ class TransactionsFragment: Fragment() {
             }
         }
 
-        transactionProviderViewModel.monthValue.observe(this, Observer {
+        transactionProviderViewModel.monthValue.observe(viewLifecycleOwner, Observer {
             binding.transScreenMonth.text = it.name.lowercase().replaceFirstChar {c -> c.uppercase() }
         })
-        transactionProviderViewModel.yearValue.observe(this, Observer {
+        transactionProviderViewModel.yearValue.observe(viewLifecycleOwner, Observer {
             // Year impl
         })
 
@@ -173,12 +187,12 @@ class TransactionsFragment: Fragment() {
             addTransactionLauncher.launch(transAddIntent)
         }
 
-        transactionProviderViewModel.totalIncome.observe(this) {
+        transactionProviderViewModel.totalIncome.observe(viewLifecycleOwner) {
             transactionTotalIncome = it
             binding.transInfo1.text = transactionTotalIncome.toString()
             binding.transInfo3.text = transactionTotalBalance.toString()
         }
-        transactionProviderViewModel.totalExpense.observe(this) {
+        transactionProviderViewModel.totalExpense.observe(viewLifecycleOwner) {
             transactionTotalExpense = it
             binding.transInfo2.text = it.toString()
             binding.transInfo3.text = transactionTotalBalance.toString()
@@ -186,6 +200,14 @@ class TransactionsFragment: Fragment() {
 
         //Tab Layout
 
+        var dailyTab : TabLayout.Tab? = null
+        var weeklyTab : TabLayout.Tab? = null
+        var monthlyTab : TabLayout.Tab? = null
+        if (binding.transScreenViewBar.tabCount == 3){
+            dailyTab = binding.transScreenViewBar.getTabAt(0)
+            weeklyTab = binding.transScreenViewBar.getTabAt(1)
+            monthlyTab = binding.transScreenViewBar.getTabAt(2)
+        }
         binding.transScreenViewBar.addOnTabSelectedListener(object : OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if(binding.transScreenViewBar.tabCount == 3) {
@@ -202,43 +224,38 @@ class TransactionsFragment: Fragment() {
 
         transactionProviderViewModel.getTransactionsViewMode()
 
+
         //Transactions Frag
-        transactionProviderViewModel.transactionsViewMode.observe(this, Observer { transactionViewMode: TransactionsViewMode ->
+        transactionProviderViewModel.transactionsViewMode.observe(viewLifecycleOwner, Observer { transactionViewMode: TransactionsViewMode ->
 
             val dayFragment = TransactionByDayFragment()
             val weekFragment = TransactionByWeekFragment()
 
             when(transactionViewMode){
-                TransactionsViewMode.DAILY -> dayFragment
-                TransactionsViewMode.WEEKLY -> weekFragment
-                TransactionsViewMode.MONTHLY -> dayFragment
-            }.let { updateFrag(it) }
+                TransactionsViewMode.DAILY -> {
+                    binding.transScreenViewBar.selectTab(dailyTab)
+                    dayFragment
+                }
+                TransactionsViewMode.WEEKLY -> {
+                    binding.transScreenViewBar.selectTab(weeklyTab)
+                    weekFragment
+                }
+                TransactionsViewMode.MONTHLY -> {
+                    binding.transScreenViewBar.selectTab(dailyTab)
+                    dayFragment
+                }
+            }.let {
+                updateFrag(it)
+            }
 
         })
 
-        transactionProviderViewModel.transactionItems.observe(this, Observer {
+        transactionProviderViewModel.transactionItems.observe(viewLifecycleOwner, Observer {
             transactionItems.clear()
             transactionItems.addAll(it)
             adapter.notifyDataSetChanged()
         })
-    }
 
-    private fun updateFrag(fragment: Fragment){
-
-        val existingFrag = childFragmentManager.findFragmentById(binding.transFragContainer.id)
-        if(fragment == existingFrag) return
-
-        val transaction: FragmentTransaction = childFragmentManager.beginTransaction()
-        transaction.replace(binding.transFragContainer.id,fragment)
-
-        transaction.commit()
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
         return binding.root
     }
 

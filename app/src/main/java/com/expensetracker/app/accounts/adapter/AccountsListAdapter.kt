@@ -76,7 +76,7 @@ class AccountsListAdapter(
     sealed class AccountListingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     inner class AccountTitleViewHolder(binding: ListItemsTitleBinding): AccountListingViewHolder(binding.root){
-        val title = binding.listItemTitle
+        private val title = binding.listItemTitle
         fun bind(data: AccountListData.AccountTitle) {
             title.text = data.title
         }
@@ -91,8 +91,6 @@ class AccountsListAdapter(
                 balance.text = data.account.outStandings.toString()
             else
                 balance.text = data.account.balance.toString()
-
-            Log.d("=>log", "bind: $data")
             binding.root.setOnClickListener {
                 onAccountClicked(data.account)
             }

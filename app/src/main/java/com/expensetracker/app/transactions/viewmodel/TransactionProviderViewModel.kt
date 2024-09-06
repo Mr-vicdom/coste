@@ -53,7 +53,7 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
     val transactionsViewMode: LiveData<TransactionsViewMode>
         get() = _transactionViewMode
 
-    var month: Month = LocalDate.now().month
+    var month: Month = Month.AUGUST
         set(value) {
             field = value
             _monthValue.postValue(value)
@@ -72,11 +72,16 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
 
     private val _yearValue: MutableLiveData<Int> = MutableLiveData()
 
+    private val _scrollToDate: MutableLiveData<LocalDate> = MutableLiveData()
+
     val yearValue: LiveData<Int>
         get() = _yearValue
 
     val transactionItems: LiveData<List<TransactionItems>>
         get() = _transactionItems
+
+    val scrollToDate: LiveData<LocalDate>
+        get() = _scrollToDate
 
     val transactionItemsByWeek: LiveData<List<TransactionItemsByWeek>>
         get() = _transactionItemsByWeek
@@ -95,8 +100,14 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
         getTransactionsViewMode()
     }
 
+    fun setScrollPosition(date: LocalDate) {
+        setTransactionsViewMode(TransactionsViewMode.DAILY)
+        _scrollToDate.postValue(date)
+    }
+
     fun fetchTransactionsBetween(filterIDs: List<AccountID> = listOf()) {
         this.filterIDs.addAll(filterIDs)
+
         val from: LocalDate = YearMonth.of(year.value, month).atEndOfMonth()
         val to: LocalDate = LocalDate.of(year.value, month, 1)
 
@@ -104,8 +115,8 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
             val data = transactionProvider.getTransactionsBetween(from, to) {
                 if (this@TransactionProviderViewModel.filterIDs.isEmpty()) true
                 else when (it) {
-                    is FinancialTransaction -> filterIDs.contains(it.account.id)
-                    is Transfer -> filterIDs.contains(it.fromAccount.id) || filterIDs.contains(it.toAccount.id)
+                    is FinancialTransaction -> this@TransactionProviderViewModel.filterIDs.contains(it.account.id)
+                    is Transfer -> this@TransactionProviderViewModel.filterIDs.contains(it.fromAccount.id) || filterIDs.contains(it.toAccount.id)
                 }
             }
 

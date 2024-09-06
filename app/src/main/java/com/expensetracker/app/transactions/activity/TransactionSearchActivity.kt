@@ -18,8 +18,15 @@ import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_MONTH_LABEL
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.Month
+import java.util.Timer
 
 class TransactionSearchActivity: AppCompatActivity() {
 
@@ -44,17 +51,35 @@ class TransactionSearchActivity: AppCompatActivity() {
 
         val listener = object : SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
-                Toast.makeText(this@TransactionSearchActivity, "$query", Toast.LENGTH_SHORT).show()
                 return true
             }
 
+            var job: Job? = null
+            var previousQuery: String = ""
+            var lastQueried: String = ""
+            var previousQueryResult: Boolean = true
+
             override fun onQueryTextChange(newText: String?): Boolean {
                 Log.d(TAG, "onQueryTextChange: $newText")
-                if(newText.isNullOrEmpty()){
+                if(newText.isNullOrEmpty() || newText.trim(' ').isEmpty()){
                     viewModel.fetchTransactionsMatches()
                 } else {
-                    binding.transSearchLoading.visibility = View.VISIBLE
-                    viewModel.fetchTransactionsMatches(query = newText)
+                    val query = newText.trim(' ')
+                    if (query.length > previousQuery.length && query.startsWith(previousQuery) && !previousQueryResult) return true
+                    previousQuery = query
+                    if (job == null ) {
+                        binding.transSearchLoading.visibility = View.VISIBLE
+                        job = GlobalScope.launch {
+                            viewModel.fetchTransactionsMatches(query = query)
+                            delay(1000)
+                            lastQueried = query
+                            job = null
+                            if (previousQuery != lastQueried) {
+                                Log.d(TAG, "onQueryTextChanged: $previousQuery $lastQueried")
+                                withContext(Dispatchers.Main) { onQueryTextChange(previousQuery) }
+                            }
+                        }
+                    }
                 }
                 return true
             }
@@ -87,6 +112,7 @@ class TransactionSearchActivity: AppCompatActivity() {
             binding.transSearchLoading.visibility = View.GONE
             binding.transSearchNothingFound.visibility = if (it.isNotEmpty())  View.GONE
             else View.VISIBLE
+            listener.previousQueryResult = it.isNotEmpty()
             transactionItems.clear()
             transactionItems.addAll(it)
             adapter.notifyDataSetChanged()

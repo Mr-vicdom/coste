@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.expensetracker.app.R
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
+import com.expensetracker.app.transactions.support.SURETY
 import com.expensetracker.app.transactions.support.getChoiceAlertDialog
 import com.expensetracker.core.models.Expense
 import com.expensetracker.core.models.FinancialTransaction
@@ -97,7 +98,7 @@ class TransactionModifyActivity: TransactionAddActivity() {
                         setResult(RESULT_OK)
                         finish()
                     }
-                    getChoiceAlertDialog(this,"Delete","Are You Sure?", onYesClick = onYesClickListener).show()
+                    getChoiceAlertDialog(this,"Delete",SURETY, onYesClick = onYesClickListener).show()
                 }
 
                 saveBtn.setOnClickListener {
@@ -159,7 +160,7 @@ class TransactionModifyActivity: TransactionAddActivity() {
                             finish()
 
                         }
-                        getChoiceAlertDialog(this,"Update","Are You Sure?", onYesClick = onYesClickListener).show()
+                        getChoiceAlertDialog(this,"Update",SURETY, onYesClick = onYesClickListener).show()
 
                     } else {
                         Toast.makeText(this, NO_CHANGES_FOUND, Toast.LENGTH_SHORT).show()
@@ -182,7 +183,7 @@ class TransactionModifyActivity: TransactionAddActivity() {
                 setResult(RESULT_OK)
                 finish()
             }
-            getChoiceAlertDialog(this,"Discard Changes","Are You Sure?", onYesClick = onYesClickListener).show()
+            getChoiceAlertDialog(this,"Discard Changes",SURETY, onYesClick = onYesClickListener).show()
             return false
         } else {
             setResult(RESULT_OK)

@@ -28,6 +28,7 @@ import com.expensetracker.app.transactions.support.Literals.DATE_LABEL
 import com.expensetracker.app.transactions.support.Literals.DESCRIPTION_LABEL
 import com.expensetracker.app.transactions.support.Literals.NOTE_LABEL
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_TYPE
+import com.expensetracker.app.transactions.support.SURETY
 import com.expensetracker.app.transactions.support.getChoiceAlertDialog
 import com.expensetracker.app.transactions.support.getWarningAlertDialog
 import com.expensetracker.app.transactions.viewmodel.TransactionManagerViewModel
@@ -303,7 +304,7 @@ open class TransactionAddActivity: AppCompatActivity() {
                 setResult(RESULT_CANCELED)
                 finish()
             }
-            getChoiceAlertDialog(this,"Exit","Are You Sure?", onYesClick = onYesClickListener).show()
+            getChoiceAlertDialog(this,"Exit",SURETY, onYesClick = onYesClickListener).show()
             return false
         }
     }

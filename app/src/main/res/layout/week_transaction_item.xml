@@ -13,7 +13,7 @@
         android:layout_margin="10dp"
         style="@style/AppTextTheme"
         android:text="22"
-        android:textSize="@dimen/large_text"
+        android:textSize="@dimen/regular_text"
         android:textStyle="normal"
         android:maxLength="4"
         app:layout_constraintTop_toTopOf="parent"

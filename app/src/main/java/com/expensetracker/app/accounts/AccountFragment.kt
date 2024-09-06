@@ -23,6 +23,7 @@ import com.expensetracker.app.accounts.support.AccountListData
 import com.expensetracker.app.accounts.viewmodels.AccountsViewModel
 import com.expensetracker.app.databinding.AccountListingScreenBinding
 import com.expensetracker.app.transactions.support.Literals.ACCOUNT_ID_LABEL
+import com.expensetracker.app.transactions.support.getChoiceAlertDialog
 import com.google.android.material.color.MaterialColors
 
 class AccountFragment: Fragment() {
@@ -32,8 +33,12 @@ class AccountFragment: Fragment() {
     private val mainViewModel: MainViewModel by activityViewModels<MainViewModel>()
     private val accountListData: MutableList<AccountListData> = mutableListOf()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
 
         val colorPrimary = ContextCompat.getColor(requireContext(), R.color.colorPrimary)
         val color = MaterialColors.getColor(requireContext(), androidx.appcompat.R.attr.colorPrimary, colorPrimary)
@@ -66,7 +71,9 @@ class AccountFragment: Fragment() {
         }
 
         val removableAdapter = AccountsListAdapter(accountListData,true, onAccountRemoved = {
-            viewModel.deleteAccount(it)
+            getChoiceAlertDialog(requireContext(),"Delete Account?","Results deleting linked transactions!!", onYesClick = {
+                viewModel.deleteAccount(it)
+            }).show()
         })
 
         val listingAdapter = AccountsListAdapter(accountListData,false, onAccountClicked = { account ->
@@ -82,7 +89,7 @@ class AccountFragment: Fragment() {
 
         viewModel.fetchAccounts()
 
-        viewModel.isRemovable.observe(this, Observer {
+        viewModel.isRemovable.observe(viewLifecycleOwner, Observer {
             if(it){
                 binding.accountScreenEditBtn.visibility = View.GONE
                 binding.accountScreenDoneBtn.visibility = View.VISIBLE
@@ -92,8 +99,8 @@ class AccountFragment: Fragment() {
                 binding.accountScreenDoneBtn.visibility = View.GONE
                 listingAdapter
             }.let { adapter ->
-                viewModel.accountListData.removeObservers(this)
-                viewModel.accountListData.observe(this, Observer { list ->
+                viewModel.accountListData.removeObservers(viewLifecycleOwner)
+                viewModel.accountListData.observe(viewLifecycleOwner, Observer { list ->
                     accountListData.clear()
                     accountListData.addAll(list)
                     binding.accountsScreenListView.adapter = adapter
@@ -102,11 +109,11 @@ class AccountFragment: Fragment() {
             }
         })
 
-        viewModel.total.observe(this, Observer {
+        viewModel.total.observe(viewLifecycleOwner, Observer {
             binding.accountInfo3.text = it.toString()
         })
 
-        viewModel.liabilities.observe(this, Observer {
+        viewModel.liabilities.observe(viewLifecycleOwner, Observer {
             binding.accountInfo2.text = it.toString()
         })
 
@@ -115,13 +122,6 @@ class AccountFragment: Fragment() {
             mainViewModel.postBackPressed()
         }
 
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
         return binding.root
     }
 }

@@ -17,7 +17,7 @@ import java.sql.SQLException
 class DatabaseHelper(val context: Context): SQLiteOpenHelper(context, DB_NAME,null, DB_VERSION) {
 
     init {
-//        copyDatabase(context)
+        copyDatabase(context)
     }
 
     private fun copyDatabase(context: Context) {

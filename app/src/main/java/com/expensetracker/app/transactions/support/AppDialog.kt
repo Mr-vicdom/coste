@@ -7,6 +7,8 @@ import android.os.Bundle
 import androidx.appcompat.view.ContextThemeWrapper
 import com.expensetracker.app.R
 
+const val SURETY = "Are You Sure?"
+
 class AppDialog(context: Context,text: String,onYesClick: () -> Unit, onNoClick: () -> Unit ): Dialog(context, R.style.NewAppTheme) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,7 +38,7 @@ fun getChoiceAlertDialog(context: Context, title: String, message: String, onYes
 
     val alertDialog: AlertDialog = builder.create()
 
-    alertDialog.setCancelable(false)
+    alertDialog.setCancelable(true)
 
     return alertDialog
 }
@@ -59,7 +61,7 @@ fun getWarningAlertDialog(context: Context, title: String, message: String, onOk
 
     val alertDialog: AlertDialog = builder.create()
 
-    alertDialog.setCancelable(false)
+    alertDialog.setCancelable(true)
 
     return alertDialog
 }

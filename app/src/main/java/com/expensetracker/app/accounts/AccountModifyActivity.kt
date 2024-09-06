@@ -7,6 +7,8 @@ import androidx.lifecycle.Observer
 import com.expensetracker.app.accounts.support.Literals.ACCOUNT_NAME_LABEL
 import com.expensetracker.app.accounts.support.Literals.ACCOUNT_TYPE_LABEL
 import com.expensetracker.app.transactions.support.Literals.ACCOUNT_ID_LABEL
+import com.expensetracker.app.transactions.support.SURETY
+import com.expensetracker.app.transactions.support.getChoiceAlertDialog
 import com.expensetracker.core.models.Account
 import com.expensetracker.core.models.BankAccount
 import com.expensetracker.core.models.CashAccount
@@ -67,22 +69,38 @@ class AccountModifyActivity: AccountAddActivity() {
         binding.saveBtn.setOnClickListener {
             val selectedGroupType = groupType
             val account = oldAccount
-            val name = binding.nameField.text.toString()
-            val bankAccount: BankAccount? =
-                if (bankAccounts.contains(selectedBankAccount)) bankAccounts[selectedBankAccount] else null
-            Log.d(TAG, "onCreate: $bankAccount $bankAccounts $selectedBankAccount")
-            setResult(RESULT_OK)
-            when(account){
-                is CreditCard -> viewModel.updateCreditCard(account,selectedGroupType,name,bankAccount)
-                is DebitCard -> viewModel.updateDebitCard(account,selectedGroupType,name,bankAccount)
-                is BankAccount -> viewModel.updateBankAccount(account,selectedGroupType,name,bankAccount)
-                is CashAccount -> viewModel.updateCashAccount(account,selectedGroupType,name,bankAccount)
-                null -> {
-                    Toast.makeText(this, "Account Not Found", Toast.LENGTH_SHORT).show()
-                    setResult(RESULT_CANCELED)
-                }
+            if (account == null){
+                Toast.makeText(this, "Account Not Found", Toast.LENGTH_SHORT).show()
+                setResult(RESULT_CANCELED)
+                finish()
+                return@setOnClickListener
             }
-            finish()
+            val name = binding.nameField.text.toString()
+            val isSameAc = when(account){
+                is CreditCard -> selectedGroupType == AccountType.CREDIT_CARD
+                is DebitCard -> selectedGroupType == AccountType.DEBIT_CARD
+                is BankAccount -> selectedGroupType == AccountType.BANK_ACCOUNT
+                is CashAccount -> selectedGroupType == AccountType.CASH_ACCOUNT
+            }
+            val isSameName = account.name.toString() == name
+            if (isSameName && isSameAc) {
+                Toast.makeText(this, "No Changes Found", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            getChoiceAlertDialog(this,"Update Account",SURETY, onYesClick = {
+                val bankAccount: BankAccount? =
+                    if (bankAccounts.contains(selectedBankAccount)) bankAccounts[selectedBankAccount] else null
+
+                setResult(RESULT_OK)
+                when(account){
+                    is CreditCard -> viewModel.updateCreditCard(account,selectedGroupType,name,bankAccount)
+                    is DebitCard -> viewModel.updateDebitCard(account,selectedGroupType,name,bankAccount)
+                    is BankAccount -> viewModel.updateBankAccount(account,selectedGroupType,name,bankAccount)
+                    is CashAccount -> viewModel.updateCashAccount(account,selectedGroupType,name,bankAccount)
+                }
+                finish()
+            }).show()
         }
     }
 

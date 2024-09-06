@@ -34,7 +34,7 @@ class CategoryListAdapter<T : Category>(
     ): CategoryListAdapter<T>.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = CategoryListItemBinding.inflate(inflater, parent, false)
-        return ViewHolder(binding)
+        return ViewHolder(binding,parent)
     }
 
     override fun getItemCount(): Int = categories.size
@@ -43,7 +43,7 @@ class CategoryListAdapter<T : Category>(
         holder.bind(position)
     }
 
-    inner class ViewHolder(binding: CategoryListItemBinding) :
+    inner class ViewHolder(binding: CategoryListItemBinding,val parent: ViewGroup) :
         RecyclerView.ViewHolder(binding.root) {
         private val removeBtn: CardView = binding.removeIcon
         private val fieldText: EditText = binding.fieldText

@@ -12,6 +12,7 @@ import com.expensetracker.app.category.adapter.CategoryListAdapter
 import com.expensetracker.app.category.support.Literals.IS_EXPENSE_LABEL
 import com.expensetracker.app.category.viewmodel.CategoryViewModel
 import com.expensetracker.app.databinding.CategoryScreenBinding
+import com.expensetracker.app.transactions.support.SURETY
 import com.expensetracker.app.transactions.support.getChoiceAlertDialog
 import com.expensetracker.core.models.Category
 import com.expensetracker.core.models.ExpenseCategory
@@ -42,7 +43,7 @@ class CategoryActivity : AppCompatActivity(){
         }
 
         val onItemRemoved = fun(category: Category, position: Int) {
-            getChoiceAlertDialog(this,"Delete Category","Are You Sure?", onYesClick = {
+            getChoiceAlertDialog(this,"Delete Category",SURETY, onYesClick = {
                 viewModel.deleteCategory(category, position)
             }).show()
         }
