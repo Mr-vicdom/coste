@@ -11,7 +11,7 @@ import com.expensetracker.app.R
 import com.expensetracker.app.databinding.TransactionItemBinding
 import com.expensetracker.app.databinding.TransactionPeriodicInfoBinding
 import com.expensetracker.app.transactions.support.PeriodicDataByDay
-import com.expensetracker.app.transactions.support.PeriodicDataByMonth
+import com.expensetracker.app.transactions.support.PeriodicDataByWeek
 import com.expensetracker.app.transactions.support.PeriodicDataByYear
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.views.CurrencyTextView
@@ -30,12 +30,12 @@ const val TAG = "TransactionsListAdapter=>log"
 const val TRANSACTION_VIEW_TYPE = 0
 const val PERIODIC_VIEW_TYPE = 1
 
-class TransactionsListAdapter(
+class TransactionsDayListAdapter(
     private val transactionItems: List<TransactionItems>,
     private val onItemClickListener: (Transaction) -> Unit = {}
-): RecyclerView.Adapter<TransactionsListAdapter.ViewHolder>() {
+): RecyclerView.Adapter<TransactionsDayListAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionsListAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionsDayListAdapter.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         return when(viewType){
             TRANSACTION_VIEW_TYPE -> {
@@ -50,7 +50,7 @@ class TransactionsListAdapter(
         }
     }
 
-    override fun onBindViewHolder(holder: TransactionsListAdapter.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: TransactionsDayListAdapter.ViewHolder, position: Int) {
         val item = transactionItems[position]
         when(holder){
             is PeriodicDataViewHolder -> {
@@ -77,7 +77,7 @@ class TransactionsListAdapter(
 
     sealed class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
-    inner class TransactionViewHolder(private val binding: TransactionItemBinding, itemView: View): TransactionsListAdapter.ViewHolder(itemView) {
+    inner class TransactionViewHolder(private val binding: TransactionItemBinding, itemView: View): TransactionsDayListAdapter.ViewHolder(itemView) {
         private val transCategory: TextView = binding.transCategory
         private val transNote: TextView = binding.transNote
         private val transAccount: TextView = binding.transAccount
@@ -122,7 +122,7 @@ class TransactionsListAdapter(
         }
     }
 
-    inner class PeriodicDataViewHolder(private val binding: TransactionPeriodicInfoBinding, itemView: View): TransactionsListAdapter.ViewHolder(itemView) {
+    inner class PeriodicDataViewHolder(private val binding: TransactionPeriodicInfoBinding, itemView: View): TransactionsDayListAdapter.ViewHolder(itemView) {
         private val periodicInfo : TextView = binding.periodInfo
         private val periodicDay : TextView = binding.periodicDay
         private val periodicIncome: CurrencyTextView = binding.periodicIncome
@@ -134,27 +134,15 @@ class TransactionsListAdapter(
 
         fun bind(item: TransactionItems.PeriodicItem) {
             val periodicData = item.periodicData
-            when(periodicData){
-                is PeriodicDataByDay -> {
-                    periodicDay.visibility = View.VISIBLE
-                    periodicInfo.text = periodicData.dayOfMonth
-                    periodicDay.text = periodicData.dayOfWeek.name
+            periodicDay.visibility = View.VISIBLE
+            periodicInfo.text = periodicData.dayOfMonth
+            periodicDay.text = periodicData.dayOfWeek.name
 
-                    when(periodicData.dayOfWeek){
-                        DayOfWeek.SATURDAY -> incomeColor
-                        DayOfWeek.SUNDAY -> expenseColor
-                        else -> transferColor
-                    }.let { periodicDay.setBackgroundColor(it) }
-                }
-                is PeriodicDataByMonth -> {
-                    periodicDay.visibility = View.GONE
-                    periodicInfo.text = periodicData.month
-                }
-                is PeriodicDataByYear -> {
-                    periodicDay.visibility = View.GONE
-                    periodicInfo.text = periodicData.year
-                }
-            }
+            when(periodicData.dayOfWeek){
+                DayOfWeek.SATURDAY -> incomeColor
+                DayOfWeek.SUNDAY -> expenseColor
+                else -> transferColor
+            }.let { periodicDay.setBackgroundColor(it) }
             periodicIncome.text = periodicData.totalIncome
             periodicExpense.text = periodicData.totalExpense
         }

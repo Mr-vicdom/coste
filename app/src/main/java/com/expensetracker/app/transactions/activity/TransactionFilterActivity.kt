@@ -9,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.expensetracker.app.databinding.TransactionFilterScreenCoBinding
-import com.expensetracker.app.support.TAG
 import com.expensetracker.app.transactions.adapter.TransactionsFilterAdapter
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
@@ -21,6 +20,7 @@ import java.time.LocalDate
 import java.time.Month
 import java.time.Year
 
+const val TAG = "TransFilter=>log"
 
 const val TOTAL_INCOME = "TotalIncome"
 const val TOTAL_EXPENSE = "TotalExpense"

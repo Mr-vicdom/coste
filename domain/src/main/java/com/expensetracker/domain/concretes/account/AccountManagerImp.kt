@@ -234,21 +234,25 @@ AccountProvider by accountProvider {
 
 
     private fun creditBankAccount(account: BankAccount, creditAmount: Amount): AccountResponse {
-        val currentBalance: Amount = account.balance + creditAmount
+        val fetchedAccount = accountProvider.bankAccounts.firstOrNull { it.id == account.id } ?: return AccountResponse.ACCOUNT_NOT_EXIST
+        val currentBalance: Amount = fetchedAccount.balance + creditAmount
         val updatedAccount = account.copy(balance = currentBalance)
         return this.updateAccount(updatedAccount)
     }
 
 
     private fun creditCashAccount(account: CashAccount, creditAmount: Amount): AccountResponse {
-        val currentBalance: Amount = account.balance + creditAmount
+        val fetchedAccount = accountProvider.cashAccounts.firstOrNull { it.id == account.id } ?: return AccountResponse.ACCOUNT_NOT_EXIST
+        val currentBalance: Amount = fetchedAccount.balance + creditAmount
         val updatedAccount = account.copy(balance = currentBalance)
         return this.updateAccount(updatedAccount)
     }
 
     private fun creditCreditCard(account: CreditCard, creditAmount: Amount): AccountResponse {
-        val currentBalance: Amount = account.balance + creditAmount
-        val updatedAccount = account.copy(balance = currentBalance)
+        val fetchedAccount = accountProvider.creditCards.firstOrNull { it.id == account.id } ?: return AccountResponse.ACCOUNT_NOT_EXIST
+        val currentBalance: Amount = fetchedAccount.balance + creditAmount
+        val outStandings: Amount = fetchedAccount.outStandings - creditAmount
+        val updatedAccount = account.copy(balance = currentBalance, outStandings = outStandings)
         return this.updateAccount(updatedAccount)
     }
 
@@ -258,20 +262,23 @@ AccountProvider by accountProvider {
 
 
     private fun debitBankAccount(account: BankAccount, debitAmount: Amount) : AccountResponse {
-        val currentBalance: Amount = account.balance - debitAmount
+        val fetchedAccount = accountProvider.bankAccounts.firstOrNull { it.id == account.id } ?: return AccountResponse.ACCOUNT_NOT_EXIST
+        val currentBalance: Amount = fetchedAccount.balance - debitAmount
         val updatedAccount = account.copy(balance = currentBalance)
         return this.updateAccount(updatedAccount)
     }
 
     private fun debitCashAccount(account: CashAccount, debitAmount: Amount) : AccountResponse {
-        val currentBalance: Amount = account.balance - debitAmount
+        val fetchedAccount = accountProvider.cashAccounts.firstOrNull { it.id == account.id } ?: return AccountResponse.ACCOUNT_NOT_EXIST
+        val currentBalance: Amount = fetchedAccount.balance - debitAmount
         val updatedAccount = account.copy(balance = currentBalance)
         return this.updateAccount(updatedAccount)
     }
 
     private fun debitCreditCard(account: CreditCard, debitAmount: Amount) : AccountResponse {
-        val currentBalance: Amount = account.balance - debitAmount
-        val outStandings: Amount = account.outStandings + debitAmount
+        val fetchedAccount = accountProvider.creditCards.firstOrNull { it.id == account.id } ?: return AccountResponse.ACCOUNT_NOT_EXIST
+        val currentBalance: Amount = fetchedAccount.balance - debitAmount
+        val outStandings: Amount = fetchedAccount.outStandings + debitAmount
         val updatedAccount = account.copy(balance = currentBalance, outStandings = outStandings)
         return this.updateAccount(updatedAccount)
     }

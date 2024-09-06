@@ -13,8 +13,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.expensetracker.app.databinding.TransactionSearchScreenCoBinding
-import com.expensetracker.app.support.TAG
-import com.expensetracker.app.transactions.adapter.TransactionsListAdapter
+import com.expensetracker.app.transactions.adapter.TransactionsDayListAdapter
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_MONTH_LABEL
 import com.expensetracker.app.transactions.support.TransactionItems
@@ -24,6 +23,7 @@ import java.time.Month
 
 class TransactionSearchActivity: AppCompatActivity() {
 
+    private val TAG = "TransSearch=>log"
     private val viewModel : TransactionProviderViewModel by viewModels<TransactionProviderViewModel>()
     private val transactionItems: MutableList<TransactionItems> = mutableListOf()
 
@@ -73,7 +73,7 @@ class TransactionSearchActivity: AppCompatActivity() {
             }
         }
 
-        val adapter = TransactionsListAdapter(transactionItems) {
+        val adapter = TransactionsDayListAdapter(transactionItems) {
             val modifyTransactionIntent = Intent(this,TransactionModifyActivity::class.java)
             modifyTransactionIntent.putExtra(TRANSACTION_ID_LABEL,it.id)
             modifyActivityLauncher.launch(modifyTransactionIntent)

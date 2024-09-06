@@ -10,7 +10,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.expensetracker.app.R
-import com.expensetracker.app.support.TAG
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
 import com.expensetracker.app.transactions.support.getChoiceAlertDialog
 import com.expensetracker.core.models.Expense
@@ -27,6 +26,8 @@ const val CHANGED = true
 const val UNCHANGED = false
 
 class TransactionModifyActivity: TransactionAddActivity() {
+
+    private val TAG = "TransModify=>log"
     private var id: Int = -1
     private var transaction: Transaction? = null
     override fun onCreate(savedInstanceState: Bundle?) {

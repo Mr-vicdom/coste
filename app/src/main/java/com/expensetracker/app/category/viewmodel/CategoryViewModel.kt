@@ -46,7 +46,6 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
     private fun initializeCategoryLists(type: CategoryType, list: List<Category>) {
         when(type){
             CategoryType.INCOME_CATEGORY -> {
-                Log.d("=>log", "initializeCategoryLists: HOW?")
                 if (incomeCategoriesList.isEmpty())
                     incomeCategoriesList.addAll(list.filterIsInstance<IncomeCategory>().map{ it to false }
                         .toMutableList())
@@ -55,27 +54,24 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
                         .filter { e -> incomeCategoriesList.none { b -> b.first.id == e.id } }
                         .map { it to false }
                     if (newList.isNotEmpty()) {
-                        _addPosition.postValue(incomeCategoriesList.size)
                         incomeCategoriesList.addAll(newList)
                     }
                 }
+                _addPosition.postValue(incomeCategoriesList.size)
             }
             CategoryType.EXPENSE_CATEGORY -> {
-                Log.d("=>log", "initializeCategoryLists: i have posted $list")
                 if (expenseCategoriesList.isEmpty())
-                    expenseCategoriesList.addAll(list.mapNotNull { if (it is ExpenseCategory) it  to false else null }
+                    expenseCategoriesList.addAll(list.filterIsInstance<ExpenseCategory>().map{ it to false }
                         .toMutableList())
                 else {
                     val newList = list.filterIsInstance<ExpenseCategory>()
                         .filter { e -> expenseCategoriesList.none { b -> b.first.id == e.id } }
                         .map { it to false }
-                    Log.d("=>log", "initializeCategoryLists: i have posted $newList")
                     if (newList.isNotEmpty()) {
-                        Log.d("=>log", "initializeCategoryLists: i have posted")
-                        _addPosition.postValue(expenseCategoriesList.size)
                         expenseCategoriesList.addAll(newList)
                     }
                 }
+                _addPosition.postValue(expenseCategoriesList.size)
             }
         }
     }

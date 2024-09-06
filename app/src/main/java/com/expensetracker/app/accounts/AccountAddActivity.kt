@@ -88,6 +88,7 @@ open class AccountAddActivity : AppCompatActivity() {
         viewModel.bankAccounts.observe(this, Observer { accounts ->
             bankAccounts.clear()
             bankAccounts.putAll(accounts.associateBy { it.id })
+            selectedBankAccount = bankAccounts.keys.firstOrNull()
             bankAccountAdapter.clear()
             bankAccountAdapter.addAll(bankAccountAsItems)
             bankAccountAdapter.notifyDataSetChanged()
@@ -104,6 +105,7 @@ open class AccountAddActivity : AppCompatActivity() {
                             bankAccounts[it]
                         else null
                 })
+                Log.d("=>log", "onCreate: $selectedBankAccount $bankAccounts")
                 setResult(RESULT_OK)
                 finish()
             } else {

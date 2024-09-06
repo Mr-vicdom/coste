@@ -148,6 +148,8 @@ class TransactionManagerImp(
             if(transactionResponse == TransactionResponse.TRANSACTION_UPDATED){
                 val accountResult1 = accountManager.debitAccount(transaction.account, transaction.amount)
                 val accountResult2 = accountManager.creditAccount(updatedTransaction.account, updatedTransaction.amount)
+                println("debit ${transaction.account} ${transaction.amount}")
+                println("credit ${updatedTransaction.account} ${updatedTransaction.amount}")
                 if (accountResult1 is Result.Failure) return accountResult1
                 if (accountResult2 is Result.Failure) return accountResult2
                 return Result.Success(transactionResponse.toString())
@@ -206,6 +208,7 @@ class TransactionManagerImp(
             _description?.let { updatedTransaction = updatedTransaction.copy(description = TransactionDescription(it)) }
             fromAccount?.let { updatedTransaction = updatedTransaction.copy(fromAccount = it) }
             toAccount?.let { updatedTransaction = updatedTransaction.copy(toAccount = it) }
+            println("=>log updateTransfer: $updatedTransaction")
             val transactionResponse = transferActions.updateTransaction(updatedTransaction)
             if(transactionResponse == TransactionResponse.TRANSACTION_UPDATED){
                 val accountResult1 = accountManager.creditAccount(transaction.fromAccount, transaction.amount)
@@ -227,9 +230,19 @@ class TransactionManagerImp(
 
     override fun deleteTransaction(transaction: Transaction): Result {
         val transactionResponse = when(transaction){
-            is Expense -> expenseActions.deleteTransaction(transaction.id)
-            is Income -> incomeActions.deleteTransaction(transaction.id)
-            is Transfer -> transferActions.deleteTransaction(transaction.id)
+            is Expense -> {
+                accountManager.creditAccount(transaction.account,transaction.amount)
+                expenseActions.deleteTransaction(transaction.id)
+            }
+            is Income -> {
+                accountManager.debitAccount(transaction.account,transaction.amount)
+                incomeActions.deleteTransaction(transaction.id)
+            }
+            is Transfer -> {
+                accountManager.debitAccount(transaction.toAccount,transaction.amount)
+                accountManager.creditAccount(transaction.fromAccount,transaction.amount)
+                transferActions.deleteTransaction(transaction.id)
+            }
         }
 
         return if(transactionResponse == TransactionResponse.TRANSACTION_DELETED) {

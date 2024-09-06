@@ -1,5 +1,10 @@
 package com.expensetracker.app.support
 
+import com.expensetracker.core.models.Account
+import com.expensetracker.core.models.BankAccount
+import com.expensetracker.core.models.CashAccount
+import com.expensetracker.core.models.CreditCard
+import com.expensetracker.core.models.DebitCard
 import com.expensetracker.domain.contracts.account.AccountManager
 import com.expensetracker.domain.contracts.account.AccountProvider
 import com.expensetracker.domain.contracts.category.CategoryManager
@@ -49,70 +54,56 @@ object DataGenerator {
     }
 
     fun generateDummyTransactions(transactionManager: TransactionManager, categoryProvider: CategoryProvider, accountProvider: AccountProvider) {
+        val bankAccount = accountProvider.bankAccounts.first()
+        val creditCard = accountProvider.creditCards.first()
 
         val incomeNotes = listOf(
-            "Pocket Money 💸", "Monthly Salary 💼", "Birthday Gift 🎁",
-            "Freelance Payment 💻", "Performance Bonus 🏆",
-            "Monthly Allowance 💰", "Credit Card Cashback 💳",
-            "Lottery Win 🎲", "Sold Old Books 📚", "Dividend Income 📈"
+            "Monthly Salary 💼", "Freelance Payment 💻", "Bonus 🏆",
+            "Dividend Income 📈", "Gift from Parents 🎁"
         )
 
         val expenseNotes = listOf(
-            "Snack 🍪", "Morning Coffee ☕", "Bus Fare 🚌",
-            "Groceries 🛒", "Dinner Out 🍽️",
-            "Cinema Ticket 🎟️", "Electricity Bill 💡",
-            "Taxi Ride 🚕", "Evening Snacks 🍿", "Book Purchase 📖"
+            "Lunch 🍽️", "Taxi Ride 🚕", "Groceries 🛒",
+            "Internet Bill 💻", "Gym Membership 💪",
+            "Dinner Out 🍲", "Coffee ☕", "Clothes Shopping 👗",
+            "Snacks 🍪", "Mobile Recharge 📱", "Utilities 💡"
+        )
+
+        val travelCoffeeFoodNotes = listOf(
+            "Taxi Ride 🚕", "Lunch 🍽️", "Coffee ☕", "Snacks 🍪"
         )
 
         val transferNotes = listOf(
-            "TO Transfer 🔄", "Self ↔️", "With Draw 🏧",
-            "Savings Transfer 💼", "Emergency Fund 💸",
-            "Investment 💹", "Loan Repayment 💵",
-            "Rent Payment 🏠", "Credit Card Payment 💳", "Gift 🎁"
+            "Savings Transfer 💼", "Investment 💹",
+            "Emergency Fund 💸", "Loan Repayment 💵",
+            "Credit Card Payment 💳"
         )
+        var startDate = LocalDate.of(2024, 7, 1)
+        val endDate = LocalDate.now()
+        var dayCounter = 0
+        var totalIncomeThisMonth = 0
+        var totalExpensesThisMonth = 0
 
-        for (i in 0 until 10) {
-            transactionManager.addIncome(
-                _date = LocalDate.now().minusDays(i.toLong()),
-                _amount = (100 + i * 10).toString(),
-                _note = incomeNotes[i],
-                _description = "Description for ${incomeNotes[i]}",
-                category = categoryProvider.incomeCategories.random(),
-                account = accountProvider.accounts.random()
-            )
-        }
+        while (!startDate.isAfter(endDate)) {
+            dayCounter++
 
-        for (i in 0 until 10) {
-            transactionManager.addExpense(
-                _date = LocalDate.now().minusDays(i.toLong()),
-                _amount = (20 + i * 5).toString(),
-                _note = expenseNotes[i],
-                _description = "Description for ${expenseNotes[i]}",
-                category = categoryProvider.expenseCategories.random(),
-                account = accountProvider.accounts.random()
-            )
-        }
+            // Generate income transactions on the first day of the month (salary) with BankAccount
+            if (startDate.dayOfMonth == 1) {
+                val incomeAmount = 1000
+                val account = bankAccount
 
-        val accounts = accountProvider.accounts
-        for (i in 0 until 10) {
-            val fromAccount = accounts.random()
-            var toAccount = accounts.random()
-
-            while (toAccount == fromAccount) {
-                toAccount = accounts.random()
+                transactionManager.addIncome(
+                    _date = startDate,
+                    _amount = incomeAmount.toString(),
+                    _note = incomeNotes[0],
+                    _description = "Salary for the month of ${startDate.month}",
+                    category = categoryProvider.incomeCategories.random(),
+                    account = account
+                )
             }
 
-            transactionManager.addTransfer(
-                _date = LocalDate.now().minusDays(i.toLong()),
-                _amount = (200 + i * 50).toString(),
-                _note = transferNotes[i],
-                _description = "Description for ${transferNotes[i]}",
-                fromAccount = fromAccount,
-                toAccount = toAccount
-            )
+            startDate = startDate.plusDays(1)
         }
-
-
     }
 
 }

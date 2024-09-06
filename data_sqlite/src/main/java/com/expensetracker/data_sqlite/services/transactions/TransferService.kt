@@ -60,7 +60,7 @@ class TransferService(
             )
 
             val transfer = if (cursor.moveToFirst()) {
-                val fromAccountID = cursor.getInt(cursor.getColumnIndexOrThrow(schema.TO_ACCOUNT))
+                val fromAccountID = cursor.getInt(cursor.getColumnIndexOrThrow(schema.FROM_ACCOUNT))
                 val fromAccount =
                     bankAccountActions.getAccount(fromAccountID) ?:
                     cashAccountActions.getAccount(fromAccountID) ?:
@@ -115,7 +115,7 @@ class TransferService(
             if (
 cursor.move(offset.toInt()+1)) {
                 do {
-                    val fromAccountID = cursor.getInt(cursor.getColumnIndexOrThrow(schema.TO_ACCOUNT))
+                    val fromAccountID = cursor.getInt(cursor.getColumnIndexOrThrow(schema.FROM_ACCOUNT))
                     val fromAccount =
                         bankAccountActions.getAccount(fromAccountID) ?:
                         cashAccountActions.getAccount(fromAccountID) ?:
@@ -173,7 +173,7 @@ cursor.move(offset.toInt()+1)) {
             if (
 cursor.move(offset.toInt()+1)) {
                 do {
-                    val fromAccountID = cursor.getInt(cursor.getColumnIndexOrThrow(schema.TO_ACCOUNT))
+                    val fromAccountID = cursor.getInt(cursor.getColumnIndexOrThrow(schema.FROM_ACCOUNT))
                     val fromAccount =
                         bankAccountActions.getAccount(fromAccountID) ?:
                         cashAccountActions.getAccount(fromAccountID) ?:
@@ -225,7 +225,7 @@ cursor.move(offset.toInt()+1)) {
 
             if (cursor.moveToFirst()) {
                 do {
-                    val fromAccountID = cursor.getInt(cursor.getColumnIndexOrThrow(schema.TO_ACCOUNT))
+                    val fromAccountID = cursor.getInt(cursor.getColumnIndexOrThrow(schema.FROM_ACCOUNT))
                     val fromAccount =
                         bankAccountActions.getAccount(fromAccountID) ?:
                         cashAccountActions.getAccount(fromAccountID) ?:

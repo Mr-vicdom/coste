@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import com.expensetracker.app.accounts.AccountFragment
 import com.expensetracker.app.category.SettingsFragment
 import com.expensetracker.app.databinding.AppMainBinding
-import com.expensetracker.app.transactions.activity.TransactionsFragment
+import com.expensetracker.app.transactions.fragment.TransactionsFragment
 
 class MainActivity : AppCompatActivity() {
 

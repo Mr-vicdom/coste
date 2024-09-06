@@ -16,6 +16,7 @@ import com.expensetracker.core.support.AccountType
 
 class AccountModifyActivity: AccountAddActivity() {
 
+    val TAG = "AccountModify=>"
 
     private var oldAccount : Account? = null
 
@@ -50,7 +51,6 @@ class AccountModifyActivity: AccountAddActivity() {
                 binding.groupField.setSelection(it.ordinal)
                 groupType = it
 
-                Log.d("=>log", "onCreate: $account $bankAccounts")
                 if (it == AccountType.DEBIT_CARD && account is DebitCard){
 
                     val observer = Observer<List<BankAccount>> { bankAccounts ->
@@ -70,6 +70,7 @@ class AccountModifyActivity: AccountAddActivity() {
             val name = binding.nameField.text.toString()
             val bankAccount: BankAccount? =
                 if (bankAccounts.contains(selectedBankAccount)) bankAccounts[selectedBankAccount] else null
+            Log.d(TAG, "onCreate: $bankAccount $bankAccounts $selectedBankAccount")
             setResult(RESULT_OK)
             when(account){
                 is CreditCard -> viewModel.updateCreditCard(account,selectedGroupType,name,bankAccount)

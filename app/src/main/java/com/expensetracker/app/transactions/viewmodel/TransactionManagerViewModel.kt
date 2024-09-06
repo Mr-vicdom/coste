@@ -239,6 +239,8 @@ class TransactionManagerViewModel(private val application: Application): Android
                 return@launch
             }
 
+            Log.d(TAG, "updateTransfer: $from $to")
+
             when(transaction){
                 is Transfer -> {
                     val result: Result = transactionManager.updateTransfer(transaction,date,amount,note,description,from,to)
