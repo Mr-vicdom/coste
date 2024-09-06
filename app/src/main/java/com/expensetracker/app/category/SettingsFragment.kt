@@ -22,8 +22,12 @@ class SettingsFragment: Fragment() {
     private lateinit var binding: SettingsScreenBinding
     private val mainViewModel: MainViewModel by activityViewModels<MainViewModel>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+
 
         val colorPrimary = ContextCompat.getColor(requireContext(), R.color.colorPrimary)
         val color = MaterialColors.getColor(requireContext(), androidx.appcompat.R.attr.colorPrimary, colorPrimary)
@@ -46,13 +50,6 @@ class SettingsFragment: Fragment() {
             mainViewModel.postBackPressed()
         }
 
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
         return binding.root
     }
 

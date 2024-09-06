@@ -28,11 +28,17 @@ class TransactionByWeekFragment : Fragment() {
     private lateinit var binding: TransactionListBinding
     private val viewModel: TransactionProviderViewModel by activityViewModels<TransactionProviderViewModel>()
     private val transactionItems: MutableList<TransactionItemsByWeek> = mutableListOf()
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View {
+
         binding = TransactionListBinding.inflate(layoutInflater)
 
         val adapter = TransactionsWeekListAdapter(transactionItems) { date: LocalDate ->
+            viewModel.setScrollPosition(date)
         }
 
         binding.theList.adapter = adapter
@@ -41,7 +47,7 @@ class TransactionByWeekFragment : Fragment() {
             viewModel.fetchTransactionsBetween()
         }
 
-        viewModel.transactionItemsByWeek.observe(this, Observer {
+        viewModel.transactionItemsByWeek.observe(viewLifecycleOwner, Observer {
             transactionItems.clear()
             transactionItems.addAll(it)
             adapter.notifyDataSetChanged()
@@ -49,13 +55,7 @@ class TransactionByWeekFragment : Fragment() {
                 if (it.isEmpty()) View.VISIBLE else View.GONE
             binding.transScreenLoading.visibility = View.GONE
         })
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View {
         return binding.root
     }
 

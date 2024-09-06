@@ -3,6 +3,7 @@ package com.expensetracker.app.transactions.fragment
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,16 +18,22 @@ import com.expensetracker.app.transactions.activity.TransactionModifyActivity
 import com.expensetracker.app.transactions.adapter.TransactionsDayListAdapter
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
 import com.expensetracker.app.transactions.support.TransactionItems
+import com.expensetracker.app.transactions.support.TransactionItemsByWeek
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
 import com.expensetracker.core.models.Transaction
+import java.time.LocalDate
 
 class TransactionByDayFragment: Fragment() {
 
     private lateinit var binding: TransactionListBinding
     private val viewModel: TransactionProviderViewModel by activityViewModels<TransactionProviderViewModel>()
     private val transactionItems: MutableList<TransactionItems> = mutableListOf()
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         binding = TransactionListBinding.inflate(layoutInflater)
 
         val modifyTransactionLauncher: ActivityResultLauncher<Intent> =
@@ -48,20 +55,25 @@ class TransactionByDayFragment: Fragment() {
             viewModel.fetchTransactionsBetween()
         }
 
-        viewModel.transactionItems.observe(this, Observer {
+        viewModel.transactionItems.observe(viewLifecycleOwner, Observer {
             transactionItems.clear()
             transactionItems.addAll(it)
             adapter.notifyDataSetChanged()
             binding.transScreenNothingFound.visibility = if (it.isEmpty()) View.VISIBLE else View.GONE
             binding.transScreenLoading.visibility = View.GONE
         })
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
+        viewModel.scrollToDate.observe(viewLifecycleOwner, Observer {
+            binding.theList.post {
+                val selectedDate = it
+                val position =
+                    transactionItems.indexOfFirst { (it is TransactionItems.PeriodicItem) && (it.periodicData.date == selectedDate) }
+                if (position > 0) {
+                    binding.theList.scrollToPosition(position)
+                    Log.d("=>log", "onCreate: Scroll to $selectedDate $position")
+                }
+            }
+        })
         return binding.root
     }
 
