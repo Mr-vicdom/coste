@@ -10,7 +10,9 @@
         android:id="@+id/period_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_marginVertical="10dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="10dp"
         style="@style/AppTextTheme"
         android:text="22"
         android:textSize="@dimen/regular_text"
@@ -19,22 +21,11 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/day_container"
+        app:layout_constraintEnd_toStartOf="@id/periodic_day"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintHorizontal_bias="0.1"
         />
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/day_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="3dp"
-        android:backgroundTint="@color/textSecondary"
-        app:layout_constraintTop_toTopOf="@id/period_info"
-        app:layout_constraintBottom_toBottomOf="@id/period_info"
-        app:layout_constraintStart_toEndOf="@id/period_info"
-        app:layout_constraintEnd_toStartOf="@id/periodic_info_guideline50"
-        >
         <TextView
             android:id="@+id/periodic_day"
             android:layout_width="wrap_content"
@@ -43,11 +34,13 @@
             style="@style/AppTextTheme"
             android:text="Friday"
             android:background="@android:color/transparent"
-            android:textColor="@color/white"
+            android:textColor="@color/textSecondary"
             android:textSize="@dimen/small_text"
-            android:maxLength="3"/>
-
-    </androidx.cardview.widget.CardView>
+            android:maxLength="3"
+            app:layout_constraintTop_toTopOf="@id/period_info"
+            app:layout_constraintBottom_toBottomOf="@id/period_info"
+            app:layout_constraintStart_toEndOf="@id/period_info"
+            app:layout_constraintEnd_toStartOf="@id/periodic_info_guideline50"/>
 
 
     <com.expensetracker.app.views.CurrencyTextView

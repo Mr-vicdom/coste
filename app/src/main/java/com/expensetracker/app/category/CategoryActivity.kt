@@ -38,6 +38,9 @@ class CategoryActivity : AppCompatActivity(){
 
         binding = CategoryScreenBinding.inflate(layoutInflater)
 
+        //Activity Title
+        binding.categoryScreenTitle.text = categoryType.name.lowercase().replaceFirstChar { it.uppercase() }.replace('_',' ')
+
         val onSaveTrigger = fun(text: String, category: Category, position: Int) {
             if (text.isNotEmpty() && text != category.name.toString()) viewModel.updateCategory(text,category,position)
         }

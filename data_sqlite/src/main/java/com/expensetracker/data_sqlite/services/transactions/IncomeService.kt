@@ -197,8 +197,8 @@ cursor.move(offset.toInt()+1)) {
             val cursor = db.query(
                 schema.TABLE_NAME,
                 schema.columns,
-                null,
-                null,
+                "${schema.DATE} BETWEEN ? AND ?",
+                arrayOf(to.toString(),from.toString()),
                 null,
                 null,
                 null
@@ -224,8 +224,7 @@ cursor.move(offset.toInt()+1)) {
                         account = account
                     )
 
-                    if(income.date in to..from)
-                        transactions.add(income)
+                    transactions.add(income)
                 } while (cursor.moveToNext())
             }
             cursor.close()

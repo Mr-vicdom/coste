@@ -130,41 +130,25 @@ class TransactionsFragment: Fragment() {
                 }
             }
 
-        //month pagination
-
-        binding.transScreenMonth.text = transactionProviderViewModel.month.name.lowercase().replaceFirstChar {c -> c.uppercase() }
-
-        binding.transPreviousBtn.setOnClickListener {
-            with(transactionProviderViewModel){
-                month = month.minus(1)
-                if (month == Month.DECEMBER) {
-                    year = year.minusYears(1)
-                }
-                fetchTransactionsBetween(filterAccounts)
-            }
-        }
-        binding.transNextBtn.setOnClickListener {
-            with(transactionProviderViewModel){
-                month = month.plus(1)
-                if (month == Month.JANUARY) {
-                    year = year.plusYears(1)
-                }
-                fetchTransactionsBetween(filterAccounts)
-            }
-        }
+        //Month & year
 
         transactionProviderViewModel.monthValue.observe(viewLifecycleOwner, Observer {
             val monthValue = it.name.lowercase().replaceFirstChar {c -> c.uppercase() }
             binding.transScreenMonth.text = monthValue
         })
+
         transactionProviderViewModel.yearValue.observe(viewLifecycleOwner, Observer {
+            binding.transScreenYear.text = it.toString()
             if (it != LocalDate.now().year) {
                 binding.transScreenYear.visibility = View.VISIBLE
-                binding.transScreenYear.text = it.toString()
             } else {
-                binding.transScreenYear.visibility = View.GONE
+                if (transactionProviderViewModel.selectedTransactionsViewMode != TransactionsViewMode.MONTHLY)
+                    binding.transScreenYear.visibility = View.GONE
             }
         })
+
+        binding.transScreenMonth.text = transactionProviderViewModel.month.name.lowercase().replaceFirstChar {c -> c.uppercase() }
+        binding.transScreenYear.text = transactionProviderViewModel.year.value.toString()
 
         //Search BTN
         transactionScreenSearchBtn.setOnClickListener {
@@ -245,7 +229,7 @@ class TransactionsFragment: Fragment() {
         binding.transScreenViewBar.addOnTabSelectedListener(object : OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if(binding.transScreenViewBar.tabCount == 3) {
-                    val position = tab?.let { if (it.position < 3) it.position else 1 } ?: 1
+                    val position = tab?.let { if (it.position <= 3) it.position else 1 } ?: 1
                     TransactionsViewMode.entries.getOrNull(position)?.let {
                         transactionProviderViewModel.setTransactionsViewMode(it)
                     }
@@ -259,11 +243,12 @@ class TransactionsFragment: Fragment() {
         transactionProviderViewModel.getTransactionsViewMode()
 
 
-        //Transactions Frag
+        //Transactions Frag View Mode
         transactionProviderViewModel.transactionsViewMode.observe(viewLifecycleOwner, Observer { transactionViewMode: TransactionsViewMode ->
 
             val dayFragment = TransactionByDayFragment()
             val weekFragment = TransactionByWeekFragment()
+            val monthFragment = TransactionByMonthFragment()
 
             when(transactionViewMode){
                 TransactionsViewMode.DAILY -> {
@@ -275,11 +260,54 @@ class TransactionsFragment: Fragment() {
                     weekFragment
                 }
                 TransactionsViewMode.MONTHLY -> {
-                    binding.transScreenViewBar.selectTab(dailyTab)
-                    dayFragment
+                    binding.transScreenViewBar.selectTab(monthlyTab)
+                    monthFragment
                 }
             }.let {
                 updateFrag(it)
+            }
+
+            when(transactionViewMode){
+                TransactionsViewMode.MONTHLY -> {
+                    binding.transScreenMonth.visibility = View.GONE
+                    binding.transScreenYear.visibility = View.VISIBLE
+
+                    binding.transPreviousBtn.setOnClickListener {
+                        with(transactionProviderViewModel){
+                                year = year.minusYears(1)
+                        }
+                    }
+
+                    binding.transNextBtn.setOnClickListener {
+                        with(transactionProviderViewModel){
+                            year = year.plusYears(1)
+                        }
+                    }
+                }
+                else -> {
+                    binding.transScreenMonth.visibility = View.VISIBLE
+                    if (transactionProviderViewModel.year.value == LocalDate.now().year) binding.transScreenYear.visibility = View.GONE
+
+                    binding.transPreviousBtn.setOnClickListener {
+                        with(transactionProviderViewModel){
+                            month = month.minus(1)
+                            if (month == Month.DECEMBER) {
+                                year = year.minusYears(1)
+                            }
+                            fetchTransactionsBetween(filterAccounts)
+                        }
+                    }
+
+                    binding.transNextBtn.setOnClickListener {
+                        with(transactionProviderViewModel){
+                            month = month.plus(1)
+                            if (month == Month.JANUARY) {
+                                year = year.plusYears(1)
+                            }
+                            fetchTransactionsBetween(filterAccounts)
+                        }
+                    }
+                }
             }
 
         })

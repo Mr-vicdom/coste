@@ -8,10 +8,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.expensetracker.app.data.DataHandler
 import com.expensetracker.app.transactions.support.PeriodicDataByDay
+import com.expensetracker.app.transactions.support.PeriodicDataByMonth
 import com.expensetracker.app.transactions.support.PeriodicDataByWeek
+import com.expensetracker.app.transactions.support.SearchMode
 import com.expensetracker.app.transactions.support.TransactionItems
+import com.expensetracker.app.transactions.support.TransactionItemsByMonth
 import com.expensetracker.app.transactions.support.TransactionItemsByWeek
 import com.expensetracker.app.transactions.support.TransactionsViewMode
+import com.expensetracker.app.transactions.support.WeekNumber
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.Expense
 import com.expensetracker.core.models.FinancialTransaction
@@ -22,11 +26,13 @@ import com.expensetracker.core.support.Helper
 import com.expensetracker.domain.contracts.transaction.TransactionProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.Month
 import java.time.Year
 import java.time.YearMonth
 import java.time.temporal.IsoFields
+import java.time.temporal.TemporalAdjusters
 
 const val TAG = "TransactionsViewModel=>log"
 
@@ -39,7 +45,14 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
     private val _totalIncome: MutableLiveData<Double> = MutableLiveData(0.0)
     private val _totalExpense: MutableLiveData<Double> = MutableLiveData(0.0)
 
-    private var selectedTransactionsViewMode: TransactionsViewMode = TransactionsViewMode.DAILY
+    var selectedTransactionsViewMode: TransactionsViewMode = TransactionsViewMode.DAILY
+        private set
+
+    var searchMode: SearchMode = SearchMode.NOTE
+        set(value) {
+            field = value
+            fetchTransactionsMatches()
+        }
 
     private val _transactionViewMode: MutableLiveData<TransactionsViewMode> = MutableLiveData()
 
@@ -48,12 +61,15 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
     private val _transactionItemsByWeek: MutableLiveData<List<TransactionItemsByWeek>> =
         MutableLiveData()
 
+    private val _transactionItemsByMonth: MutableLiveData<List<TransactionItemsByMonth>> =
+        MutableLiveData()
+
     private val filterIDs: MutableSet<Int> = mutableSetOf()
 
     val transactionsViewMode: LiveData<TransactionsViewMode>
         get() = _transactionViewMode
 
-    var month: Month = Month.AUGUST
+    var month: Month = LocalDate.now().month
         set(value) {
             field = value
             _monthValue.postValue(value)
@@ -85,6 +101,9 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
 
     val transactionItemsByWeek: LiveData<List<TransactionItemsByWeek>>
         get() = _transactionItemsByWeek
+
+    val transactionItemsByMonth: LiveData<List<TransactionItemsByMonth>>
+        get() = _transactionItemsByMonth
 
     val totalIncome: LiveData<Double>
         get() = _totalIncome
@@ -123,8 +142,8 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
                 }
             }
 
-            prepareTransactionItemsForDay(data)
-            prepareTransactionItemsForWeek(data)
+            prepareTransactionItemsByDay(data)
+            prepareTransactionItemsByWeek(data)
         }
     }
 
@@ -135,16 +154,34 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
 
         viewModelScope.launch {
             val data = transactionProvider.getTransactionsBetween(from, to) {
+                Log.d(TAG, "fetchTransactionsMatches: $searchMode $query")
                 if (query.isEmpty()) return@getTransactionsBetween false
-                it.note.toString().lowercase().contains(query.lowercase())
+                when(searchMode){
+                    SearchMode.NOTE -> it.note.toString().lowercase().contains(query.lowercase())
+                    SearchMode.ACCOUNT -> {
+                        when(it){
+                            is FinancialTransaction -> it.account.name.toString().lowercase().contains(query.lowercase())
+                            is Transfer -> it.fromAccount.name.toString().lowercase().contains(query.lowercase()) ||
+                                    it.toAccount.name.toString().lowercase().contains(query.lowercase())
+                        }
+                    }
+                    SearchMode.CATEGORY -> {
+                        when(it){
+                            is FinancialTransaction -> it.category.name.toString().lowercase().contains(query.lowercase())
+                            else -> false
+                        }
+                    }
+                    SearchMode.AMOUNT -> {
+                        it.amount.toString().lowercase().contains(query.lowercase())
+                    }
+                }
             }
 
-            prepareTransactionItemsForDay(data)
-            prepareTransactionItemsForWeek(data)
+            prepareTransactionItemsByDay(data)
         }
     }
 
-    private fun prepareTransactionItemsForDay(transactionList: List<Transaction>) {
+    private fun prepareTransactionItemsByDay(transactionList: List<Transaction>) {
         val transactionItems: MutableList<TransactionItems> = mutableListOf()
         var totalIncome1 = 0.0
         var totalExpense1 = 0.0
@@ -173,7 +210,7 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
         _totalExpense.postValue(totalExpense1)
     }
 
-    private fun prepareTransactionItemsForWeek(transactionList: List<Transaction>) {
+    private fun prepareTransactionItemsByWeek(transactionList: List<Transaction>) {
         val transactionItems: MutableList<TransactionItemsByWeek> = mutableListOf()
 
         transactionList.sortedByDescending { it.date }
@@ -216,6 +253,69 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
         Log.d(TAG, "prepareTransactionItemsForWeek: $transactionItems")
 
         _transactionItemsByWeek.postValue(transactionItems)
+    }
+
+    fun prepareTransactionItemsByMonth(year: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val transactionItems: MutableList<TransactionItemsByMonth> = mutableListOf()
+            try {
+                Month.entries.forEach{ month ->
+                    var totalIncome: Double = 0.0
+                    var totalExpense: Double = 0.0
+                    val weeksList: MutableList<TransactionItemsByMonth.TransactionItem> = mutableListOf()
+
+                    getWeeks(year,month.value).forEach {
+                        val start = it.first
+                        val end = it.second
+                        val weekNumber: WeekNumber = start.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)
+                        val income: Double =
+                            transactionProvider.getTotalOfIncomeBetween(end, start).toDouble()
+                        val expense: Double =
+                            transactionProvider.getTotalOfExpenseBetween(end, start).toDouble()
+                        totalIncome += income
+                        totalExpense += expense
+                        weeksList.add(TransactionItemsByMonth.TransactionItem(PeriodicDataByWeek(start,end,weekNumber,income.toString(),expense.toString())))
+                    }
+
+                    transactionItems.add(TransactionItemsByMonth.PeriodicItem(PeriodicDataByMonth(month, Year.of(year),totalIncome.toString(),totalExpense.toString())))
+                    transactionItems.addAll(weeksList)
+                    _transactionItemsByMonth.postValue(transactionItems)
+                }
+            }catch (_:Exception){
+                _transactionItemsByMonth.postValue(mutableListOf())
+            }
+        }
+
+    }
+
+    private fun getWeeks(year:Int, month:Int): List<Pair<LocalDate, LocalDate>> {
+        val firstDayOfMonth = LocalDate.of(year, month, 1)
+        val lastDayOfMonth = firstDayOfMonth.with(TemporalAdjusters.lastDayOfMonth())
+
+        val weeks = mutableListOf<Pair<LocalDate, LocalDate>>()
+
+        var currentWeekStart = firstDayOfMonth
+        while (currentWeekStart.isBefore(lastDayOfMonth) || currentWeekStart == lastDayOfMonth) {
+
+            val weekStart = if (currentWeekStart.dayOfWeek != DayOfWeek.MONDAY) {
+                currentWeekStart.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            } else {
+                currentWeekStart
+            }
+
+            var weekEnd = currentWeekStart.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+
+            if (weekEnd > lastDayOfMonth) weekEnd = lastDayOfMonth
+
+            if (weekStart.isBefore(firstDayOfMonth)) {
+                weeks.add(firstDayOfMonth to weekEnd)
+            } else {
+                weeks.add(weekStart to weekEnd)
+            }
+
+            currentWeekStart = weekEnd.plusDays(1)
+        }
+        return weeks
     }
 
 

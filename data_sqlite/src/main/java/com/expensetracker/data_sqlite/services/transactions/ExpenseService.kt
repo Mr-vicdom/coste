@@ -240,8 +240,8 @@ class ExpenseService(
             val cursor = db.query(
                 schema.TABLE_NAME,
                 schema.columns,
-                null,
-                null,
+                "${schema.DATE} BETWEEN ? AND ?",
+                arrayOf(to.toString(),from.toString()),
                 null,
                 null,
                 null
@@ -281,8 +281,7 @@ class ExpenseService(
                         account = account
                     )
 
-                    if (expense.date in to..from)
-                        transactions.add(expense)
+                    transactions.add(expense)
                 } while (cursor.moveToNext())
             }
             cursor.close()

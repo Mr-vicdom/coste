@@ -25,33 +25,40 @@ import java.time.LocalDate
 
 class TransactionsWeekListAdapter(
     private val transactionItems: List<TransactionItemsByWeek>,
-    private val onItemClickListener: (LocalDate) -> Unit = {}
-): RecyclerView.Adapter<TransactionsWeekListAdapter.ViewHolder>() {
+    private val onItemClickListener: (LocalDate) -> Unit = {},
+) : RecyclerView.Adapter<TransactionsWeekListAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionsWeekListAdapter.ViewHolder {
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int,
+    ): TransactionsWeekListAdapter.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        return when(viewType){
+        return when (viewType) {
             TRANSACTION_VIEW_TYPE -> {
-                val binding = WeekTransactionItemBinding.inflate(layoutInflater,parent,false)
-                TransactionViewHolder(binding,binding.root)
+                val binding = WeekTransactionItemBinding.inflate(layoutInflater, parent, false)
+                TransactionViewHolder(binding, binding.root)
             }
+
             PERIODIC_VIEW_TYPE -> {
-                val binding = WeekTransactionPeriodicInfoBinding.inflate(layoutInflater,parent,false)
-                PeriodicDataViewHolder(binding,binding.root)
+                val binding =
+                    WeekTransactionPeriodicInfoBinding.inflate(layoutInflater, parent, false)
+                PeriodicDataViewHolder(binding, binding.root)
             }
+
             else -> throw IllegalArgumentException(INVALID_VIEW_TYPE)
         }
     }
 
     override fun onBindViewHolder(holder: TransactionsWeekListAdapter.ViewHolder, position: Int) {
         val item = transactionItems[position]
-        when(holder){
+        when (holder) {
             is PeriodicDataViewHolder -> {
-                if(item is TransactionItemsByWeek.PeriodicItem)
+                if (item is TransactionItemsByWeek.PeriodicItem)
                     holder.bind(item)
             }
+
             is TransactionViewHolder -> {
-                if(item is TransactionItemsByWeek.TransactionItem) {
+                if (item is TransactionItemsByWeek.TransactionItem) {
                     holder.bind(item)
                 }
             }
@@ -59,7 +66,7 @@ class TransactionsWeekListAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when(transactionItems[position]){
+        return when (transactionItems[position]) {
             is TransactionItemsByWeek.PeriodicItem -> PERIODIC_VIEW_TYPE
             is TransactionItemsByWeek.TransactionItem -> TRANSACTION_VIEW_TYPE
         }
@@ -68,16 +75,21 @@ class TransactionsWeekListAdapter(
     override fun getItemCount(): Int = transactionItems.size
 
 
-    sealed class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
+    sealed class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 
-    inner class TransactionViewHolder(private val binding: WeekTransactionItemBinding, itemView: View): TransactionsWeekListAdapter.ViewHolder(itemView) {
+    inner class TransactionViewHolder(
+        private val binding: WeekTransactionItemBinding,
+        itemView: View,
+    ) : TransactionsWeekListAdapter.ViewHolder(itemView) {
         private val income: CurrencyTextView = binding.periodicIncome
         private val expense: CurrencyTextView = binding.periodicExpense
         private val day: TextView = binding.periodicDay
         private val date: TextView = binding.periodInfo
 
-        private val expenseColor = ContextCompat.getColor(itemView.context, R.color.primaryContentColor)
-        private val incomeColor = ContextCompat.getColor(itemView.context, R.color.secondaryContentColor)
+        private val expenseColor =
+            ContextCompat.getColor(itemView.context, R.color.primaryContentColor)
+        private val incomeColor =
+            ContextCompat.getColor(itemView.context, R.color.secondaryContentColor)
         private val transferColor = ContextCompat.getColor(itemView.context, R.color.textSecondary)
 
         fun bind(item: TransactionItemsByWeek.TransactionItem) {
@@ -90,11 +102,11 @@ class TransactionsWeekListAdapter(
             date.text = dayOfMonth
             day.text = data.dayOfWeek.name
 
-            when(data.dayOfWeek){
+            when (data.dayOfWeek) {
                 DayOfWeek.SATURDAY -> incomeColor
                 DayOfWeek.SUNDAY -> expenseColor
                 else -> transferColor
-            }.let { day.setBackgroundColor(it) }
+            }.let { day.setTextColor(it) }
 
             itemView.setOnClickListener {
                 onItemClickListener(data.date)
@@ -102,12 +114,16 @@ class TransactionsWeekListAdapter(
         }
     }
 
-    inner class PeriodicDataViewHolder(private val binding: WeekTransactionPeriodicInfoBinding, itemView: View): TransactionsWeekListAdapter.ViewHolder(itemView) {
-        private val periodicInfo1 : TextView = binding.weekTransPeriodInfoDate1
-        private val periodicInfo2 : TextView = binding.weekTransPeriodInfoDate2
-        private val periodicInfoWeek : TextView = binding.weekTransNumber
+    inner class PeriodicDataViewHolder(
+        private val binding: WeekTransactionPeriodicInfoBinding,
+        itemView: View,
+    ) : TransactionsWeekListAdapter.ViewHolder(itemView) {
+        private val periodicInfo1: TextView = binding.weekTransPeriodInfoDate1
+        private val periodicInfo2: TextView = binding.weekTransPeriodInfoDate2
+        private val periodicInfoWeek: TextView = binding.weekTransNumber
         private val periodicIncome: CurrencyTextView = binding.weekTransPeriodicIncome
         private val periodicExpense: CurrencyTextView = binding.weekTransPeriodicExpense
+        private val periodicTotal: CurrencyTextView = binding.weekTransPeriodicTotal
 
         fun bind(item: TransactionItemsByWeek.PeriodicItem) {
             val periodicData = item.periodicData
@@ -117,7 +133,7 @@ class TransactionsWeekListAdapter(
 
             var weekStart = startWeek.dayOfMonth.toString()
             var weekEnd = endWeek.dayOfMonth.toString()
-            if (startWeek == endWeek){
+            if (startWeek == endWeek) {
                 if (startWeek.dayOfMonth == 1) weekStart = ""
                 else if (startWeek.dayOfMonth == startWeek.lengthOfMonth()) weekEnd = ""
             }
@@ -134,6 +150,12 @@ class TransactionsWeekListAdapter(
             periodicInfoWeek.text = week
             periodicIncome.text = periodicData.totalIncome
             periodicExpense.text = periodicData.totalExpense
+            var total = 0.0
+            try {
+                total = periodicData.totalIncome.toDouble() - periodicData.totalExpense.toDouble()
+            } catch (_: Exception) {
+            }
+            periodicTotal.text = total.toString()
 
         }
     }

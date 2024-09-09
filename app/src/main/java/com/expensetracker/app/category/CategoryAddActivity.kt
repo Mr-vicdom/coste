@@ -30,7 +30,11 @@ class CategoryAddActivity: AppCompatActivity() {
 
         binding = CategoryAddScreenBinding.inflate(layoutInflater)
 
-        binding.accountAddBackBtn.setOnClickListener {
+        //Activity Title
+        binding.categoryAddTitle.text = categoryType.name.lowercase().replaceFirstChar { it.uppercase() }.replace('_',' ')
+
+
+        binding.categoryAddBackBtn.setOnClickListener {
             if(binding.categoryNameField.text.toString().isNotEmpty()){
                 getChoiceAlertDialog(this,"Discard & Exit",SURETY, onYesClick = {
                     setResult(RESULT_CANCELED)

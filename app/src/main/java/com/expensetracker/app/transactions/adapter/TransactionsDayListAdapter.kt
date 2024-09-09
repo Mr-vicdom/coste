@@ -10,9 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.expensetracker.app.R
 import com.expensetracker.app.databinding.TransactionItemBinding
 import com.expensetracker.app.databinding.TransactionPeriodicInfoBinding
-import com.expensetracker.app.transactions.support.PeriodicDataByDay
-import com.expensetracker.app.transactions.support.PeriodicDataByWeek
-import com.expensetracker.app.transactions.support.PeriodicDataByYear
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.views.CurrencyTextView
 import com.expensetracker.core.models.Expense

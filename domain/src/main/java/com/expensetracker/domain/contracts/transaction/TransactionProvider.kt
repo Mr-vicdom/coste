@@ -26,4 +26,7 @@ interface TransactionProvider {
     fun getIncomesBetween(from: LocalDate, to: LocalDate, offset: Long = 0, limit: Long = 10, predicate: (Income) -> Boolean = {true}): List<Transaction>
     fun getExpensesBetween(from: LocalDate, to: LocalDate, offset: Long = 0, limit: Long = 10, predicate: (Expense) -> Boolean = {true} ): List<Transaction>
     fun getTransfersBetween(from: LocalDate, to: LocalDate, offset: Long = 0, limit: Long = 10, predicate: (Transfer) -> Boolean = {true} ): List<Transaction>
+
+    fun getTotalOfIncomeBetween(from: LocalDate, to: LocalDate): String
+    fun getTotalOfExpenseBetween(from: LocalDate, to: LocalDate): String
 }

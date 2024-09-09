@@ -8,6 +8,7 @@ import com.expensetracker.core.models.Income
 import com.expensetracker.core.models.Transaction
 import com.expensetracker.core.models.TransactionID
 import com.expensetracker.core.models.Transfer
+import com.expensetracker.core.support.Amount
 import com.expensetracker.core.support.Helper
 import com.expensetracker.domain.contracts.transaction.TransactionProvider
 import java.time.LocalDate
@@ -15,26 +16,30 @@ import java.time.LocalDate
 class TransactionProviderImp(
     private val incomeActions: IncomeActions,
     private val expenseActions: ExpenseActions,
-    private val transferActions: TransferActions
-): TransactionProvider {
+    private val transferActions: TransferActions,
+) : TransactionProvider {
     override fun getTransaction(transactionID: TransactionID): Transaction? {
         return incomeActions.getTransaction(transactionID)
             ?: expenseActions.getTransaction(transactionID)
             ?: transferActions.getTransaction(transactionID)
     }
 
-    override fun getIncome(transactionID: TransactionID): Income? = incomeActions.getTransaction(transactionID)
+    override fun getIncome(transactionID: TransactionID): Income? =
+        incomeActions.getTransaction(transactionID)
 
-    override fun getExpense(transactionID: TransactionID): Expense? = expenseActions.getTransaction(transactionID)
+    override fun getExpense(transactionID: TransactionID): Expense? =
+        expenseActions.getTransaction(transactionID)
 
-    override fun getTransfer(transactionID: TransactionID): Transfer? = transferActions.getTransaction(transactionID)
+    override fun getTransfer(transactionID: TransactionID): Transfer? =
+        transferActions.getTransaction(transactionID)
 
     override fun getIncomeBetween(
         from: LocalDate,
         to: LocalDate,
         predicate: (Transaction) -> Boolean,
     ): List<Income> {
-        return incomeActions.getTransactions(Helper.dateToMillis(from),Helper.dateToMillis(to)).filter(predicate)
+        return incomeActions.getTransactions(Helper.dateToMillis(from), Helper.dateToMillis(to))
+            .filter(predicate)
     }
 
     override fun getExpenseBetween(
@@ -42,7 +47,8 @@ class TransactionProviderImp(
         to: LocalDate,
         predicate: (Transaction) -> Boolean,
     ): List<Expense> {
-        return expenseActions.getTransactions(Helper.dateToMillis(from),Helper.dateToMillis(to)).filter(predicate)
+        return expenseActions.getTransactions(Helper.dateToMillis(from), Helper.dateToMillis(to))
+            .filter(predicate)
     }
 
     override fun getTransferBetween(
@@ -50,7 +56,8 @@ class TransactionProviderImp(
         to: LocalDate,
         predicate: (Transaction) -> Boolean,
     ): List<Transfer> {
-        return transferActions.getTransactions(Helper.dateToMillis(from),Helper.dateToMillis(to)).filter(predicate)
+        return transferActions.getTransactions(Helper.dateToMillis(from), Helper.dateToMillis(to))
+            .filter(predicate)
     }
 
     override fun getTransactions(
@@ -106,7 +113,7 @@ class TransactionProviderImp(
         predicate: (Transaction) -> Boolean,
     ): List<Transaction> {
         val transactions: MutableList<Transaction> = mutableListOf()
-        with(transactions){
+        with(transactions) {
             addAll(getIncomeBetween(from, to, predicate))
             addAll(getExpenseBetween(from, to, predicate))
             addAll(getTransferBetween(from, to, predicate))
@@ -180,5 +187,13 @@ class TransactionProviderImp(
             offset, limit, predicate
         )
     }
+
+    override fun getTotalOfIncomeBetween(from: LocalDate, to: LocalDate): String =
+        incomeActions.getTotalOfTransactions(Helper.dateToMillis(from), Helper.dateToMillis(to))
+            .toString()
+
+    override fun getTotalOfExpenseBetween(from: LocalDate, to: LocalDate): String =
+        expenseActions.getTotalOfTransactions(Helper.dateToMillis(from), Helper.dateToMillis(to))
+            .toString()
 
 }

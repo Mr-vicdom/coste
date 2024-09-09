@@ -155,11 +155,42 @@
         android:textAlignment="textEnd"
         style="@style/AppTextTheme"
         android:text="@string/default_amount"
+        app:layout_constraintBaseline_toBaselineOf="@id/week_trans_periodic_income"
         android:textColor="@color/primaryContentColor"
         app:layout_constraintTop_toBottomOf="@id/period_space_bar"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/week_trans_periodic_total"
         app:layout_constraintStart_toEndOf="@id/week_trans_periodic_income"
         app:layout_constraintEnd_toEndOf="parent"
+        />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:textAlignment="textEnd"
+        style="@style/AppTextTheme"
+        android:textSize="@dimen/small_text"
+        android:text="@string/total"
+        android:textColor="@color/textSecondary"
+        app:layout_constraintTop_toTopOf="@id/week_trans_periodic_total"
+        app:layout_constraintBottom_toBottomOf="@id/week_trans_periodic_total"
+        app:layout_constraintEnd_toStartOf="@id/week_trans_periodic_total"
+        />
+
+    <com.expensetracker.app.views.CurrencyTextView
+        android:id="@+id/week_trans_periodic_total"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="10dp"
+        android:textAlignment="textEnd"
+        style="@style/AppTextTheme"
+        android:textSize="@dimen/small_text"
+        android:text="@string/default_amount"
+        android:textColor="@color/textSecondary"
+        app:layout_constraintTop_toBottomOf="@id/week_trans_periodic_expense"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/week_trans_periodic_expense"
         />
 
     <androidx.constraintlayout.widget.Guideline
