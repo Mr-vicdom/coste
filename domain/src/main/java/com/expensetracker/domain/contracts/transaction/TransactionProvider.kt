@@ -18,10 +18,10 @@ interface TransactionProvider {
     fun getTransferBetween(from: LocalDate, to: LocalDate,predicate: (Transaction) -> Boolean = {true} ): List<Transfer>
     fun getTransactionsBetween(from: LocalDate, to: LocalDate,predicate: (Transaction) -> Boolean = {true} ): List<Transaction>
 
-    fun getTransactions(offset: Long = 0, limit: Long = 10, predicate: (Transaction) -> Boolean = {true}): List<Transaction>
-    fun getIncomes(offset: Long = 0, limit: Long = 10, predicate: (Income) -> Boolean = {true}): List<Transaction>
-    fun getExpenses(offset: Long = 0, limit: Long = 10, predicate: (Expense) -> Boolean = {true}): List<Transaction>
-    fun getTransfers(offset: Long = 0, limit: Long = 10, predicate: (Transfer) -> Boolean = {true}): List<Transaction>
+    fun getTransactions(offset: Long = 0, limit: Long = 30, predicate: (Transaction) -> Boolean = {true}): List<Transaction>
+    fun getIncomes(offset: Long = 0, limit: Long = 30, predicate: (Income) -> Boolean = {true}): List<Transaction>
+    fun getExpenses(offset: Long = 0, limit: Long = 30, predicate: (Expense) -> Boolean = {true}): List<Transaction>
+    fun getTransfers(offset: Long = 0, limit: Long = 30, predicate: (Transfer) -> Boolean = {true}): List<Transaction>
     fun getTransactionsBetween(from: LocalDate, to: LocalDate, offset: Long, limit: Long = 10, predicate: (Transaction) -> Boolean = {true} ): List<Transaction>
     fun getIncomesBetween(from: LocalDate, to: LocalDate, offset: Long = 0, limit: Long = 10, predicate: (Income) -> Boolean = {true}): List<Transaction>
     fun getExpensesBetween(from: LocalDate, to: LocalDate, offset: Long = 0, limit: Long = 10, predicate: (Expense) -> Boolean = {true} ): List<Transaction>

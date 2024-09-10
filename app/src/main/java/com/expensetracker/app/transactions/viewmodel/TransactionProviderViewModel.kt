@@ -1,7 +1,6 @@
 package com.expensetracker.app.transactions.viewmodel
 
 import android.app.Application
-import android.media.audiofx.HapticGenerator
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -12,6 +11,7 @@ import com.expensetracker.app.transactions.support.PeriodicDataByDay
 import com.expensetracker.app.transactions.support.PeriodicDataByMonth
 import com.expensetracker.app.transactions.support.PeriodicDataByWeek
 import com.expensetracker.app.transactions.support.SearchMode
+import com.expensetracker.app.transactions.support.SingleLiveEvent
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.support.TransactionItemsByMonth
 import com.expensetracker.app.transactions.support.TransactionItemsByWeek
@@ -80,6 +80,8 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
     var year: Year = Year.now()
         set(value) {
             field = value
+            // _yearValue.value = value.value
+
             _yearValue.postValue(value.value)
         }
 
@@ -95,6 +97,8 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
     private val _scrollToWeek: MutableLiveData<WeekNumber> = MutableLiveData()
 
     private val _scrollToView: MutableLiveData<Int> = MutableLiveData()
+
+    var scrollMade: Boolean = false
 
     val yearValue: LiveData<Int>
         get() = _yearValue
@@ -122,12 +126,16 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
     val totalExpense: LiveData<Double>
         get() = _totalExpense
 
+    init {
+        prepareTransactionItemsByMonth(year.value)
+    }
+
     fun getTransactionsViewMode() {
         _transactionViewMode.postValue(selectedTransactionsDisplayMode)
     }
 
 
-    fun setTransactionsViewMode(transactionsDisplayMode: TransactionsDisplayMode) {
+    fun setTransactionsDisplayMode(transactionsDisplayMode: TransactionsDisplayMode) {
         selectedTransactionsDisplayMode = transactionsDisplayMode
         getTransactionsViewMode()
     }
@@ -137,12 +145,14 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
     }
 
     fun setScrollPosition(weekNumber: WeekNumber, month: Month) {
-        setTransactionsViewMode(TransactionsDisplayMode.WEEKLY)
+        scrollMade = false
+        setTransactionsDisplayMode(TransactionsDisplayMode.WEEKLY)
         this.month = month
         _scrollToWeek.postValue(weekNumber)
     }
     fun setScrollPosition(date: LocalDate) {
-        setTransactionsViewMode(TransactionsDisplayMode.DAILY)
+        scrollMade = false
+        setTransactionsDisplayMode(TransactionsDisplayMode.DAILY)
         _scrollToDate.postValue(date)
     }
 
@@ -182,9 +192,9 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
         val to: LocalDate = LocalDate.of(year.value, month, 1)
 
         viewModelScope.launch {
-            val data = transactionProvider.getTransactionsBetween(from, to) {
+            val data = transactionProvider.getTransactions {
                 Log.d(TAG, "fetchTransactionsMatches: $searchMode $query")
-                if (query.isEmpty()) return@getTransactionsBetween false
+                if (query.isEmpty()) return@getTransactions false
                 when(searchMode){
                     SearchMode.NOTE -> it.note.toString().lowercase().contains(query.lowercase())
                     SearchMode.ACCOUNT -> {
@@ -205,6 +215,8 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
                     }
                 }
             }
+
+            Log.d(TAG, "fetchTransactionsMatches: ${data.size}")
 
             prepareTransactionItemsByDay(data)
         }
@@ -286,6 +298,7 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
 
     fun prepareTransactionItemsByMonth(year: Int) {
         viewModelScope.launch(Dispatchers.IO) {
+            Log.d(TAG, "prepareMonth Start")
             val t = measureTime {
                 val transactionItems: MutableList<TransactionItemsByMonth> = mutableListOf()
                 try {
@@ -331,8 +344,11 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
                         )
                         transactionItems.addAll(weeksList)
                     }
+                    Log.d(TAG, "prepareMonth End")
+
                 _transactionItemsByMonth.postValue(transactionItems)
                 } catch (_: Exception) {
+                    Log.d(TAG, "prepareTransactionItemsByMonth: Exception caught")
                     _transactionItemsByMonth.postValue(mutableListOf())
                 }
             }

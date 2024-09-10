@@ -33,6 +33,16 @@ import java.util.Timer
 
 class TransactionSearchActivity: AppCompatActivity() {
 
+    companion object {
+        fun newBundle(
+            month: Month
+        ): Bundle {
+            return Bundle().also {
+                it.putInt(TRANSACTION_MONTH_LABEL, month.value)
+            }
+        }
+    }
+
     private val TAG = "TransSearch=>log"
     private val viewModel : TransactionProviderViewModel by viewModels<TransactionProviderViewModel>()
     private val transactionItems: MutableList<TransactionItems> = mutableListOf()
@@ -52,8 +62,11 @@ class TransactionSearchActivity: AppCompatActivity() {
 
         val searchView: SearchView = binding.transSearchView
 
+        binding.scrollView.setOnScrollChangeListener { _, _, _, _, _ -> searchView.clearFocus() }
+
         val listener = object : SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
+                searchView.clearFocus()
                 return true
             }
 
@@ -66,12 +79,13 @@ class TransactionSearchActivity: AppCompatActivity() {
                 Log.d(TAG, "onQueryTextChange: $newText")
                 val query = newText?.trim(' ')
                 if(query.isNullOrEmpty()){
-                    Log.d(TAG, "onQueryTextChange: Empty ah?")
+                    Log.d(TAG, "onQueryTextChange: Empty ah!")
                     viewModel.fetchTransactionsMatches()
                 } else {
                     previousQuery = query
                     if (job == null ) {
                         Log.d(TAG, "onQueryTextChange: Job assigned $query $previousQuery")
+                        binding.transSearchNothingFound.visibility = View.GONE
                         binding.transSearchLoading.visibility = View.VISIBLE
                         job = GlobalScope.launch {
                             viewModel.fetchTransactionsMatches(query = query)

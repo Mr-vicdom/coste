@@ -84,8 +84,8 @@ class TransactionByDayFragment: Fragment() {
                     Log.d("=>log", "onCreate: Scroll to $selectedDate $position")
                 }
             }
-            viewModel.scrollToDate.removeObservers(viewLifecycleOwner)
         })
+
         return binding.root
     }
 

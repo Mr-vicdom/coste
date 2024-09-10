@@ -19,6 +19,7 @@
     <color name="textPrimaryDark">#FFFFFF</color>
     <color name="textSecondary">#767676</color>
 
+    <color name="colorPrimarySecondOnIcon">#FFD2CB</color>
     <color name="colorPrimary">#FF5E5E</color>
     <color name="colorSecondary">#FF5E5E</color>
     <color name="background">#FFFFFF</color>

@@ -3,7 +3,6 @@ package com.expensetracker.app.transactions.fragment
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.os.Vibrator
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -20,19 +19,14 @@ import com.expensetracker.app.R
 import com.expensetracker.app.databinding.TransactionsScreenFragBinding
 import com.expensetracker.app.transactions.activity.TransactionAddActivity
 import com.expensetracker.app.transactions.activity.TransactionFilterActivity
-import com.expensetracker.app.transactions.activity.TransactionModifyActivity
 import com.expensetracker.app.transactions.activity.TransactionSearchActivity
-import com.expensetracker.app.transactions.adapter.TransactionsDayListAdapter
 import com.expensetracker.app.transactions.support.Literals.FILTER_ACCOUNT_IDS_LABEL
 import com.expensetracker.app.transactions.support.Literals.MONTH_LABEL
-import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
-import com.expensetracker.app.transactions.support.Literals.TRANSACTION_MONTH_LABEL
 import com.expensetracker.app.transactions.support.Literals.YEAR_LABEL
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.support.TransactionsDisplayMode
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
 import com.expensetracker.core.models.AccountID
-import com.expensetracker.core.models.Transaction
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
@@ -122,6 +116,7 @@ class TransactionsFragment: Fragment() {
         //Month & year
 
         transactionProviderViewModel.monthValue.observe(viewLifecycleOwner, Observer {
+            Log.d(TAG, "onCreateView: Month Observed")
             val monthValue = it.name.lowercase().replaceFirstChar {c -> c.uppercase() }
             binding.transScreenMonth.text = monthValue
         })
@@ -142,7 +137,10 @@ class TransactionsFragment: Fragment() {
         //Search BTN
         transactionScreenSearchBtn.setOnClickListener {
             val intent = Intent(requireContext(), TransactionSearchActivity::class.java)
-            intent.putExtra(TRANSACTION_MONTH_LABEL, transactionProviderViewModel.month.value)
+            // intent.putExtra(TRANSACTION_MONTH_LABEL, transactionProviderViewModel.month.value)
+
+            intent.putExtras(TransactionSearchActivity.newBundle(transactionProviderViewModel.month))
+
             searchTransactionLauncher.launch(intent)
         }
 
@@ -219,10 +217,11 @@ class TransactionsFragment: Fragment() {
         }
         binding.transScreenViewBar.addOnTabSelectedListener(object : OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {
+                Log.d(TAG, "onTabSelected: $tab")
                 if(binding.transScreenViewBar.tabCount == 3) {
                     val position = tab?.let { if (it.position <= 3) it.position else 1 } ?: 1
                     TransactionsDisplayMode.entries.getOrNull(position)?.let {
-                        transactionProviderViewModel.setTransactionsViewMode(it)
+                        transactionProviderViewModel.setTransactionsDisplayMode(it)
                     }
                     binding.floatingBtn.show()
                 }
@@ -234,26 +233,21 @@ class TransactionsFragment: Fragment() {
 
         transactionProviderViewModel.getTransactionsViewMode()
 
-
         //Transactions Frag View Mode
         transactionProviderViewModel.transactionsDisplayMode.observe(viewLifecycleOwner, Observer { transactionViewMode: TransactionsDisplayMode ->
-
-            val dayFragment = TransactionByDayFragment()
-            val weekFragment = TransactionByWeekFragment()
-            val monthFragment = TransactionByMonthFragment()
 
             when(transactionViewMode){
                 TransactionsDisplayMode.DAILY -> {
                     binding.transScreenViewBar.selectTab(dailyTab)
-                    dayFragment
+                    TransactionByDayFragment()
                 }
                 TransactionsDisplayMode.WEEKLY -> {
                     binding.transScreenViewBar.selectTab(weeklyTab)
-                    weekFragment
+                    TransactionByWeekFragment()
                 }
                 TransactionsDisplayMode.MONTHLY -> {
                     binding.transScreenViewBar.selectTab(monthlyTab)
-                    monthFragment
+                    TransactionByMonthFragment()
                 }
             }.let {
                 updateFrag(it)
@@ -305,8 +299,13 @@ class TransactionsFragment: Fragment() {
         })
 
         transactionProviderViewModel.scrollToView.observe(viewLifecycleOwner, Observer {
-            binding.transScreenScrollView.smoothScrollTo(0,it.toInt())
+            if (!transactionProviderViewModel.scrollMade) {
+                binding.transScreenScrollView.smoothScrollTo(0, it.toInt())
+                transactionProviderViewModel.scrollMade = true
+            }
         })
+
+        binding.transScreenScrollView.smoothScrollTo(0,0)
 
         return binding.root
     }

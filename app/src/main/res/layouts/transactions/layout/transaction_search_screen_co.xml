@@ -67,7 +67,7 @@
 
             <Spinner
                 android:id="@+id/field_drop_down"
-                android:layout_width="100dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:background="@color/white"
@@ -81,12 +81,26 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/background"
+        app:layout_insetEdge="bottom"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/trans_search_result"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+    </androidx.core.widget.NestedScrollView>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        app:layout_anchor="@id/trans_search_app_bar"
-        app:layout_anchorGravity="bottom">
+        app:layout_anchor="@id/scroll_view"
+        app:layout_anchorGravity="center">
 
         <TextView
             android:id="@+id/trans_search_nothing_found"
@@ -122,17 +136,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?attr/background"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/trans_search_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
-    </androidx.core.widget.NestedScrollView>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

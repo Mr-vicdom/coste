@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel
 class MainViewModel: ViewModel() {
     private val _isBackPressed: MutableLiveData<Boolean> = MutableLiveData()
 
-    var selectedFrag: Fragment? = null
+    var selectedFragment: SelectedFrag = SelectedFrag.HOME
 
     val isBackPressed: LiveData<Boolean>
         get() = _isBackPressed
@@ -18,4 +18,10 @@ class MainViewModel: ViewModel() {
     fun postBackPressed() {
         _isBackPressed.postValue(true)
     }
+}
+
+enum class SelectedFrag{
+    HOME,
+    ACCOUNT,
+    SETTING
 }

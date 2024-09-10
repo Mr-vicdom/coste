@@ -32,7 +32,21 @@ class PeriodicDataByDay(val date: LocalDate, override val totalIncome: String, o
 
 
 class PeriodicDataByWeek(val startOfWeek: LocalDate,val endOfWeek: LocalDate, val weekNumber: WeekNumber, override val totalIncome: String, override val totalExpense: String) : PeriodicData(totalIncome, totalExpense){
-
+    val weekStart = startOfWeek.dayOfMonth.toString().let { if (it.length == 1) "0$it" else it }.let { if(startOfWeek.dayOfMonth == 1)  "" else it }
+    val weekEnd = endOfWeek.dayOfMonth.toString().let { if (it.length == 1) "0$it" else it }.let { if (startOfWeek.dayOfMonth == startOfWeek.lengthOfMonth()) "" else it }
+    val total: String = try {
+        (totalIncome.toDouble() - totalExpense.toDouble()).toString()
+    } catch (_: Exception) {
+        0.0.toString()
+    }
 }
 
-class PeriodicDataByMonth(val month: Month, val year: Year,override val totalIncome: String, override val totalExpense: String) : PeriodicData(totalIncome, totalExpense)
+class PeriodicDataByMonth(val month: Month, val year: Year,override val totalIncome: String, override val totalExpense: String) : PeriodicData(totalIncome, totalExpense) {
+    val startMonth = "01"
+    val endMonth = month.length(year.isLeap).toString()
+    val total: String = try {
+        (totalIncome.toDouble() - totalExpense.toDouble()).toString()
+    } catch (_: Exception) {
+        0.0.toString()
+    }
+}

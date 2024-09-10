@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import com.expensetracker.app.accounts.AccountFragment
 import com.expensetracker.app.category.SettingsFragment
 import com.expensetracker.app.databinding.AppMainBinding
+import com.expensetracker.app.transactions.fragment.TransactionByDayFragment
 import com.expensetracker.app.transactions.fragment.TransactionsFragment
 
 class MainActivity : AppCompatActivity() {
@@ -26,21 +27,27 @@ class MainActivity : AppCompatActivity() {
         val account = AccountFragment()
         val settings = SettingsFragment()
 
-        updateFragment(mainViewModel.selectedFrag ?: home)
+        when(mainViewModel.selectedFragment){
+            SelectedFrag.HOME -> home
+            SelectedFrag.ACCOUNT -> account
+            SelectedFrag.SETTING -> settings
+        }.let {
+            updateFragment(it,mainViewModel.selectedFragment)
+        }
 
         //BOTTOM NAV BAR
         binding.appBottomNavBar.setOnItemSelectedListener {
             return@setOnItemSelectedListener when(it.itemId){
                 R.id.home_nav_btn -> {
-                    updateFragment(home)
+                    updateFragment(home,SelectedFrag.HOME)
                     true
                 }
                 R.id.account_nav_btn ->{
-                    updateFragment(account)
+                    updateFragment(account,SelectedFrag.ACCOUNT)
                     true
                 }
                 R.id.settings_nav_btn -> {
-                    updateFragment(settings)
+                    updateFragment(settings,SelectedFrag.SETTING)
                     true
                 }
                 else -> false
@@ -48,21 +55,21 @@ class MainActivity : AppCompatActivity() {
         }
 
         onBackPressedDispatcher.addCallback {
-            if (mainViewModel.selectedFrag == home) finish()
+            if (mainViewModel.selectedFragment == SelectedFrag.HOME) finish()
             else binding.appBottomNavBar.selectedItemId = R.id.home_nav_btn
         }
 
         mainViewModel.isBackPressed.observe(this, Observer {
-            if (mainViewModel.selectedFrag == home) finish()
+            if (mainViewModel.selectedFragment == SelectedFrag.HOME) finish()
             else binding.appBottomNavBar.selectedItemId = R.id.home_nav_btn
         })
 
         setContentView(binding.root)
     }
 
-    private fun updateFragment(fragment: Fragment) {
+    private fun updateFragment(fragment: Fragment, selected: SelectedFrag) {
 
-        mainViewModel.selectedFrag = fragment
+        mainViewModel.selectedFragment = selected
 
         val existingFrag = supportFragmentManager.findFragmentById(binding.appContainer.id)
         if(fragment == existingFrag) return

@@ -71,7 +71,7 @@ class TransactionProviderImp(
         transactions.addAll(getTransfers(offset, limit, predicate))
         transactions.sortByDescending { it.date }
 
-        return transactions.take(limit.toInt())
+        return transactions.filter(predicate)
     }
 
     override fun getIncomes(

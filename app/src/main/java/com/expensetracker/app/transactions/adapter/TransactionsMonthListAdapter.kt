@@ -1,5 +1,6 @@
 package com.expensetracker.app.transactions.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +19,7 @@ import java.time.Month
 class TransactionsMonthListAdapter(
     private val transactionItems: List<TransactionItemsByMonth>,
     private val onItemClickListener: (WeekNumber, Month) -> Unit = { a, b -> },
+    private val onLoaded: (TransactionsMonthListAdapter) -> Unit = {}
 ) : RecyclerView.Adapter<TransactionsMonthListAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(
@@ -42,6 +44,13 @@ class TransactionsMonthListAdapter(
     }
 
     override fun onBindViewHolder(holder: TransactionsMonthListAdapter.ViewHolder, position: Int) {
+        if (position == 0)
+            Log.d(TAG, "onBindViewHolder: Start")
+        if (position == (transactionItems.size-1)) {
+            Log.d(TAG, "onBindViewHolder: End")
+            onLoaded(this)
+        }
+
         val item = transactionItems[position]
         when (holder) {
             is PeriodicDataViewHolder -> {
@@ -79,43 +88,17 @@ class TransactionsMonthListAdapter(
         private val periodicExpense: CurrencyTextView = binding.weekTransExpense
         private val periodicTotal: CurrencyTextView = binding.weekTransTotal
 
-        private val expenseColor =
-            ContextCompat.getColor(itemView.context, R.color.primaryContentColor)
-        private val incomeColor =
-            ContextCompat.getColor(itemView.context, R.color.secondaryContentColor)
-        private val transferColor = ContextCompat.getColor(itemView.context, R.color.textSecondary)
-
         fun bind(item: TransactionItemsByMonth.TransactionItem) {
             val data = item.transactionOnWeek
 
-            val startWeek = data.startOfWeek
-            val endWeek = data.endOfWeek
-
-            var weekStart = startWeek.dayOfMonth.toString()
-            var weekEnd = endWeek.dayOfMonth.toString()
-            if (startWeek == endWeek) {
-                if (startWeek.dayOfMonth == 1) weekStart = ""
-                else if (startWeek.dayOfMonth == startWeek.lengthOfMonth()) weekEnd = ""
-            }
-
-            var date = weekStart
-            if (date.length == 1) date = "0$date"
-            periodicInfo1.text = date
-
-            date = weekEnd
-            if (date.length == 1) date = "0$date"
-            periodicInfo2.text = date
+            periodicInfo1.text = data.weekStart
+            periodicInfo2.text = data.weekEnd
 
             val week = data.weekNumber.toString()
             periodicInfoWeek.text = week
             periodicIncome.text = data.totalIncome
             periodicExpense.text = data.totalExpense
-            var total = 0.0
-            try {
-                total = data.totalIncome.toDouble() - data.totalExpense.toDouble()
-            } catch (_: Exception) {
-            }
-            periodicTotal.text = total.toString()
+            periodicTotal.text = data.total
 
             binding.root.setOnClickListener {
                 onItemClickListener(item.transactionOnWeek.weekNumber,item.transactionOnWeek.startOfWeek.month)
@@ -137,20 +120,12 @@ class TransactionsMonthListAdapter(
             val periodicData = item.periodicData
 
             periodicMonth.text = periodicData.month.name
-            val startMonth = "01"
-            val endMonth = periodicData.month.length(periodicData.year.isLeap).toString()
-
-            periodicStartDate.text = startMonth
-            periodicEndDate.text = endMonth
+            periodicStartDate.text = periodicData.startMonth
+            periodicEndDate.text = periodicData.endMonth
 
             periodicIncome.text = periodicData.totalIncome
             periodicExpense.text = periodicData.totalExpense
-            var total = 0.0
-            try {
-                total = periodicData.totalIncome.toDouble() - periodicData.totalExpense.toDouble()
-            } catch (_: Exception) {
-            }
-            periodicTotal.text = total.toString()
+            periodicTotal.text = periodicData.total
         }
     }
 

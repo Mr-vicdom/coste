@@ -16,12 +16,13 @@
         <activity android:name=".transactions.activity.TransactionModifyActivity" android:exported="true" android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".transactions.activity.TransactionFilterActivity" android:exported="true" android:theme="@style/NewAppTheme.DarkBlueStatusBar"/>
         <activity android:name=".transactions.activity.TransactionSearchActivity" android:windowSoftInputMode="adjustResize" android:exported="true" android:theme="@style/NewAppTheme.DarkBlueStatusBar"/>
-        <activity android:name=".MainActivity" android:exported="true" android:windowSoftInputMode="adjustResize">
+        <activity android:name=".SplashScreenActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name=".MainActivity" android:exported="true" android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".accounts.support.AccountActivity" android:exported="true"/>
         <activity android:name=".accounts.AccountAddActivity" android:exported="true"/>
         <activity android:name=".accounts.AccountModifyActivity" android:exported="true"/>
