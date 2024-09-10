@@ -1,26 +1,19 @@
 package com.expensetracker.app.transactions.fragment
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.expensetracker.app.databinding.TransactionListBinding
-import com.expensetracker.app.transactions.activity.TransactionModifyActivity
-import com.expensetracker.app.transactions.adapter.TransactionsDayListAdapter
 import com.expensetracker.app.transactions.adapter.TransactionsWeekListAdapter
-import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.support.TransactionItemsByWeek
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
-import com.expensetracker.core.models.Transaction
 import java.time.LocalDate
 
 class TransactionByWeekFragment : Fragment() {
@@ -54,6 +47,19 @@ class TransactionByWeekFragment : Fragment() {
             binding.transScreenNothingFound.visibility =
                 if (it.isEmpty()) View.VISIBLE else View.GONE
             binding.transScreenLoading.visibility = View.GONE
+        })
+
+        viewModel.scrollToWeek.observe(viewLifecycleOwner, Observer {
+            binding.theList.post {
+                val selectedWeek = it
+                val position =
+                    transactionItems.indexOfFirst { (it is TransactionItemsByWeek.PeriodicItem) && (it.periodicData.weekNumber == selectedWeek) }
+                if (position > 0) {
+                    val childY : Float = binding.theList.y + (binding.theList.getChildAt(position)?.y ?: 0.0F)
+                    viewModel.setScrollPosition(childY.toInt())
+                    Log.d("=>log", "onCreate: Scroll to $selectedWeek $position")
+                }
+            }
         })
 
         return binding.root

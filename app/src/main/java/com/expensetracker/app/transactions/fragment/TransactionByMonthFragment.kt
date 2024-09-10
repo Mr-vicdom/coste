@@ -12,11 +12,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.expensetracker.app.databinding.TransactionListBinding
 import com.expensetracker.app.transactions.adapter.TransactionsMonthListAdapter
 import com.expensetracker.app.transactions.support.TransactionItemsByMonth
+import com.expensetracker.app.transactions.support.WeekNumber
 import com.expensetracker.app.transactions.viewmodel.TAG
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import java.time.Month
 
 class TransactionByMonthFragment : Fragment() {
 
@@ -32,8 +34,8 @@ class TransactionByMonthFragment : Fragment() {
 
         binding = TransactionListBinding.inflate(layoutInflater)
 
-        val adapter = TransactionsMonthListAdapter(transactionItems) {
-
+        val adapter = TransactionsMonthListAdapter(transactionItems) { weekNumber: WeekNumber, month: Month ->
+            viewModel.setScrollPosition(weekNumber,month)
         }
 
         binding.theList.adapter = adapter

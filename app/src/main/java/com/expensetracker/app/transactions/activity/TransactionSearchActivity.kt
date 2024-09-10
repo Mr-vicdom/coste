@@ -104,11 +104,11 @@ class TransactionSearchActivity: AppCompatActivity() {
             }
         }
 
-        val adapter = TransactionsDayListAdapter(transactionItems) {
+        val adapter = TransactionsDayListAdapter(transactionItems, onItemClickListener = {
             val modifyTransactionIntent = Intent(this,TransactionModifyActivity::class.java)
             modifyTransactionIntent.putExtra(TRANSACTION_ID_LABEL,it.id)
             modifyActivityLauncher.launch(modifyTransactionIntent)
-        }
+        })
 
         binding.transSearchResult.adapter = adapter
 

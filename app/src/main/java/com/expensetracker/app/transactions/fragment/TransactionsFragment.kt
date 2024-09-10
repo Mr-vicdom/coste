@@ -3,16 +3,13 @@ package com.expensetracker.app.transactions.fragment
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.Vibrator
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.OnBackPressedDispatcher
-import androidx.activity.OnBackPressedDispatcherOwner
 import androidx.activity.addCallback
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -20,7 +17,6 @@ import androidx.fragment.app.FragmentTransaction
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.expensetracker.app.R
-import com.expensetracker.app.data.DataHandler
 import com.expensetracker.app.databinding.TransactionsScreenFragBinding
 import com.expensetracker.app.transactions.activity.TransactionAddActivity
 import com.expensetracker.app.transactions.activity.TransactionFilterActivity
@@ -33,7 +29,7 @@ import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_MONTH_LABEL
 import com.expensetracker.app.transactions.support.Literals.YEAR_LABEL
 import com.expensetracker.app.transactions.support.TransactionItems
-import com.expensetracker.app.transactions.support.TransactionsViewMode
+import com.expensetracker.app.transactions.support.TransactionsDisplayMode
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.Transaction
@@ -60,7 +56,6 @@ class TransactionsFragment: Fragment() {
     private val filterAccounts: MutableList<AccountID> = mutableListOf()
 
     private fun updateFrag(fragment: Fragment){
-
         val existingFrag = childFragmentManager.findFragmentById(binding.transFragContainer.id)
         if(fragment == existingFrag) return
 
@@ -103,12 +98,6 @@ class TransactionsFragment: Fragment() {
                 transactionProviderViewModel.fetchTransactionsBetween()
             }
 
-        val adapter = TransactionsDayListAdapter(transactionItems) { transaction: Transaction ->
-            val modifyTransactionIntent = Intent(requireContext(), TransactionModifyActivity::class.java)
-            modifyTransactionIntent.putExtra(TRANSACTION_ID_LABEL, transaction.id)
-            addTransactionLauncher.launch(modifyTransactionIntent)
-        }
-
         val filterTransactionLauncher: ActivityResultLauncher<Intent> =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK) {
@@ -142,7 +131,7 @@ class TransactionsFragment: Fragment() {
             if (it != LocalDate.now().year) {
                 binding.transScreenYear.visibility = View.VISIBLE
             } else {
-                if (transactionProviderViewModel.selectedTransactionsViewMode != TransactionsViewMode.MONTHLY)
+                if (transactionProviderViewModel.selectedTransactionsDisplayMode != TransactionsDisplayMode.MONTHLY)
                     binding.transScreenYear.visibility = View.GONE
             }
         })
@@ -230,7 +219,7 @@ class TransactionsFragment: Fragment() {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 if(binding.transScreenViewBar.tabCount == 3) {
                     val position = tab?.let { if (it.position <= 3) it.position else 1 } ?: 1
-                    TransactionsViewMode.entries.getOrNull(position)?.let {
+                    TransactionsDisplayMode.entries.getOrNull(position)?.let {
                         transactionProviderViewModel.setTransactionsViewMode(it)
                     }
                 }
@@ -244,22 +233,22 @@ class TransactionsFragment: Fragment() {
 
 
         //Transactions Frag View Mode
-        transactionProviderViewModel.transactionsViewMode.observe(viewLifecycleOwner, Observer { transactionViewMode: TransactionsViewMode ->
+        transactionProviderViewModel.transactionsDisplayMode.observe(viewLifecycleOwner, Observer { transactionViewMode: TransactionsDisplayMode ->
 
             val dayFragment = TransactionByDayFragment()
             val weekFragment = TransactionByWeekFragment()
             val monthFragment = TransactionByMonthFragment()
 
             when(transactionViewMode){
-                TransactionsViewMode.DAILY -> {
+                TransactionsDisplayMode.DAILY -> {
                     binding.transScreenViewBar.selectTab(dailyTab)
                     dayFragment
                 }
-                TransactionsViewMode.WEEKLY -> {
+                TransactionsDisplayMode.WEEKLY -> {
                     binding.transScreenViewBar.selectTab(weeklyTab)
                     weekFragment
                 }
-                TransactionsViewMode.MONTHLY -> {
+                TransactionsDisplayMode.MONTHLY -> {
                     binding.transScreenViewBar.selectTab(monthlyTab)
                     monthFragment
                 }
@@ -268,7 +257,7 @@ class TransactionsFragment: Fragment() {
             }
 
             when(transactionViewMode){
-                TransactionsViewMode.MONTHLY -> {
+                TransactionsDisplayMode.MONTHLY -> {
                     binding.transScreenMonth.visibility = View.GONE
                     binding.transScreenYear.visibility = View.VISIBLE
 
@@ -312,10 +301,8 @@ class TransactionsFragment: Fragment() {
 
         })
 
-        transactionProviderViewModel.transactionItems.observe(viewLifecycleOwner, Observer {
-            transactionItems.clear()
-            transactionItems.addAll(it)
-            adapter.notifyDataSetChanged()
+        transactionProviderViewModel.scrollToView.observe(viewLifecycleOwner, Observer {
+            binding.transScreenScrollView.smoothScrollTo(0,it.toInt())
         })
 
         return binding.root

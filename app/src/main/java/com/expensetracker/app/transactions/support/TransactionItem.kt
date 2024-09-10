@@ -31,7 +31,7 @@ class PeriodicDataByDay(val date: LocalDate, override val totalIncome: String, o
 }
 
 
-class PeriodicDataByWeek(val startOfWeek: LocalDate,val endOfWeek: LocalDate,val weekNumber: WeekNumber, override val totalIncome: String, override val totalExpense: String) : PeriodicData(totalIncome, totalExpense){
+class PeriodicDataByWeek(val startOfWeek: LocalDate,val endOfWeek: LocalDate, val weekNumber: WeekNumber, override val totalIncome: String, override val totalExpense: String) : PeriodicData(totalIncome, totalExpense){
 
 }
 

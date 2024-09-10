@@ -13,10 +13,11 @@ import com.expensetracker.app.transactions.support.TransactionItemsByMonth
 import com.expensetracker.app.transactions.support.WeekNumber
 import com.expensetracker.app.views.CurrencyTextView
 import java.time.LocalDate
+import java.time.Month
 
 class TransactionsMonthListAdapter(
     private val transactionItems: List<TransactionItemsByMonth>,
-    private val onItemClickListener: (WeekNumber) -> Unit = {},
+    private val onItemClickListener: (WeekNumber, Month) -> Unit = { a, b -> },
 ) : RecyclerView.Adapter<TransactionsMonthListAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(
@@ -27,13 +28,13 @@ class TransactionsMonthListAdapter(
         return when (viewType) {
             TRANSACTION_VIEW_TYPE -> {
                 val binding = MonthTransactionItemBinding.inflate(layoutInflater, parent, false)
-                TransactionViewHolder(binding, binding.root)
+                TransactionViewHolder(binding)
             }
 
             PERIODIC_VIEW_TYPE -> {
                 val binding =
                     MonthTransactionPeriodicInfoBinding.inflate(layoutInflater, parent, false)
-                PeriodicDataViewHolder(binding, binding.root)
+                PeriodicDataViewHolder(binding)
             }
 
             else -> throw IllegalArgumentException(INVALID_VIEW_TYPE)
@@ -70,8 +71,7 @@ class TransactionsMonthListAdapter(
 
     inner class TransactionViewHolder(
         private val binding: MonthTransactionItemBinding,
-        itemView: View,
-    ) : TransactionsMonthListAdapter.ViewHolder(itemView) {
+    ) : TransactionsMonthListAdapter.ViewHolder(binding.root) {
         private val periodicInfo1: TextView = binding.weekTransPeriodInfoStartDate
         private val periodicInfo2: TextView = binding.weekTransPeriodInfoEndDate
         private val periodicInfoWeek: TextView = binding.weekTransNumber
@@ -118,15 +118,14 @@ class TransactionsMonthListAdapter(
             periodicTotal.text = total.toString()
 
             binding.root.setOnClickListener {
-                onItemClickListener(item.transactionOnWeek.weekNumber)
+                onItemClickListener(item.transactionOnWeek.weekNumber,item.transactionOnWeek.startOfWeek.month)
             }
         }
     }
 
     inner class PeriodicDataViewHolder(
         private val binding: MonthTransactionPeriodicInfoBinding,
-        itemView: View,
-    ) : TransactionsMonthListAdapter.ViewHolder(itemView) {
+    ) : TransactionsMonthListAdapter.ViewHolder(binding.root) {
         private val periodicMonth: TextView = binding.monthTransPeriodInfoMonth
         private val periodicStartDate: TextView = binding.monthTransPeriodInfoStartDate
         private val periodicEndDate: TextView = binding.monthTransPeriodInfoEndDate

@@ -22,7 +22,9 @@ import com.expensetracker.domain.contracts.account.AccountProvider
 import com.expensetracker.domain.contracts.category.CategoryProvider
 import com.expensetracker.domain.contracts.transaction.TransactionManager
 import com.expensetracker.domain.support.Result
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 
 class TransactionManagerViewModel(private val application: Application): AndroidViewModel(application) {
@@ -261,13 +263,15 @@ class TransactionManagerViewModel(private val application: Application): Android
     }
 
     fun deleteTransaction(transaction: Transaction){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val result: Result = transactionManager.deleteTransaction(transaction)
             val data = when(result){
                 is Result.Failure -> result.data
                 is Result.Success -> "Transaction Deleted"
             }
-            Toast.makeText(application,data,Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(application, data, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package com.expensetracker.app.transactions.viewmodel
 
 import android.app.Application
+import android.media.audiofx.HapticGenerator
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -14,7 +15,7 @@ import com.expensetracker.app.transactions.support.SearchMode
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.support.TransactionItemsByMonth
 import com.expensetracker.app.transactions.support.TransactionItemsByWeek
-import com.expensetracker.app.transactions.support.TransactionsViewMode
+import com.expensetracker.app.transactions.support.TransactionsDisplayMode
 import com.expensetracker.app.transactions.support.WeekNumber
 import com.expensetracker.core.models.AccountID
 import com.expensetracker.core.models.Expense
@@ -46,7 +47,7 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
     private val _totalIncome: MutableLiveData<Double> = MutableLiveData(0.0)
     private val _totalExpense: MutableLiveData<Double> = MutableLiveData(0.0)
 
-    var selectedTransactionsViewMode: TransactionsViewMode = TransactionsViewMode.DAILY
+    var selectedTransactionsDisplayMode: TransactionsDisplayMode = TransactionsDisplayMode.DAILY
         private set
 
     var searchMode: SearchMode = SearchMode.NOTE
@@ -55,7 +56,7 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
             fetchTransactionsMatches()
         }
 
-    private val _transactionViewMode: MutableLiveData<TransactionsViewMode> = MutableLiveData()
+    private val _transactionViewMode: MutableLiveData<TransactionsDisplayMode> = MutableLiveData()
 
     private val _transactionItems: MutableLiveData<List<TransactionItems>> = MutableLiveData()
 
@@ -67,7 +68,7 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
 
     private val filterIDs: MutableSet<Int> = mutableSetOf()
 
-    val transactionsViewMode: LiveData<TransactionsViewMode>
+    val transactionsDisplayMode: LiveData<TransactionsDisplayMode>
         get() = _transactionViewMode
 
     var month: Month = LocalDate.now().month
@@ -91,6 +92,10 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
 
     private val _scrollToDate: MutableLiveData<LocalDate> = MutableLiveData()
 
+    private val _scrollToWeek: MutableLiveData<WeekNumber> = MutableLiveData()
+
+    private val _scrollToView: MutableLiveData<Int> = MutableLiveData()
+
     val yearValue: LiveData<Int>
         get() = _yearValue
 
@@ -99,6 +104,12 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
 
     val scrollToDate: LiveData<LocalDate>
         get() = _scrollToDate
+
+    val scrollToWeek: LiveData<WeekNumber>
+            get() = _scrollToWeek
+
+    val scrollToView: LiveData<Int>
+        get() = _scrollToView
 
     val transactionItemsByWeek: LiveData<List<TransactionItemsByWeek>>
         get() = _transactionItemsByWeek
@@ -112,16 +123,26 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
         get() = _totalExpense
 
     fun getTransactionsViewMode() {
-        _transactionViewMode.postValue(selectedTransactionsViewMode)
+        _transactionViewMode.postValue(selectedTransactionsDisplayMode)
     }
 
-    fun setTransactionsViewMode(transactionsViewMode: TransactionsViewMode) {
-        selectedTransactionsViewMode = transactionsViewMode
+
+    fun setTransactionsViewMode(transactionsDisplayMode: TransactionsDisplayMode) {
+        selectedTransactionsDisplayMode = transactionsDisplayMode
         getTransactionsViewMode()
     }
 
+    fun setScrollPosition(position: Int) {
+        _scrollToView.postValue(position)
+    }
+
+    fun setScrollPosition(weekNumber: WeekNumber, month: Month) {
+        setTransactionsViewMode(TransactionsDisplayMode.WEEKLY)
+        this.month = month
+        _scrollToWeek.postValue(weekNumber)
+    }
     fun setScrollPosition(date: LocalDate) {
-        setTransactionsViewMode(TransactionsViewMode.DAILY)
+        setTransactionsViewMode(TransactionsDisplayMode.DAILY)
         _scrollToDate.postValue(date)
     }
 
@@ -310,7 +331,7 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
                         )
                         transactionItems.addAll(weeksList)
                     }
-                    _transactionItemsByMonth.postValue(transactionItems)
+                _transactionItemsByMonth.postValue(transactionItems)
                 } catch (_: Exception) {
                     _transactionItemsByMonth.postValue(mutableListOf())
                 }

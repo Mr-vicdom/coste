@@ -1,5 +1,6 @@
 package com.expensetracker.app.transactions.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.expensetracker.app.R
 import com.expensetracker.app.databinding.TransactionItemBinding
 import com.expensetracker.app.databinding.TransactionPeriodicInfoBinding
+import com.expensetracker.app.transactions.support.SURETY
 import com.expensetracker.app.transactions.support.TransactionItems
+import com.expensetracker.app.transactions.support.getChoiceAlertDialog
 import com.expensetracker.app.views.CurrencyTextView
 import com.expensetracker.core.models.Expense
 import com.expensetracker.core.models.FinancialTransaction
@@ -28,8 +31,9 @@ const val TRANSACTION_VIEW_TYPE = 0
 const val PERIODIC_VIEW_TYPE = 1
 
 class TransactionsDayListAdapter(
-    private val transactionItems: List<TransactionItems>,
-    private val onItemClickListener: (Transaction) -> Unit = {}
+    private val transactionItems: MutableList<TransactionItems>,
+    private val onItemClickListener: (Transaction) -> Unit = {},
+    private val onItemLongClickListener: (Transaction) -> Unit = {},
 ): RecyclerView.Adapter<TransactionsDayListAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionsDayListAdapter.ViewHolder {
@@ -37,11 +41,11 @@ class TransactionsDayListAdapter(
         return when(viewType){
             TRANSACTION_VIEW_TYPE -> {
                 val binding = TransactionItemBinding.inflate(layoutInflater,parent,false)
-                TransactionViewHolder(binding,binding.root)
+                TransactionViewHolder(binding)
             }
             PERIODIC_VIEW_TYPE -> {
                 val binding = TransactionPeriodicInfoBinding.inflate(layoutInflater,parent,false)
-                PeriodicDataViewHolder(binding,binding.root)
+                PeriodicDataViewHolder(binding)
             }
             else -> throw IllegalArgumentException(INVALID_VIEW_TYPE)
         }
@@ -56,7 +60,7 @@ class TransactionsDayListAdapter(
             }
             is TransactionViewHolder -> {
                 if(item is TransactionItems.TransactionItem) {
-                    holder.bind(item)
+                    holder.bind(item,position)
                 }
             }
         }
@@ -74,7 +78,7 @@ class TransactionsDayListAdapter(
 
     sealed class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
-    inner class TransactionViewHolder(private val binding: TransactionItemBinding, itemView: View): TransactionsDayListAdapter.ViewHolder(itemView) {
+    inner class TransactionViewHolder(private val binding: TransactionItemBinding): TransactionsDayListAdapter.ViewHolder(binding.root) {
         private val transCategory: TextView = binding.transCategory
         private val transNote: TextView = binding.transNote
         private val transAccount: TextView = binding.transAccount
@@ -84,7 +88,7 @@ class TransactionsDayListAdapter(
         private val incomeColor = ContextCompat.getColor(itemView.context, R.color.secondaryContentColor)
         private val transferColor = ContextCompat.getColor(itemView.context, R.color.textSecondary)
 
-        fun bind(item: TransactionItems.TransactionItem) {
+        fun bind(item: TransactionItems.TransactionItem,position: Int) {
             val transaction = item.transaction
             when(transaction){
                 is FinancialTransaction -> {
@@ -116,10 +120,21 @@ class TransactionsDayListAdapter(
                 onItemClickListener(item.transaction)
             }
 
+            itemView.setOnLongClickListener {
+                getChoiceAlertDialog(itemView.context,"Delete transaction?", SURETY, onYesClick = {
+                    if(transactionItems.indices.contains(position)) {
+                        onItemLongClickListener(item.transaction)
+                        transactionItems.removeAt(position)
+                        notifyItemRemoved(position)
+                    }
+                }).show()
+                true
+            }
+
         }
     }
 
-    inner class PeriodicDataViewHolder(private val binding: TransactionPeriodicInfoBinding, itemView: View): TransactionsDayListAdapter.ViewHolder(itemView) {
+    inner class PeriodicDataViewHolder(private val binding: TransactionPeriodicInfoBinding): TransactionsDayListAdapter.ViewHolder(binding.root) {
         private val periodicInfo : TextView = binding.periodInfo
         private val periodicDay : TextView = binding.periodicDay
         private val periodicIncome: CurrencyTextView = binding.periodicIncome

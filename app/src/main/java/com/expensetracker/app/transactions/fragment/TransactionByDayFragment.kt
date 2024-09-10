@@ -13,12 +13,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSmoothScroller
 import com.expensetracker.app.databinding.TransactionListBinding
 import com.expensetracker.app.transactions.activity.TransactionModifyActivity
 import com.expensetracker.app.transactions.adapter.TransactionsDayListAdapter
 import com.expensetracker.app.transactions.support.Literals.TRANSACTION_ID_LABEL
+import com.expensetracker.app.transactions.support.SURETY
 import com.expensetracker.app.transactions.support.TransactionItems
 import com.expensetracker.app.transactions.support.TransactionItemsByWeek
+import com.expensetracker.app.transactions.support.getChoiceAlertDialog
+import com.expensetracker.app.transactions.viewmodel.TransactionManagerViewModel
 import com.expensetracker.app.transactions.viewmodel.TransactionProviderViewModel
 import com.expensetracker.core.models.Transaction
 import java.time.LocalDate
@@ -27,6 +31,7 @@ class TransactionByDayFragment: Fragment() {
 
     private lateinit var binding: TransactionListBinding
     private val viewModel: TransactionProviderViewModel by activityViewModels<TransactionProviderViewModel>()
+    private val managerViewModel: TransactionManagerViewModel by activityViewModels<TransactionManagerViewModel>()
     private val transactionItems: MutableList<TransactionItems> = mutableListOf()
 
     override fun onCreateView(
@@ -43,11 +48,14 @@ class TransactionByDayFragment: Fragment() {
                 }
             }
 
-        val adapter = TransactionsDayListAdapter(transactionItems){transaction: Transaction ->
+
+        val adapter = TransactionsDayListAdapter(transactionItems, onItemClickListener = {transaction: Transaction ->
             val modifyTransactionIntent = Intent(requireContext(), TransactionModifyActivity::class.java)
             modifyTransactionIntent.putExtra(TRANSACTION_ID_LABEL, transaction.id)
             modifyTransactionLauncher.launch(modifyTransactionIntent)
-        }
+        }, onItemLongClickListener = { transaction ->
+            managerViewModel.deleteTransaction(transaction)
+        })
 
         val layoutManager = LinearLayoutManager(requireContext())
 
@@ -71,7 +79,8 @@ class TransactionByDayFragment: Fragment() {
                 val position =
                     transactionItems.indexOfFirst { (it is TransactionItems.PeriodicItem) && (it.periodicData.date == selectedDate) }
                 if (position > 0) {
-                    layoutManager.scrollToPosition(position)
+                    val childY : Float = binding.theList.y + (binding.theList.getChildAt(position)?.y ?: 0.0F)
+                    viewModel.setScrollPosition(childY.toInt())
                     Log.d("=>log", "onCreate: Scroll to $selectedDate $position")
                 }
             }

@@ -36,13 +36,13 @@ class TransactionsWeekListAdapter(
         return when (viewType) {
             TRANSACTION_VIEW_TYPE -> {
                 val binding = WeekTransactionItemBinding.inflate(layoutInflater, parent, false)
-                TransactionViewHolder(binding, binding.root)
+                TransactionViewHolder(binding)
             }
 
             PERIODIC_VIEW_TYPE -> {
                 val binding =
                     WeekTransactionPeriodicInfoBinding.inflate(layoutInflater, parent, false)
-                PeriodicDataViewHolder(binding, binding.root)
+                PeriodicDataViewHolder(binding)
             }
 
             else -> throw IllegalArgumentException(INVALID_VIEW_TYPE)
@@ -79,8 +79,7 @@ class TransactionsWeekListAdapter(
 
     inner class TransactionViewHolder(
         private val binding: WeekTransactionItemBinding,
-        itemView: View,
-    ) : TransactionsWeekListAdapter.ViewHolder(itemView) {
+    ) : TransactionsWeekListAdapter.ViewHolder(binding.root) {
         private val income: CurrencyTextView = binding.periodicIncome
         private val expense: CurrencyTextView = binding.periodicExpense
         private val day: TextView = binding.periodicDay
@@ -116,8 +115,7 @@ class TransactionsWeekListAdapter(
 
     inner class PeriodicDataViewHolder(
         private val binding: WeekTransactionPeriodicInfoBinding,
-        itemView: View,
-    ) : TransactionsWeekListAdapter.ViewHolder(itemView) {
+    ) : TransactionsWeekListAdapter.ViewHolder(binding.root) {
         private val periodicInfo1: TextView = binding.weekTransPeriodInfoDate1
         private val periodicInfo2: TextView = binding.weekTransPeriodInfoDate2
         private val periodicInfoWeek: TextView = binding.weekTransNumber
