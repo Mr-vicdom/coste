@@ -33,6 +33,7 @@ import java.time.Year
 import java.time.YearMonth
 import java.time.temporal.IsoFields
 import java.time.temporal.TemporalAdjusters
+import kotlin.time.measureTime
 
 const val TAG = "TransactionsViewModel=>log"
 
@@ -134,16 +135,23 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
         val to: LocalDate = LocalDate.of(year.value, month, 1)
 
         viewModelScope.launch(Dispatchers.IO) {
-            val data = transactionProvider.getTransactionsBetween(from, to) {
-                if (this@TransactionProviderViewModel.filterIDs.isEmpty()) true
-                else when (it) {
-                    is FinancialTransaction -> this@TransactionProviderViewModel.filterIDs.contains(it.account.id)
-                    is Transfer -> this@TransactionProviderViewModel.filterIDs.contains(it.fromAccount.id) || filterIDs.contains(it.toAccount.id)
-                }
-            }
+            measureTime {
+                val data = transactionProvider.getTransactionsBetween(from, to) {
+                    if (this@TransactionProviderViewModel.filterIDs.isEmpty()) true
+                    else when (it) {
+                        is FinancialTransaction -> this@TransactionProviderViewModel.filterIDs.contains(
+                            it.account.id
+                        )
 
-            prepareTransactionItemsByDay(data)
-            prepareTransactionItemsByWeek(data)
+                        is Transfer -> this@TransactionProviderViewModel.filterIDs.contains(it.fromAccount.id) || filterIDs.contains(
+                            it.toAccount.id
+                        )
+                    }
+                }
+
+                prepareTransactionItemsByDay(data)
+                prepareTransactionItemsByWeek(data)
+            }.let { Log.d(TAG, "fetchTransactionsBetween: TIME 1 => $it") }
         }
     }
 
@@ -257,33 +265,57 @@ class TransactionProviderViewModel(application: Application) : AndroidViewModel(
 
     fun prepareTransactionItemsByMonth(year: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            val transactionItems: MutableList<TransactionItemsByMonth> = mutableListOf()
-            try {
-                Month.entries.forEach{ month ->
-                    var totalIncome: Double = 0.0
-                    var totalExpense: Double = 0.0
-                    val weeksList: MutableList<TransactionItemsByMonth.TransactionItem> = mutableListOf()
+            val t = measureTime {
+                val transactionItems: MutableList<TransactionItemsByMonth> = mutableListOf()
+                try {
+                    Month.entries.forEach { month ->
+                        var totalIncome: Double = 0.0
+                        var totalExpense: Double = 0.0
+                        val weeksList: MutableList<TransactionItemsByMonth.TransactionItem> =
+                            mutableListOf()
 
-                    getWeeks(year,month.value).forEach {
-                        val start = it.first
-                        val end = it.second
-                        val weekNumber: WeekNumber = start.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)
-                        val income: Double =
-                            transactionProvider.getTotalOfIncomeBetween(end, start).toDouble()
-                        val expense: Double =
-                            transactionProvider.getTotalOfExpenseBetween(end, start).toDouble()
-                        totalIncome += income
-                        totalExpense += expense
-                        weeksList.add(TransactionItemsByMonth.TransactionItem(PeriodicDataByWeek(start,end,weekNumber,income.toString(),expense.toString())))
+                        getWeeks(year, month.value).forEach {
+                            val start = it.first
+                            val end = it.second
+                            val weekNumber: WeekNumber =
+                                start.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)
+                            val income: Double =
+                                transactionProvider.getTotalOfIncomeBetween(end, start).toDouble()
+                            val expense: Double =
+                                transactionProvider.getTotalOfExpenseBetween(end, start).toDouble()
+                            totalIncome += income
+                            totalExpense += expense
+                            weeksList.add(
+                                TransactionItemsByMonth.TransactionItem(
+                                    PeriodicDataByWeek(
+                                        start,
+                                        end,
+                                        weekNumber,
+                                        income.toString(),
+                                        expense.toString()
+                                    )
+                                )
+                            )
+                        }
+
+                        transactionItems.add(
+                            TransactionItemsByMonth.PeriodicItem(
+                                PeriodicDataByMonth(
+                                    month,
+                                    Year.of(year),
+                                    totalIncome.toString(),
+                                    totalExpense.toString()
+                                )
+                            )
+                        )
+                        transactionItems.addAll(weeksList)
                     }
-
-                    transactionItems.add(TransactionItemsByMonth.PeriodicItem(PeriodicDataByMonth(month, Year.of(year),totalIncome.toString(),totalExpense.toString())))
-                    transactionItems.addAll(weeksList)
                     _transactionItemsByMonth.postValue(transactionItems)
+                } catch (_: Exception) {
+                    _transactionItemsByMonth.postValue(mutableListOf())
                 }
-            }catch (_:Exception){
-                _transactionItemsByMonth.postValue(mutableListOf())
             }
+            Log.d(TAG, "prepareTransactionItemsByMonth: TIME => $t")
         }
 
     }

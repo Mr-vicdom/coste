@@ -115,7 +115,7 @@ class TransactionSearchActivity: AppCompatActivity() {
         binding.transSearchResult.layoutManager = LinearLayoutManager(this)
 
 
-        binding.fieldDropDown.adapter = ArrayAdapter<String>(this, R.layout.dropdown_item,SearchMode.entries.map { it.name }.toMutableList())
+        binding.fieldDropDown.adapter = ArrayAdapter<String>(this, R.layout.search_dropdown_item,SearchMode.entries.map { it -> it.name.lowercase().replaceFirstChar { it.uppercase() } }.toMutableList())
 
         val fieldSelectedListener = SpinnerItemSelectedListener{ position ->
             val field = SearchMode.entries.getOrNull(position)

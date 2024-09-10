@@ -54,48 +54,39 @@
         app:layout_constraintHorizontal_bias="0.1"
         />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <TextView
+        android:id="@+id/week_trans_week_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/week_trans_period_info_end_date"
-        app:layout_constraintBottom_toBottomOf="@id/week_trans_period_info_end_date"
+        android:paddingHorizontal="5dp"
+        style="@style/AppTextTheme"
+        android:textAllCaps="true"
+        android:text="week"
+        android:textColor="@color/textSecondary"
+        android:background="@android:color/transparent"
+        android:textSize="@dimen/small_text"
+        android:maxLength="6"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/week_trans_period_info_end_date"
         app:layout_constraintEnd_toStartOf="@id/week_trans_periodic_info_guideline50"
-        >
-        <TextView
-            android:id="@+id/week_trans_week_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="5dp"
-            style="@style/AppTextTheme"
-            android:textAllCaps="true"
-            android:text="week"
-            android:textColor="@color/textSecondary"
-            android:background="@android:color/transparent"
-            android:textSize="@dimen/small_text"
-            android:maxLength="6"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/week_trans_number"
-            />
-        <TextView
-            android:id="@+id/week_trans_number"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:paddingHorizontal="5dp"
-            style="@style/AppTextTheme"
-            android:textAllCaps="true"
-            android:text="1"
-            android:textColor="@color/textSecondary"
-            android:background="@android:color/transparent"
-            android:textSize="@dimen/small_text"
-            android:maxLength="6"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/week_trans_week_text"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        />
+    <TextView
+        android:id="@+id/week_trans_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:paddingHorizontal="5dp"
+        style="@style/AppTextTheme"
+        android:textAllCaps="true"
+        android:text="1"
+        android:textColor="@color/textSecondary"
+        android:background="@android:color/transparent"
+        android:textSize="@dimen/small_text"
+        android:maxLength="6"
+        app:layout_constraintTop_toTopOf="@id/week_trans_week_text"
+        app:layout_constraintBottom_toBottomOf="@id/week_trans_week_text"
+        app:layout_constraintStart_toEndOf="@id/week_trans_week_text"/>
 
     <com.expensetracker.app.views.CurrencyTextView
         android:id="@+id/week_trans_income"
