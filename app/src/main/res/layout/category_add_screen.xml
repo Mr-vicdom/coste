@@ -27,7 +27,6 @@
                 android:text="@string/category"
                 style="@style/AppTextTheme"
                 android:textColor="@color/white"
-                android:textStyle="bold"
                 android:textAlignment="gravity"
                 android:gravity="bottom|center_horizontal"
                 android:textSize="@dimen/large_text"

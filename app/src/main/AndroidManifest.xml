@@ -13,10 +13,10 @@
         android:theme="@style/NewAppTheme"
         tools:targetApi="31" >
         <activity android:name=".transactions.activity.TransactionAddActivity" android:exported="true" android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".transactions.activity.TransactionModifyActivity" android:exported="true"/>
+        <activity android:name=".transactions.activity.TransactionModifyActivity" android:exported="true" android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".transactions.activity.TransactionFilterActivity" android:exported="true" android:theme="@style/NewAppTheme.DarkBlueStatusBar"/>
         <activity android:name=".transactions.activity.TransactionSearchActivity" android:windowSoftInputMode="adjustResize" android:exported="true" android:theme="@style/NewAppTheme.DarkBlueStatusBar"/>
-        <activity android:name=".MainActivity" android:exported="true">
+        <activity android:name=".MainActivity" android:exported="true" android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>

@@ -194,6 +194,8 @@ class TransactionsFragment: Fragment() {
             addTransactionLauncher.launch(transAddIntent)
         }
 
+        binding.floatingBtn.scrollTo(0,0)
+
         transactionProviderViewModel.totalIncome.observe(viewLifecycleOwner) {
             transactionTotalIncome = it
             binding.transInfo1.text = transactionTotalIncome.toString()
@@ -222,6 +224,7 @@ class TransactionsFragment: Fragment() {
                     TransactionsDisplayMode.entries.getOrNull(position)?.let {
                         transactionProviderViewModel.setTransactionsViewMode(it)
                     }
+                    binding.floatingBtn.show()
                 }
             }
             override fun onTabUnselected(tab: TabLayout.Tab?) {}

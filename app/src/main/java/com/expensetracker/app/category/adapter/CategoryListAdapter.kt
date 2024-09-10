@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.cardview.widget.CardView
@@ -45,7 +46,7 @@ class CategoryListAdapter<T : Category>(
 
     inner class ViewHolder(binding: CategoryListItemBinding,val parent: ViewGroup) :
         RecyclerView.ViewHolder(binding.root) {
-        private val removeBtn: CardView = binding.removeIcon
+        private val removeBtn: AppCompatImageView = binding.removeIcon
         private val fieldText: EditText = binding.fieldText
         private val editBtn: AppCompatImageView = binding.editCategoryBtn
         private val discardBtn: AppCompatImageView = binding.editCategoryDiscardBtn
