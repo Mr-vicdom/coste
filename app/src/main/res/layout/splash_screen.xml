@@ -9,7 +9,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_margin="20dp"
-        android:src="@mipmap/app_icon"
+        android:src="@drawable/app_icon_foreground"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

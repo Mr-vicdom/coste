@@ -62,6 +62,7 @@
                     android:layout_height="wrap_content"
                     android:paddingVertical="10dp"
                     app:queryHint="Search with Note"
+                    android:background="?attr/background"
                     app:iconifiedByDefault="false" />
             </androidx.cardview.widget.CardView>
 
@@ -70,7 +71,7 @@
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                android:background="@color/white"
+                android:background="?attr/background"
                 app:layout_constraintTop_toTopOf="@id/trans_search_bar"
                 app:layout_constraintBottom_toBottomOf="@id/trans_search_bar"
                 app:layout_constraintStart_toEndOf="@id/trans_search_bar"
