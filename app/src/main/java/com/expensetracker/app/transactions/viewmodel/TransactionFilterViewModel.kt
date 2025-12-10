@@ -27,10 +27,7 @@ import java.time.Month
 import java.time.Year
 
 class TransactionFilterViewModel(application: Application): AndroidViewModel(application) {
-    
-    init {
-        Log.d(TAG, "init: ")
-    }
+
 
     private val dataHandler = DataHandler(application)
 

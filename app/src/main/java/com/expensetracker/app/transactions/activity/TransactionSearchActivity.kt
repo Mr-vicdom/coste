@@ -136,6 +136,7 @@ class TransactionSearchActivity: AppCompatActivity() {
             field?.let {
                 viewModel.searchMode = field
             }
+            binding.transSearchView.queryHint = "Search with ${field?.name?.lowercase()?.replaceFirstChar { it.uppercase() } ?: "Note"}"
         }
 
         binding.fieldDropDown.onItemSelectedListener = fieldSelectedListener

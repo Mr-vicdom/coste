@@ -16,6 +16,8 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.Observer
 import com.expensetracker.app.R
@@ -94,8 +96,10 @@ open class TransactionAddActivity: AppCompatActivity() {
             }
         }
 
+
         binding = TransactionAddScreenBinding.inflate(layoutInflater)
         binding.transactionAddTitle.setText(R.string.transaction_add)
+        updateTabColor(binding.transAddTabBar,transactionType)
 
         binding.transAddTabBar.addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -206,6 +210,7 @@ open class TransactionAddActivity: AppCompatActivity() {
         }
 
         transactionManagerViewModel.transactionType.observe(this, Observer { type ->
+            updateTabColor(binding.transAddTabBar,type)
             if(type == TransactionType.TRANSFER){
                 binding.categoryLabel.setText(R.string.from_account_label)
                 binding.accountLabel.setText(R.string.to_account_label)
@@ -292,6 +297,17 @@ open class TransactionAddActivity: AppCompatActivity() {
         }
 
         setContentView(binding.root)
+    }
+
+    private fun updateTabColor(tabLayout: TabLayout, transactionType: TransactionType) {
+        val tabBg = when(transactionType){
+            TransactionType.INCOME -> R.drawable.add_trans_tab2
+            TransactionType.EXPENSE -> R.drawable.add_trans_tab1
+            TransactionType.TRANSFER -> R.drawable.add_trans_tab3
+        }
+
+        val position = tabLayout.selectedTabPosition
+        tabLayout.getTabAt(position)?.view?.background = ResourcesCompat.getDrawable(resources,tabBg,null)
     }
 
     open fun onBackClicked(): Boolean {
